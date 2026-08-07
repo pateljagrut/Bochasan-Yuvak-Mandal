@@ -11,6 +11,7 @@ from datetime import datetime
 from app.models import YuvakRegisterRequest, YuvakRegisterResponse, LoginRequest, LoginResponse
 from app.db import find_user_by_identifier, insert_user
 from app.auth import verify_password, create_access_token
+from app.websocket_manager import ws_manager
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -80,6 +81,13 @@ def register_yuvak(payload: YuvakRegisterRequest):
 
     # Step 5: Insert document into MongoDB database
     insert_user(user_doc)
+
+    # Step 5b: Broadcast real-time event to active Admin screens
+    ws_manager.broadcast_sync("MEMBER_ADDED", {
+        "yuvak_id": yuvak_id,
+        "full_name": payload.full_name,
+        "location": payload.location
+    })
 
     # Step 6: Return success response payload
     return YuvakRegisterResponse(

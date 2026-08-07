@@ -70,22 +70,48 @@ def init_db():
 def seed_initial_data():
     """
     Seeds default system admin (Karyakar) and initial Yuvak profiles
-    if no users exist in the database yet.
+    if no users exist in the database yet. Ensures Admins have member IDs.
     """
-    # 1. Check if Admin account exists
-    admin_user = find_user_by_identifier(DEFAULT_ADMIN_USERNAME)
-    if not admin_user:
-        admin_doc = {
-            "username": DEFAULT_ADMIN_USERNAME,
-            "password": DEFAULT_ADMIN_PASSWORD,  # Will be hashed in auth layer if needed
-            "full_name": DEFAULT_ADMIN_NAME,
-            "mobile_no": DEFAULT_ADMIN_MOBILE,
-            "location": DEFAULT_ADMIN_LOCATION,
-            "role": "admin",
-            "created_at": datetime.now().isoformat()
-        }
-        insert_user(admin_doc)
-        logger.info(f"[SEED] Seeded default Admin user: {DEFAULT_ADMIN_USERNAME}")
+    # 1. Ensure Super Admin Patel Vidur exists in MongoDB with a Yuvak/Member ID
+    admin_doc = {
+        "yuvak_id": "VID9898",
+        "username": DEFAULT_ADMIN_USERNAME,
+        "password": DEFAULT_ADMIN_PASSWORD,
+        "full_name": DEFAULT_ADMIN_NAME,
+        "mobile_no": DEFAULT_ADMIN_MOBILE,
+        "dob": "1998-01-01",
+        "location": DEFAULT_ADMIN_LOCATION,
+        "role": "admin",
+        "created_at": datetime.now().isoformat()
+    }
+
+    if is_mongo_connected and db is not None:
+        db.users.update_one(
+            {"$or": [{"username": DEFAULT_ADMIN_USERNAME}, {"username": "admin"}, {"yuvak_id": "VID9898"}]},
+            {"$set": admin_doc},
+            upsert=True
+        )
+        logger.info(f"[SEED] Seeded & Updated Super Admin user: {DEFAULT_ADMIN_USERNAME} (VID9898)")
+
+        # Ensure all existing admin user documents in MongoDB have a yuvak_id persisted
+        admins_cursor = db.users.find({"role": "admin"})
+        for admin in admins_cursor:
+            if not admin.get("yuvak_id"):
+                uname = admin.get("username") or admin.get("full_name", "ADMIN").replace(" ", "").upper()
+                gen_id = f"ADM-{uname.upper()}"
+                db.users.update_one({"_id": admin["_id"]}, {"$set": {"yuvak_id": gen_id}})
+                logger.info(f"[SEED] Assigned yuvak_id '{gen_id}' to admin '{admin.get('username')}'")
+    else:
+        existing_idx = next((i for i, u in enumerate(in_memory_store["users"]) if u.get("username") in [DEFAULT_ADMIN_USERNAME, "admin"] or u.get("yuvak_id") == "VID9898"), -1)
+        if existing_idx >= 0:
+            in_memory_store["users"][existing_idx].update(admin_doc)
+        else:
+            in_memory_store["users"].append(admin_doc)
+
+        for u in in_memory_store["users"]:
+            if u.get("role") == "admin" and not u.get("yuvak_id"):
+                uname = u.get("username") or u.get("full_name", "ADMIN").replace(" ", "").upper()
+                u["yuvak_id"] = f"ADM-{uname.upper()}"
 
     # 2. Seed initial sample Yuvaks for testing and demonstration
     sample_yuvaks = [
@@ -131,19 +157,19 @@ def seed_initial_data():
         {
             "sabha_date": "2026-07-19",
             "sabha_title": "Niyama & Seva Orientation Sabha",
-            "present_yuvak_ids": ["ROH3210", "HAR5678"],
+            "present_yuvak_ids": ["ROH3210", "HAR5678", "VID9898"],
             "created_at": datetime.now().isoformat()
         },
         {
             "sabha_date": "2026-07-26",
             "sabha_title": "Ekantik Dharma & Yuva Mahotsav Prep",
-            "present_yuvak_ids": ["ROH3210", "JAY1234"],
+            "present_yuvak_ids": ["ROH3210", "JAY1234", "VID9898"],
             "created_at": datetime.now().isoformat()
         },
         {
             "sabha_date": "2026-08-02",
             "sabha_title": "Monthly Prerna Sabha & Attendance Check",
-            "present_yuvak_ids": ["ROH3210", "HAR5678", "JAY1234"],
+            "present_yuvak_ids": ["ROH3210", "HAR5678", "JAY1234", "VID9898"],
             "created_at": datetime.now().isoformat()
         }
     ]
@@ -217,24 +243,53 @@ def find_user_by_identifier(identifier: str) -> Optional[dict]:
         return None
 
 def get_all_yuvaks() -> List[dict]:
-    """Retrieves all Yuvak user profiles from MongoDB."""
+    """
+    Retrieves all user profiles (both Yuvaks and Admins/Karyakars) from MongoDB
+    so Admins are included in the Members DB and frontend directory views.
+    """
     if is_mongo_connected and db is not None:
-        cursor = db.users.find({"role": "yuvak"}, {"_id": 0})
-        return list(cursor)
+        cursor = db.users.find({}, {"_id": 0})
+        users = list(cursor)
     else:
-        return [u for u in in_memory_store["users"] if u.get("role") == "yuvak"]
+        users = list(in_memory_store["users"])
+
+    # Ensure every admin user has a yuvak_id assigned for display in members list
+    for user in users:
+        if not user.get("yuvak_id"):
+            username = user.get("username", "ADMIN")
+            user["yuvak_id"] = f"ADM-{username.upper()}"
+        if not user.get("dob"):
+            user["dob"] = "N/A"
+
+    return users
 
 def update_yuvak_profile(yuvak_id: str, updates: dict) -> bool:
-    """Updates a Yuvak's profile fields in MongoDB."""
+    """Updates a member's (Yuvak or Admin) profile fields in MongoDB."""
     if is_mongo_connected and db is not None:
-        res = db.users.update_one({"yuvak_id": yuvak_id}, {"$set": updates})
+        res = db.users.update_one(
+            {"$or": [{"yuvak_id": yuvak_id}, {"username": yuvak_id}]}, 
+            {"$set": updates}
+        )
         return res.modified_count > 0
     else:
         for u in in_memory_store["users"]:
-            if u.get("yuvak_id") == yuvak_id:
+            if u.get("yuvak_id") == yuvak_id or u.get("username") == yuvak_id:
                 u.update(updates)
                 return True
         return False
+
+def delete_yuvak_member(yuvak_id: str) -> bool:
+    """Deletes a member (Yuvak or Admin) profile from MongoDB or in-memory store."""
+    if is_mongo_connected and db is not None:
+        res = db.users.delete_one({"$or": [{"yuvak_id": yuvak_id}, {"yuvak_id": yuvak_id.upper()}, {"username": yuvak_id}]})
+        return res.deleted_count > 0
+    else:
+        initial_len = len(in_memory_store["users"])
+        in_memory_store["users"] = [
+            u for u in in_memory_store["users"] 
+            if not (u.get("yuvak_id") == yuvak_id or u.get("yuvak_id", "").upper() == yuvak_id.upper() or u.get("username") == yuvak_id)
+        ]
+        return len(in_memory_store["users"]) < initial_len
 
 def insert_attendance_record(record: dict) -> dict:
     """Inserts a new Sabha attendance record into MongoDB."""
@@ -267,3 +322,78 @@ def get_all_content_feeds() -> List[dict]:
         return list(cursor)
     else:
         return sorted(in_memory_store["content"], key=lambda x: x.get("created_at", ""), reverse=True)
+
+# ==========================================
+# Event Photos Gallery Functions
+# ==========================================
+
+def insert_event_photo(photo_doc: dict) -> dict:
+    """Inserts an event photo record into MongoDB or in-memory store."""
+    if is_mongo_connected and db is not None:
+        db.photos.insert_one(photo_doc)
+    else:
+        if "photos" not in in_memory_store:
+            in_memory_store["photos"] = []
+        in_memory_store["photos"].append(photo_doc)
+    return photo_doc
+
+def get_all_event_photos() -> List[dict]:
+    """Retrieves all event photos sorted by creation time."""
+    if is_mongo_connected and db is not None:
+        cursor = db.photos.find({}, {"_id": 0}).sort("created_at", pymongo.DESCENDING)
+        photos = list(cursor)
+        return photos if len(photos) > 0 else get_sample_photos()
+    else:
+        photos = in_memory_store.get("photos", [])
+        return sorted(photos if len(photos) > 0 else get_sample_photos(), key=lambda x: x.get("created_at", ""), reverse=True)
+
+def delete_event_photo(photo_id: str) -> bool:
+    """Deletes an event photo record from MongoDB or in-memory store."""
+    if is_mongo_connected and db is not None:
+        res = db.photos.delete_one({"id": photo_id})
+        return res.deleted_count > 0
+    else:
+        initial_len = len(in_memory_store.get("photos", []))
+        in_memory_store["photos"] = [p for p in in_memory_store.get("photos", []) if p.get("id") != photo_id]
+        return len(in_memory_store.get("photos", [])) < initial_len
+
+def get_sample_photos() -> List[dict]:
+    """Returns sample initial event photos for gallery demonstration."""
+    return [
+        {
+            "id": "pho_01",
+            "title": "Hindola Utsav Celebration 2026",
+            "event_date": "2026-08-04",
+            "category": "Utsav",
+            "image_url": "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?q=80&w=800&auto=format&fit=crop",
+            "author": "Bochasan Karyakar Team",
+            "created_at": "2026-08-04T12:00:00"
+        },
+        {
+            "id": "pho_02",
+            "title": "Sunday Ravivariya Yuvak Sabha",
+            "event_date": "2026-08-02",
+            "category": "Sabha",
+            "image_url": "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=800&auto=format&fit=crop",
+            "author": "Bochasan Media Cell",
+            "created_at": "2026-08-02T19:30:00"
+        },
+        {
+            "id": "pho_03",
+            "title": "Mandal Cultural Kirtan Evening",
+            "event_date": "2026-07-28",
+            "category": "Cultural",
+            "image_url": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop",
+            "author": "Prerna Sangeet Team",
+            "created_at": "2026-07-28T20:00:00"
+        },
+        {
+            "id": "pho_04",
+            "title": "Guruhari Smruti Darshan Prasang",
+            "event_date": "2026-07-20",
+            "category": "Prasang",
+            "image_url": "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=800&auto=format&fit=crop",
+            "author": "Bochasan Karyakar Team",
+            "created_at": "2026-07-20T10:15:00"
+        }
+    ]

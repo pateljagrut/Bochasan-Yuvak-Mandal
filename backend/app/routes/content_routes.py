@@ -5,7 +5,7 @@ Provides read-only access to announcements, Niyama feeds, and Sabha schedule ite
 """
 
 from fastapi import APIRouter
-from app.db import get_all_content_feeds
+from app.db import get_all_content_feeds, get_all_event_photos
 
 router = APIRouter(prefix="/api/content", tags=["Content Feed"])
 
@@ -17,3 +17,11 @@ def get_public_content_feed():
     """
     feeds = get_all_content_feeds()
     return {"success": True, "count": len(feeds), "feeds": feeds}
+
+@router.get("/photos")
+def get_public_event_photos():
+    """
+    Returns array of Utsav & Prasang event photo records for gallery display.
+    """
+    photos = get_all_event_photos()
+    return {"success": True, "count": len(photos), "photos": photos}

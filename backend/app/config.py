@@ -28,11 +28,11 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 # ==========================================
-# Default Admin (Karyakar) Credentials
+# Default Super Admin (Karyakar) Credentials
 # ==========================================
-# Seeded default admin account for initial setup and system bootstrap.
-DEFAULT_ADMIN_USERNAME = "admin"
-DEFAULT_ADMIN_PASSWORD = "adminpassword123"
-DEFAULT_ADMIN_NAME = "Lead Admin Karyakar"
-DEFAULT_ADMIN_MOBILE = "9999999999"
+# Seeded default super admin account for initial setup and system bootstrap.
+DEFAULT_ADMIN_USERNAME = "vidur.patel"
+DEFAULT_ADMIN_PASSWORD = "Vidur#SuperAdmin2026"
+DEFAULT_ADMIN_NAME = "Patel Vidur"
+DEFAULT_ADMIN_MOBILE = "9898989898"
 DEFAULT_ADMIN_LOCATION = "Bochasan"

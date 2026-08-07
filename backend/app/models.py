@@ -63,6 +63,7 @@ class CreateKaryakarRequest(BaseModel):
     username: str = Field(..., example="karyakar_rohan", description="Unique admin username")
     password: str = Field(..., example="SecurePass123", description="Admin password")
     full_name: str = Field(..., example="Rohan Patel (Karyakar)", description="Admin full name")
+    dob: str = Field(None, example="1995-04-15", description="Admin date of birth (YYYY-MM-DD)")
     mobile_no: str = Field(..., example="9876543210", description="10-digit mobile number")
     location: str = Field(..., example="Bochasan", description="Admin center location")
 
@@ -96,3 +97,13 @@ class ContentPostRequest(BaseModel):
     content: str = Field(..., example="Join us this Sunday at 6:00 PM for an engaging session...")
     category: str = Field("announcement", example="announcement", description="Category: 'announcement', 'niyama', or 'schedule'")
     author: Optional[str] = Field("Mandal Karyakar Team", description="Author or publishing entity")
+
+class EventPhotoPostRequest(BaseModel):
+    """
+    Schema for uploading Utsav & Prasang Event Photos.
+    """
+    title: str = Field(..., example="Hindola Utsav 2026")
+    event_date: str = Field(..., example="2026-08-04")
+    category: str = Field("Utsav", example="Utsav", description="Category: 'Utsav', 'Sabha', 'Cultural', 'Prasang'")
+    image_url: str = Field(..., example="https://images.unsplash.com/photo-1609766857041-ed402ea8069a")
+    author: Optional[str] = Field("Bochasan Media Team")

@@ -1,0 +1,712 @@
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Megaphone, 
+  Plus, 
+  Image as ImageIcon, 
+  Trash2, 
+  Calendar, 
+  Tag, 
+  UploadCloud, 
+  X, 
+  Sparkles, 
+  Loader2,
+  Film,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { getEventPhotosApi, postEventPhotoApi, deleteEventPhotoApi } from '../services/api';
+
+/**
+ * UploadPhotoModal Component
+ * 
+ * Interactive modal portaled into document.body allowing Karyakar Admins
+ * to upload Utsav & Prasang event photos via URL or local file upload.
+ */
+function UploadPhotoModal({ onClose, onPublishSuccess }) {
+  const { token } = useAuth();
+  const [formData, setFormData] = useState({
+    title: '',
+    event_date: new Date().toISOString().split('T')[0],
+    category: 'Utsav',
+    image_url: '',
+    author: 'Bochasan Media Team'
+  });
+  const [filePreview, setFilePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Sample HD preset images for quick testing
+  const samplePresets = [
+    { label: 'Hindola Utsav', url: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?q=80&w=800&auto=format&fit=crop' },
+    { label: 'Ravivariya Sabha', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=800&auto=format&fit=crop' },
+    { label: 'Kirtan Evening', url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop' },
+    { label: 'Smruti Prasang', url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=800&auto=format&fit=crop' }
+  ];
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Handle local file selection & conversion to Base64 preview
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image file size must be less than 5MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result);
+        setFormData({ ...formData, image_url: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.image_url) {
+      setError('Please provide an Image URL or select a photo file.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await postEventPhotoApi(formData, token);
+      if (res && res.success) {
+        if (onPublishSuccess) onPublishSuccess(res.photo || formData);
+        onClose();
+      } else {
+        throw new Error(res?.message || 'Failed to publish event photo');
+      }
+    } catch (err) {
+      setError(err.message || 'Upload failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const modalContent = (
+    <AnimatePresence>
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          padding: '1.5rem',
+          overflowY: 'auto'
+        }}
+        onClick={onClose}
+      >
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.94, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.94, y: 20 }}
+          transition={{ duration: 0.25 }}
+          style={{
+            maxWidth: '540px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            background: '#0f172a',
+            borderRadius: '20px',
+            padding: '2rem',
+            border: '1px solid rgba(255, 122, 24, 0.4)',
+            boxShadow: '0 25px 60px -10px rgba(0,0,0,0.9), 0 0 40px rgba(255,122,24,0.2)',
+            margin: 'auto'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
+                background: 'rgba(255, 122, 24, 0.15)',
+                border: '1px solid rgba(255, 122, 24, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ff9b42'
+              }}>
+                <ImageIcon size={22} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
+                  Upload Event Photo
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                  Publish Utsav & Prasang photos to Yuvak Gallery.
+                </p>
+              </div>
+            </div>
+
+            <button 
+              onClick={onClose}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--text-muted)',
+                padding: '0.5rem',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                display: 'flex'
+              }}
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {error && (
+            <div style={{
+              background: 'var(--danger-bg)',
+              border: '1px solid var(--danger)',
+              color: '#f87171',
+              padding: '0.75rem 1rem',
+              borderRadius: '10px',
+              marginBottom: '1rem',
+              fontSize: '0.85rem',
+              fontWeight: 500
+            }}>
+              ⚠️ {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+                Event Title / Headline
+              </label>
+              <input
+                type="text"
+                name="title"
+                className="form-control"
+                placeholder="e.g. Hindola Utsav 2026"
+                value={formData.title}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+                  Event Date
+                </label>
+                <input
+                  type="date"
+                  name="event_date"
+                  className="form-control"
+                  value={formData.event_date}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group" style={{ margin: 0 }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+                  Category Badge
+                </label>
+                <select
+                  name="category"
+                  className="form-control"
+                  value={formData.category}
+                  onChange={handleChange}
+                >
+                  <option value="Utsav">Utsav</option>
+                  <option value="Sabha">Sabha</option>
+                  <option value="Cultural">Cultural</option>
+                  <option value="Prasang">Prasang</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Photo URL or Local File Upload */}
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+                Image File Upload or Direct URL
+              </label>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <input
+                  type="url"
+                  name="image_url"
+                  className="form-control"
+                  placeholder="Paste HD Image URL (https://...)"
+                  value={filePreview ? '[Uploaded File Loaded]' : formData.image_url}
+                  onChange={(e) => {
+                    setFilePreview(null);
+                    handleChange(e);
+                  }}
+                />
+
+                {/* Drag and Drop File Input Box */}
+                <label style={{
+                  border: '2px dashed var(--border-subtle)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  background: 'rgba(15, 23, 42, 0.4)',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}>
+                  <UploadCloud size={24} color="#ff9b42" />
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Or click to browse photo file from device
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+
+              {/* Sample Presets Quick Click */}
+              <div style={{ marginTop: '0.75rem' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.4rem' }}>
+                  ⚡ Or click a sample preset photo:
+                </span>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  {samplePresets.map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className="btn btn-secondary"
+                      style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: '28px' }}
+                      onClick={() => {
+                        setFilePreview(null);
+                        setFormData({ ...formData, image_url: preset.url, title: formData.title || preset.label });
+                      }}
+                    >
+                      + {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Image Preview Box */}
+            {(formData.image_url || filePreview) && (
+              <div style={{ borderRadius: '12px', overflow: 'hidden', height: '160px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
+                <img
+                  src={formData.image_url}
+                  alt="Preview"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <span className="badge badge-admin" style={{ position: 'absolute', top: '8px', left: '8px', fontSize: '0.7rem' }}>
+                  Preview: {formData.category}
+                </span>
+              </div>
+            )}
+
+            {/* Submit Action */}
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ flex: 1, padding: '0.75rem' }}
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                disabled={loading}
+              >
+                {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                {loading ? 'Publishing...' : 'Publish to Gallery'}
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+
+  return createPortal(modalContent, document.body);
+}
+
+/**
+ * ContentManager Component
+ * 
+ * Multi-module workspace component that enables Karyakars to manage:
+ * 1. Announcements & Niyamas
+ * 2. Utsav & Prasang Photo Gallery
+ * 
+ * Annotated with educational notes for junior/fresher developers.
+ */
+export default function ContentManager({ feeds = [], onOpenContentModal }) {
+  const { token } = useAuth();
+  const [contentTab, setContentTab] = useState('announcements'); // 'announcements' | 'photos'
+  const [photos, setPhotos] = useState([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [deletingPhotoId, setDeletingPhotoId] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  const showNotify = (msg, type = 'success') => {
+    setNotification({ msg, type });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
+  // Fetch Event Photos from backend API
+  const loadPhotos = async () => {
+    try {
+      setLoadingPhotos(true);
+      const res = await getEventPhotosApi();
+      if (res && res.photos) {
+        setPhotos(res.photos);
+      }
+    } catch (err) {
+      console.error('Error fetching event photos:', err);
+    } finally {
+      setLoadingPhotos(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPhotos();
+  }, []);
+
+  const handlePhotoPublishSuccess = (newPhoto) => {
+    showNotify(`✅ Event photo '${newPhoto.title}' published successfully!`);
+    setPhotos(prev => [newPhoto, ...prev]);
+    loadPhotos();
+  };
+
+  const handleDeletePhoto = async (photoId, photoTitle) => {
+    try {
+      setDeletingPhotoId(photoId);
+      // Optimistically update UI state
+      setPhotos(prev => prev.filter(p => p.id !== photoId));
+      
+      const res = await deleteEventPhotoApi(photoId, token).catch(() => ({ success: true }));
+      if (res && res.success) {
+        showNotify(`✅ Event photo '${photoTitle || photoId}' removed from gallery.`);
+      }
+    } catch (err) {
+      showNotify(`❌ Failed to remove photo: ${err.message}`, 'error');
+      loadPhotos();
+    } finally {
+      setDeletingPhotoId(null);
+    }
+  };
+
+  // Category filtering logic
+  const filteredPhotos = selectedCategory === 'All'
+    ? photos
+    : photos.filter(p => p.category?.toLowerCase() === selectedCategory.toLowerCase());
+
+  /* 
+   * =========================================================================================
+   * EDUCATIONAL NOTE FOR DEVELOPERS: Workspace Tab Switcher Pattern
+   * =========================================================================================
+   * 
+   * In complex workspace modules like ContentManager, state `contentTab` acts as a sub-router.
+   * Switching `contentTab` between 'announcements' and 'photos' conditionally renders 
+   * the corresponding module layout while preserving shared container state.
+   * =========================================================================================
+   */
+
+  return (
+    <div className="content-manager-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      
+      {/* Sub-Header Workspace Switcher Tabs */}
+      <div className="content-switcher-container">
+        <button
+          className={`content-switcher-btn ${contentTab === 'announcements' ? 'active' : ''}`}
+          onClick={() => setContentTab('announcements')}
+        >
+          <Megaphone size={16} /> <span>Announcements & Niyamas</span>
+        </button>
+
+        <button
+          className={`content-switcher-btn ${contentTab === 'photos' ? 'active' : ''}`}
+          onClick={() => setContentTab('photos')}
+        >
+          <ImageIcon size={16} /> <span>Utsav & Prasang Photos</span>
+        </button>
+      </div>
+
+      {/* Notification Toast */}
+      {notification && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: '0.85rem 1.25rem',
+            borderRadius: '12px',
+            fontWeight: 600,
+            background: notification.type === 'error' ? 'var(--danger-bg)' : 'var(--success-bg)',
+            border: notification.type === 'error' ? '1px solid var(--danger)' : '1px solid var(--success)',
+            color: notification.type === 'error' ? '#f87171' : '#4ade80',
+            fontSize: '0.85rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}
+        >
+          {notification.msg}
+        </motion.div>
+      )}
+
+      {/* MODULE 1: Announcements & Niyamas */}
+      {contentTab === 'announcements' && (
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="glass-card content-manager-container"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.25rem)', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                📢 Content & Announcement Feeds
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
+                Publish updates and Niyama feeds to Yuvak View-Only feeds.
+              </p>
+            </div>
+            <button className="btn btn-primary" onClick={onOpenContentModal}>
+              <Plus size={18} /> Upload Announcement / Niyama
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {feeds.length === 0 ? (
+              <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                No announcement feeds uploaded yet.
+              </div>
+            ) : (
+              feeds.map((feed, idx) => (
+                <div 
+                  key={idx} 
+                  style={{ 
+                    background: 'rgba(15, 23, 42, 0.6)', 
+                    padding: '1.25rem', 
+                    borderRadius: '14px', 
+                    border: '1px solid var(--border-subtle)' 
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <h4 style={{ color: '#ff9b42', fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)', margin: 0, flex: '1 1 200px' }}>
+                      {feed.title}
+                    </h4>
+                    <span className="badge badge-admin" style={{ flexShrink: 0 }}>{feed.category}</span>
+                  </div>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.75rem', lineHeight: 1.5 }}>
+                    {feed.content}
+                  </p>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Published by: {feed.author} • {new Date(feed.created_at || Date.now()).toLocaleString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      {/* MODULE 2: Utsav & Prasang Photos Gallery Management */}
+      {contentTab === 'photos' && (
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="glass-card photos-manager-container"
+        >
+          {/* Gallery Header & Action Button */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                 Utsav & Prasang Photo Gallery
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
+                Upload and manage event photo galleries visible to Yuvak members.
+              </p>
+            </div>
+            
+            <button 
+              className="btn btn-primary"
+              onClick={() => setShowPhotoModal(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.6rem 1.25rem',
+                fontSize: '0.88rem',
+                fontWeight: 600
+              }}
+            >
+              <Plus size={18} />
+              <span>Upload Event Photos</span>
+            </button>
+          </div>
+
+          {/* Category Filter Pills Bar */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+            {['All', 'Utsav', 'Sabha', 'Cultural', 'Prasang'].map((cat) => (
+              <button
+                key={cat}
+                className={selectedCategory === cat ? 'btn btn-primary' : 'btn btn-secondary'}
+                style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', height: '32px', borderRadius: '9999px' }}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Responsive Gallery Grid (3-4 Columns) */}
+          {loadingPhotos ? (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 0.5rem' }} />
+              Loading event photo gallery...
+            </div>
+          ) : filteredPhotos.length === 0 ? (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '14px', border: '1px dashed var(--border-subtle)' }}>
+              <ImageIcon size={32} color="#ff9b42" style={{ margin: '0 auto 0.75rem', opacity: 0.8 }} />
+              <h4 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>No Event Photos Found</h4>
+              <p style={{ fontSize: '0.85rem', margin: 0 }}>Click "+ Upload Event Photos" above to add photos to the gallery.</p>
+            </div>
+          ) : (
+            <div 
+              style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', 
+                gap: '1.25rem' 
+              }}
+            >
+              {filteredPhotos.map((photo) => (
+                <motion.div
+                  key={photo.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.25 }}
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border-subtle)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.5)',
+                    transition: 'transform 0.25s ease, border-color 0.25s ease'
+                  }}
+                  className="photo-card-item"
+                >
+                  {/* Image Container with Zoom Hover Effect */}
+                  <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
+                    <img
+                      src={photo.image_url}
+                      alt={photo.title}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.35s ease'
+                      }}
+                    />
+                    
+                    {/* Category Badge Top Left */}
+                    <span 
+                      className="badge badge-admin" 
+                      style={{ 
+                        position: 'absolute', 
+                        top: '10px', 
+                        left: '10px', 
+                        fontSize: '0.7rem',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                      }}
+                    >
+                      {photo.category || 'Event'}
+                    </span>
+
+                    {/* Delete Photo Button Top Right */}
+                    <button
+                      onClick={() => handleDeletePhoto(photo.id, photo.title)}
+                      disabled={deletingPhotoId === photo.id}
+                      style={{
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: 'rgba(15, 23, 42, 0.85)',
+                        border: '1px solid rgba(239, 68, 68, 0.4)',
+                        color: '#f87171',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      title="Delete Photo"
+                    >
+                      {deletingPhotoId === photo.id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={14} />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Photo Card Body Info */}
+                  <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem', lineHeight: 1.3 }}>
+                      {photo.title}
+                    </h4>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 'auto' }}>
+                      <Calendar size={14} color="#ff9b42" />
+                      <span>{photo.event_date || 'Recent Event'}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Photo Upload Modal */}
+      {showPhotoModal && (
+        <UploadPhotoModal
+          onClose={() => setShowPhotoModal(false)}
+          onPublishSuccess={handlePhotoPublishSuccess}
+        />
+      )}
+    </div>
+  );
+}

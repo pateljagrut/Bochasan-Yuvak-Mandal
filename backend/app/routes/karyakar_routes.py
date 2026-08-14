@@ -19,12 +19,12 @@ import uuid
 from app.auth import get_current_user, require_admin_role
 from app.models import (
     YuvakProfileUpdate, AttendanceMarkRequest, ContentPostRequest, 
-    ContentUpdateRequest, EventPhotoPostRequest
+    ContentUpdateRequest, EventPhotoPostRequest, EventPhotoUpdateRequest
 )
 from app.db import (
     get_all_yuvaks, update_yuvak_profile, delete_yuvak_member, insert_attendance_record, 
     get_all_attendance_records, insert_content_feed, find_user_by_identifier,
-    insert_event_photo, delete_event_photo, delete_content_feed, update_content_feed
+    insert_event_photo, delete_event_photo, update_event_photo, delete_content_feed, update_content_feed
 )
 from app.websocket_manager import ws_manager
 
@@ -69,7 +69,7 @@ async def edit_yuvak_profile(yuvak_id: str, payload: YuvakProfileUpdate, current
         )
 
     # Filter out None fields
-    update_data = {k: v for k, v in payload.dict().items() if v is not None}
+    update_data = {k: v for k, v in payload.model_dump().items() if v is not None}
     if not update_data:
         return {"success": True, "message": "No changes requested."}
 
@@ -206,7 +206,7 @@ async def edit_content_feed(content_id: str, payload: ContentUpdateRequest, curr
     """
     Updates an existing announcement or Niyama feed.
     """
-    updates = {k: v for k, v in payload.dict().items() if v is not None}
+    updates = {k: v for k, v in payload.model_dump().items() if v is not None}
     if not updates:
         return {"success": True, "message": "No changes provided."}
     
@@ -283,6 +283,34 @@ async def post_event_photo(payload: EventPhotoPostRequest, current_user: dict = 
         "photo": photo_doc
     }
 
+@router.put("/photos/{photo_id}")
+async def edit_event_photo(photo_id: str, payload: EventPhotoUpdateRequest, current_user: dict = Depends(get_current_user)):
+    """
+    Updates an existing event photo in the gallery.
+    """
+    updates = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if not updates:
+        return {"success": True, "message": "No changes provided."}
+    
+    updates["updated_at"] = datetime.now().isoformat()
+    success = update_event_photo(photo_id, updates)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Photo with ID '{photo_id}' not found."
+        )
+
+    await ws_manager.broadcast("CONTENT_UPDATED", {
+        "photo_id": photo_id,
+        "action": "updated",
+        "type": "photo"
+    })
+
+    return {
+        "success": True,
+        "message": "Event photo updated successfully!"
+    }
+
 @router.delete("/photos/{photo_id}")
 async def remove_event_photo(photo_id: str, current_user: dict = Depends(get_current_user)):
     """
@@ -305,4 +333,5 @@ async def remove_event_photo(photo_id: str, current_user: dict = Depends(get_cur
         "success": True,
         "message": "Photo removed from gallery successfully."
     }
+
 

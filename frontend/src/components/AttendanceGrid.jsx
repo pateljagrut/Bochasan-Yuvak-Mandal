@@ -3,9 +3,18 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Calendar, CheckSquare, SquareX, Save, Search, UserCheck, MapPin } from 'lucide-react';
 
+function getClosestSaturdayIso() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = (6 - day + 7) % 7;
+  const sat = new Date(now);
+  sat.setDate(now.getDate() + (diff === 0 ? 0 : (diff <= 3 ? diff : diff - 7)));
+  return sat.toISOString().split('T')[0];
+}
+
 export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving = false }) {
-  const [sabhaDate, setSabhaDate] = useState(new Date().toISOString().split('T')[0]);
-  const [sabhaTitle, setSabhaTitle] = useState('Ravivariya Yuvak Sabha');
+  const [sabhaDate, setSabhaDate] = useState(getClosestSaturdayIso());
+  const [sabhaTitle, setSabhaTitle] = useState('Shanivariya Yuvak Sabha');
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [presentMap, setPresentMap] = useState({});
@@ -123,7 +132,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
             <input
               type="text"
               className="form-control"
-              placeholder="e.g. Ravivariya Yuvak Sabha - Niyama Orientation"
+              placeholder="e.g. Shanivariya Yuvak Sabha - Niyama Orientation"
               value={sabhaTitle}
               onChange={(e) => setSabhaTitle(e.target.value)}
               required

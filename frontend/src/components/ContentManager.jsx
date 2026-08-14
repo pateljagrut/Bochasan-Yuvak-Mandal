@@ -6,6 +6,7 @@ import {
   Plus, 
   Image as ImageIcon, 
   Trash2, 
+  Edit3,
   Calendar, 
   Tag, 
   UploadCloud, 
@@ -14,31 +15,36 @@ import {
   Loader2,
   Film,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Save,
+  Send
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
   getEventPhotosApi, 
-  getEventsApi, 
   postEventPhotoApi, 
+  updateEventPhotoApi,
   deleteEventPhotoApi,
+  updateContentFeedApi,
   deleteContentFeedApi 
 } from '../services/api';
 
 /**
- * UploadPhotoModal Component
+ * PhotoModal Component
  * 
  * Interactive modal portaled into document.body allowing Karyakar Admins
- * to upload Utsav & Prasang event photos via URL or local file upload.
+ * to upload new or edit existing Utsav & Prasang event photos.
  */
-function UploadPhotoModal({ onClose, onPublishSuccess }) {
+function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
   const { token } = useAuth();
+  const isEditing = Boolean(initialPhoto && initialPhoto.id);
+
   const [formData, setFormData] = useState({
-    title: '',
-    event_date: new Date().toISOString().split('T')[0],
-    category: 'Utsav',
-    image_url: '',
-    author: 'Bochasan Media Team'
+    title: initialPhoto?.title || '',
+    event_date: initialPhoto?.event_date || new Date().toISOString().split('T')[0],
+    category: initialPhoto?.category || 'Utsav',
+    image_url: initialPhoto?.image_url || '',
+    author: initialPhoto?.author || 'Bochasan Media Team'
   });
   const [filePreview, setFilePreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,7 +53,7 @@ function UploadPhotoModal({ onClose, onPublishSuccess }) {
   // Sample HD preset images for quick testing
   const samplePresets = [
     { label: 'Hindola Utsav', url: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?q=80&w=800&auto=format&fit=crop' },
-    { label: 'Ravivariya Sabha', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=800&auto=format&fit=crop' },
+    { label: 'Shanivariya Sabha', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=800&auto=format&fit=crop' },
     { label: 'Kirtan Evening', url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop' },
     { label: 'Smruti Prasang', url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=800&auto=format&fit=crop' }
   ];
@@ -84,15 +90,25 @@ function UploadPhotoModal({ onClose, onPublishSuccess }) {
     setError(null);
 
     try {
-      const res = await postEventPhotoApi(formData, token);
-      if (res && res.success) {
-        if (onPublishSuccess) onPublishSuccess(res.photo || formData);
-        onClose();
+      if (isEditing) {
+        const res = await updateEventPhotoApi(initialPhoto.id, formData, token);
+        if (res && res.success) {
+          if (onSaveSuccess) onSaveSuccess({ ...initialPhoto, ...formData }, true);
+          onClose();
+        } else {
+          throw new Error(res?.message || 'Failed to update event photo');
+        }
       } else {
-        throw new Error(res?.message || 'Failed to publish event photo');
+        const res = await postEventPhotoApi(formData, token);
+        if (res && res.success) {
+          if (onSaveSuccess) onSaveSuccess(res.photo || formData, false);
+          onClose();
+        } else {
+          throw new Error(res?.message || 'Failed to publish event photo');
+        }
       }
     } catch (err) {
-      setError(err.message || 'Upload failed. Please try again.');
+      setError(err.message || 'Action failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -158,10 +174,10 @@ function UploadPhotoModal({ onClose, onPublishSuccess }) {
               </div>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
-                  Upload Event Photo
+                  {isEditing ? 'Edit Event Photo' : 'Upload Event Photo'}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
-                  Publish Utsav & Prasang photos to Yuvak Gallery.
+                  {isEditing ? 'Update photo details in gallery.' : 'Publish Utsav & Prasang photos to Yuvak Gallery.'}
                 </p>
               </div>
             </div>
@@ -347,8 +363,8 @@ function UploadPhotoModal({ onClose, onPublishSuccess }) {
                 style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                 disabled={loading}
               >
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                {loading ? 'Publishing...' : 'Publish to Gallery'}
+                {loading ? <Loader2 size={18} className="animate-spin" /> : (isEditing ? <Save size={18} /> : <Sparkles size={18} />)}
+                {loading ? (isEditing ? 'Saving...' : 'Publishing...') : (isEditing ? 'Save Changes' : 'Publish to Gallery')}
               </button>
             </div>
           </form>
@@ -361,13 +377,186 @@ function UploadPhotoModal({ onClose, onPublishSuccess }) {
 }
 
 /**
+ * EditFeedModal Component
+ * 
+ * Modal for modifying existing Announcements or Niyama feeds.
+ */
+function EditFeedModal({ feed, onClose, onSaveSuccess }) {
+  const { token } = useAuth();
+  const [formData, setFormData] = useState({
+    title: feed?.title || '',
+    content: feed?.content || '',
+    category: feed?.category || 'announcement',
+    author: feed?.author || 'Bochasan Karyakar Team'
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await updateContentFeedApi(feed.id, formData, token);
+      if (res && res.success) {
+        if (onSaveSuccess) onSaveSuccess({ ...feed, ...formData });
+        onClose();
+      } else {
+        throw new Error(res?.message || 'Failed to update announcement');
+      }
+    } catch (err) {
+      setError(err.message || 'Update failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const modalContent = (
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        background: 'rgba(0, 0, 0, 0.85)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        padding: '1.5rem',
+        overflowY: 'auto'
+      }}
+      onClick={onClose}
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 15 }}
+        style={{
+          maxWidth: '520px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          background: '#0f172a',
+          borderRadius: '20px',
+          padding: '2rem',
+          border: '1px solid rgba(255, 122, 24, 0.4)',
+          boxShadow: '0 25px 60px -10px rgba(0,0,0,0.9), 0 0 40px rgba(255,122,24,0.2)',
+          margin: 'auto'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <Megaphone size={22} color="#ff7a18" />
+            <h3 style={{ fontSize: '1.25rem', color: '#ffffff', margin: 0 }}>Edit Announcement / Niyama</h3>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}>
+            <X size={20} />
+          </button>
+        </div>
+
+        {error && (
+          <div style={{
+            background: 'var(--danger-bg)',
+            border: '1px solid var(--danger)',
+            color: '#f87171',
+            padding: '0.75rem 1rem',
+            borderRadius: '10px',
+            marginBottom: '1rem',
+            fontSize: '0.85rem'
+          }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+              Title / Headline
+            </label>
+            <input
+              type="text"
+              name="title"
+              className="form-control"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group" style={{ margin: 0 }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+              Category
+            </label>
+            <select name="category" className="form-control" value={formData.category} onChange={handleChange}>
+              <option value="announcement">Announcement</option>
+              <option value="niyama">Niyama / Vichar of the Week</option>
+              <option value="schedule">Sabha Schedule</option>
+            </select>
+          </div>
+
+          <div className="form-group" style={{ margin: 0 }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+              Content Description
+            </label>
+            <textarea
+              name="content"
+              rows="4"
+              className="form-control"
+              value={formData.content}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group" style={{ margin: 0 }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+              Publishing Author / Team
+            </label>
+            <input
+              type="text"
+              name="author"
+              className="form-control"
+              value={formData.author}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+
+  return createPortal(modalContent, document.body);
+}
+
+/**
  * ContentManager Component
  * 
  * Multi-module workspace component that enables Karyakars to manage:
- * 1. Announcements & Niyamas
- * 2. Utsav & Prasang Photo Gallery
- * 
- * Annotated with educational notes for junior/fresher developers.
+ * 1. Announcements & Niyamas (Full CRUD: Create, Read, Update, Delete)
+ * 2. Utsav & Prasang Photo Gallery (Full CRUD: Create, Read, Update, Delete)
  */
 export default function ContentManager({ 
   feeds = [], 
@@ -380,7 +569,13 @@ export default function ContentManager({
   const [photos, setPhotos] = useState(propPhotos);
   const [loadingPhotos, setLoadingPhotos] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  
+  // Modal states
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState(null);
+  const [editingFeed, setEditingFeed] = useState(null);
+  
+  // Action in-progress states
   const [deletingPhotoId, setDeletingPhotoId] = useState(null);
   const [deletingFeedId, setDeletingFeedId] = useState(null);
   const [notification, setNotification] = useState(null);
@@ -392,22 +587,17 @@ export default function ContentManager({
 
   // Sync photos when parent passes updated props
   useEffect(() => {
-    if (propPhotos && propPhotos.length > 0) {
+    if (propPhotos && Array.isArray(propPhotos)) {
       setPhotos(propPhotos);
     }
   }, [propPhotos]);
 
-  // Fetch Event Photos from backend API via axios
+  // Fetch Event Photos from backend API
   const loadPhotos = async () => {
     try {
       setLoadingPhotos(true);
-      const eventsRes = await getEventsApi().catch(() => null);
-      if (eventsRes && eventsRes.events && eventsRes.events.length > 0) {
-        setPhotos(eventsRes.events);
-        return;
-      }
       const res = await getEventPhotosApi();
-      if (res && res.photos) {
+      if (res && Array.isArray(res.photos)) {
         setPhotos(res.photos);
       }
     } catch (err) {
@@ -421,23 +611,39 @@ export default function ContentManager({
     loadPhotos();
   }, []);
 
-  const handlePhotoPublishSuccess = (newPhoto) => {
-    showNotify(`✅ Event photo '${newPhoto.title}' published successfully!`);
-    setPhotos(prev => [newPhoto, ...prev]);
+  const handlePhotoSaved = (savedPhoto, isUpdate) => {
+    if (isUpdate) {
+      showNotify(`✅ Event photo '${savedPhoto.title}' updated successfully!`);
+      setPhotos(prev => prev.map(p => (p.id === savedPhoto.id ? savedPhoto : p)));
+    } else {
+      showNotify(`✅ Event photo '${savedPhoto.title}' published successfully!`);
+      setPhotos(prev => [savedPhoto, ...prev]);
+    }
     loadPhotos();
     if (onRefreshContent) onRefreshContent();
   };
 
+  const handleFeedSaved = (savedFeed) => {
+    showNotify(`✅ Announcement '${savedFeed.title}' updated successfully!`);
+    if (onRefreshContent) onRefreshContent();
+  };
+
   const handleDeletePhoto = async (photoId, photoTitle) => {
+    if (!window.confirm(`Are you sure you want to delete '${photoTitle || 'this photo'}' from the gallery?`)) {
+      return;
+    }
+
     try {
       setDeletingPhotoId(photoId);
       // Optimistically update UI state
       setPhotos(prev => prev.filter(p => p.id !== photoId));
       
-      const res = await deleteEventPhotoApi(photoId, token).catch(() => ({ success: true }));
+      const res = await deleteEventPhotoApi(photoId, token);
       if (res && res.success) {
         showNotify(`✅ Event photo '${photoTitle || photoId}' removed from gallery.`);
         if (onRefreshContent) onRefreshContent();
+      } else {
+        throw new Error(res?.message || 'Failed to delete photo');
       }
     } catch (err) {
       showNotify(`❌ Failed to remove photo: ${err.message}`, 'error');
@@ -448,12 +654,18 @@ export default function ContentManager({
   };
 
   const handleDeleteFeed = async (feedId, feedTitle) => {
+    if (!window.confirm(`Are you sure you want to delete announcement '${feedTitle || 'this announcement'}'?`)) {
+      return;
+    }
+
     try {
       setDeletingFeedId(feedId);
       const res = await deleteContentFeedApi(feedId, token);
       if (res && res.success) {
         showNotify(`✅ Announcement '${feedTitle || feedId}' removed from feed.`);
         if (onRefreshContent) onRefreshContent();
+      } else {
+        throw new Error(res?.message || 'Failed to delete announcement');
       }
     } catch (err) {
       showNotify(`❌ Failed to delete announcement: ${err.message}`, 'error');
@@ -466,17 +678,6 @@ export default function ContentManager({
   const filteredPhotos = selectedCategory === 'All'
     ? photos
     : photos.filter(p => p.category?.toLowerCase() === selectedCategory.toLowerCase());
-
-  /* 
-   * =========================================================================================
-   * EDUCATIONAL NOTE FOR DEVELOPERS: Workspace Tab Switcher Pattern
-   * =========================================================================================
-   * 
-   * In complex workspace modules like ContentManager, state `contentTab` acts as a sub-router.
-   * Switching `contentTab` between 'announcements' and 'photos' conditionally renders 
-   * the corresponding module layout while preserving shared container state.
-   * =========================================================================================
-   */
 
   return (
     <div className="content-manager-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -534,7 +735,7 @@ export default function ContentManager({
                 📢 Content & Announcement Feeds
               </h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
-                Publish updates and Niyama feeds to Yuvak View-Only feeds.
+                Publish and manage updates and Niyama feeds visible to all Yuvaks.
               </p>
             </div>
             <button className="btn btn-primary" onClick={onOpenContentModal}>
@@ -550,7 +751,7 @@ export default function ContentManager({
             ) : (
               feeds.map((feed, idx) => (
                 <div 
-                  key={idx} 
+                  key={feed.id || idx} 
                   style={{ 
                     background: 'rgba(15, 23, 42, 0.6)', 
                     padding: '1.25rem', 
@@ -564,21 +765,47 @@ export default function ContentManager({
                     </h4>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                       <span className="badge badge-admin">{feed.category}</span>
+                      
+                      {/* Edit Announcement Button */}
+                      <button
+                        onClick={() => setEditingFeed(feed)}
+                        style={{
+                          background: 'rgba(59, 130, 246, 0.12)',
+                          border: '1px solid rgba(59, 130, 246, 0.35)',
+                          color: '#60a5fa',
+                          borderRadius: '8px',
+                          padding: '0.25rem 0.55rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          transition: 'all 0.2s ease'
+                        }}
+                        title="Edit Announcement"
+                      >
+                        <Edit3 size={13} />
+                        <span>Edit</span>
+                      </button>
+
+                      {/* Delete Announcement Button */}
                       {feed.id && (
                         <button
                           onClick={() => handleDeleteFeed(feed.id, feed.title)}
                           disabled={deletingFeedId === feed.id}
                           style={{
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            background: 'rgba(239, 68, 68, 0.12)',
+                            border: '1px solid rgba(239, 68, 68, 0.35)',
                             color: '#f87171',
                             borderRadius: '8px',
-                            padding: '0.25rem 0.5rem',
+                            padding: '0.25rem 0.55rem',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.25rem',
                             fontSize: '0.75rem',
+                            fontWeight: 600,
                             transition: 'all 0.2s ease'
                           }}
                           title="Delete Announcement"
@@ -621,13 +848,16 @@ export default function ContentManager({
                  Utsav & Prasang Photo Gallery
               </h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
-                Upload and manage event photo galleries visible to Yuvak members.
+                Upload, edit and manage event photo galleries visible to Yuvak members.
               </p>
             </div>
             
             <button 
               className="btn btn-primary"
-              onClick={() => setShowPhotoModal(true)}
+              onClick={() => {
+                setEditingPhoto(null);
+                setShowPhotoModal(true);
+              }}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -722,34 +952,58 @@ export default function ContentManager({
                       {photo.category || 'Event'}
                     </span>
 
-                    {/* Delete Photo Button Top Right */}
-                    <button
-                      onClick={() => handleDeletePhoto(photo.id, photo.title)}
-                      disabled={deletingPhotoId === photo.id}
-                      style={{
-                        position: 'absolute',
-                        top: '10px',
-                        right: '10px',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        background: 'rgba(15, 23, 42, 0.85)',
-                        border: '1px solid rgba(239, 68, 68, 0.4)',
-                        color: '#f87171',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      title="Delete Photo"
-                    >
-                      {deletingPhotoId === photo.id ? (
-                        <Loader2 size={14} className="animate-spin" />
-                      ) : (
-                        <Trash2 size={14} />
-                      )}
-                    </button>
+                    {/* Top Right Action Buttons: Edit & Delete */}
+                    <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '0.4rem' }}>
+                      <button
+                        onClick={() => {
+                          setEditingPhoto(photo);
+                          setShowPhotoModal(true);
+                        }}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          background: 'rgba(15, 23, 42, 0.85)',
+                          border: '1px solid rgba(59, 130, 246, 0.5)',
+                          color: '#60a5fa',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
+                        }}
+                        title="Edit Photo"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+
+                      <button
+                        onClick={() => handleDeletePhoto(photo.id, photo.title)}
+                        disabled={deletingPhotoId === photo.id}
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          background: 'rgba(15, 23, 42, 0.85)',
+                          border: '1px solid rgba(239, 68, 68, 0.5)',
+                          color: '#f87171',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
+                        }}
+                        title="Delete Photo"
+                      >
+                        {deletingPhotoId === photo.id ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={14} />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Photo Card Body Info */}
@@ -770,11 +1024,24 @@ export default function ContentManager({
         </motion.div>
       )}
 
-      {/* Photo Upload Modal */}
+      {/* Photo Upload / Edit Modal */}
       {showPhotoModal && (
-        <UploadPhotoModal
-          onClose={() => setShowPhotoModal(false)}
-          onPublishSuccess={handlePhotoPublishSuccess}
+        <PhotoModal
+          initialPhoto={editingPhoto}
+          onClose={() => {
+            setShowPhotoModal(false);
+            setEditingPhoto(null);
+          }}
+          onSaveSuccess={handlePhotoSaved}
+        />
+      )}
+
+      {/* Edit Announcement Modal */}
+      {editingFeed && (
+        <EditFeedModal
+          feed={editingFeed}
+          onClose={() => setEditingFeed(null)}
+          onSaveSuccess={handleFeedSaved}
         />
       )}
     </div>

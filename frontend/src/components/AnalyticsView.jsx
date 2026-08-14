@@ -8,7 +8,7 @@ import AnalyticsSection from './AnalyticsSection';
  * Displays interactive mandal analytics, chart visualizations, attendance rate distributions,
  * and regional demographics.
  */
-export default function AnalyticsView({ yuvaks = [] }) {
+export default function AnalyticsView({ yuvaks = [], sessions = [], onRefreshData }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -16,7 +16,8 @@ export default function AnalyticsView({ yuvaks = [] }) {
       transition={{ duration: 0.3 }}
       className="analytics-view-container"
     >
-      <AnalyticsSection yuvaks={yuvaks} />
+      <AnalyticsSection yuvaks={yuvaks} sessions={sessions} onRefreshData={onRefreshData} />
     </motion.div>
   );
 }
+

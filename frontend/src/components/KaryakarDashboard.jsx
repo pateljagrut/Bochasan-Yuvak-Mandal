@@ -5,6 +5,7 @@ import {
   getAllYuvaksApi, 
   updateYuvakProfileApi, 
   recordAttendanceApi, 
+  getAttendanceSessionsApi,
   postContentApi, 
   getContentFeedsApi,
   getEventPhotosApi,
@@ -52,6 +53,7 @@ export default function KaryakarDashboard({
   const [deletedYuvakIds, setDeletedYuvakIds] = useState([]);
   const [feeds, setFeeds] = useState([]);
   const [photos, setPhotos] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savingAttendance, setSavingAttendance] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,7 +76,7 @@ export default function KaryakarDashboard({
     console.log('[REALTIME EVENT]', evtType, evtData);
 
     if (evtType === 'ATTENDANCE_UPDATED') {
-      showNotify(`⚡ Real-time Update: Attendance recorded for ${evtData.sabha_date} by ${evtData.marked_by || 'an admin'}!`);
+      showNotify(`⚡ Real-time Update: Attendance recorded for Saturday ${evtData.sabha_date} by ${evtData.marked_by || 'an admin'}!`);
       loadData(false);
     } else if (evtType === 'MEMBER_UPDATED') {
       showNotify(`⚡ Real-time Update: Profile for '${evtData.member_name}' updated by ${evtData.admin_name || 'an admin'}!`);
@@ -98,20 +100,17 @@ export default function KaryakarDashboard({
   const loadData = async (showSpinner = true) => {
     try {
       if (showSpinner) setLoading(true);
-      const [yuvakRes, feedRes, photoRes, eventsRes] = await Promise.all([
+      const [yuvakRes, feedRes, photoRes, sessionRes] = await Promise.all([
         getAllYuvaksApi(token).catch(() => ({ yuvaks: [] })),
         getContentFeedsApi().catch(() => ({ feeds: [] })),
         getEventPhotosApi().catch(() => ({ photos: [] })),
-        getEventsApi().catch(() => ({ events: [] }))
+        getAttendanceSessionsApi(token).catch(() => ({ sessions: [] }))
       ]);
 
-      if (yuvakRes && yuvakRes.yuvaks) setYuvaks(yuvakRes.yuvaks);
-      if (feedRes && feedRes.feeds) setFeeds(feedRes.feeds);
-      if (eventsRes && eventsRes.events && eventsRes.events.length > 0) {
-        setPhotos(eventsRes.events);
-      } else if (photoRes && photoRes.photos) {
-        setPhotos(photoRes.photos);
-      }
+      if (yuvakRes && Array.isArray(yuvakRes.yuvaks)) setYuvaks(yuvakRes.yuvaks);
+      if (feedRes && Array.isArray(feedRes.feeds)) setFeeds(feedRes.feeds);
+      if (photoRes && Array.isArray(photoRes.photos)) setPhotos(photoRes.photos);
+      if (sessionRes && Array.isArray(sessionRes.sessions)) setSessions(sessionRes.sessions);
     } catch (err) {
       console.error('Error loading Karyakar dashboard:', err);
     } finally {
@@ -328,6 +327,8 @@ export default function KaryakarDashboard({
         return (
           <AnalyticsView 
             yuvaks={activeYuvaks} 
+            sessions={sessions}
+            onRefreshData={() => loadData(false)}
           />
         );
 

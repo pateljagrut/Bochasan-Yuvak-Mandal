@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   ResponsiveContainer,
@@ -14,38 +14,255 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip
+  Tooltip,
+  Legend
 } from 'recharts';
-import { Calendar, Clock, MapPin, Sparkles } from 'lucide-react';
+import { 
+  Calendar, 
+  Clock, 
+  MapPin, 
+  Sparkles, 
+  TrendingUp, 
+  Users, 
+  Award, 
+  CheckCircle2, 
+  AlertCircle,
+  BarChart3,
+  Flame
+} from 'lucide-react';
+
+/**
+ * Helper function to format ISO date string (YYYY-MM-DD) into display label
+ * e.g., '2026-08-01' -> '01 Aug (Sat)'
+ */
+function formatSabhaDate(dateStr) {
+  if (!dateStr) return 'N/A';
+  try {
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = d.toLocaleString('en-US', { month: 'short' });
+    const weekday = d.toLocaleString('en-US', { weekday: 'short' });
+    return `${day} ${month} (${weekday})`;
+  } catch (e) {
+    return dateStr;
+  }
+}
+
+/**
+ * Helper function to calculate next upcoming Saturday date
+ */
+function getNextSaturdayInfo() {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0 = Sun, 6 = Sat
+  const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7; // If today is Sat, next is in 7 days or today if early
+  const nextSat = new Date(now);
+  nextSat.setDate(now.getDate() + daysUntilSaturday);
+
+  const formattedDate = nextSat.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
+  return {
+    date: formattedDate,
+    iso: nextSat.toISOString().split('T')[0],
+    time: '6:00 PM – 7:30 PM IST',
+    venue: 'Main Mandir Assembly Hall, Bochasan'
+  };
+}
+
+/**
+ * Custom Tooltip for Attendance Bar Chart
+ */
+function CustomBarTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div style={{
+        background: '#0f172a',
+        border: '1px solid rgba(255, 122, 24, 0.4)',
+        borderRadius: '12px',
+        padding: '0.85rem 1rem',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.8)',
+        fontSize: '0.82rem',
+        color: '#ffffff'
+      }}>
+        <div style={{ fontWeight: 700, color: '#ff9b42', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Calendar size={13} /> {data.displayDate}
+        </div>
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+          {data.title || 'Shanivariya Yuvak Sabha'}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
+            <span style={{ color: '#22c55e' }}>● Present:</span>
+            <strong>{data.present} Yuvaks</strong>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
+            <span style={{ color: '#f87171' }}>● Absent:</span>
+            <strong>{data.absent} Yuvaks</strong>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', paddingTop: '0.35rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <span style={{ color: '#ff9b42' }}>Attendance Rate:</span>
+            <strong>{data.rate}%</strong>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
+/**
+ * Custom Tooltip for Participation Trend Area Chart
+ */
+function CustomAreaTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div style={{
+        background: '#0f172a',
+        border: '1px solid rgba(20, 184, 166, 0.4)',
+        borderRadius: '12px',
+        padding: '0.75rem 1rem',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.8)',
+        fontSize: '0.82rem',
+        color: '#ffffff'
+      }}>
+        <div style={{ fontWeight: 700, color: '#14b8a6', marginBottom: '0.25rem' }}>
+          📅 {data.displayDate}
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>
+          Rate: <strong style={{ color: '#ffffff' }}>{data.attendance}%</strong> ({data.headcount})
+        </div>
+        <div style={{ color: '#94a3b8', fontSize: '0.72rem', marginTop: '0.2rem' }}>
+          Target: 85%
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
 
 /**
  * Recharts-Powered Analytics Dashboard Section.
- * Includes Attendance Trend (Area), Monthly Attendance (Bar), Growth (Line), & Distribution (Pie).
+ * 100% Dynamically calculates attendance rates, trends, headcount distributions,
+ * and upcoming Saturday schedules directly from database records.
  */
-export default function AnalyticsSection({ yuvaks = [] }) {
-  // Sample analytics data derived dynamically or formatted gracefully
-  const attendanceTrendData = [
-    { month: 'Jan', attendance: 88, target: 85 },
-    { month: 'Feb', attendance: 92, target: 85 },
-    { month: 'Mar', attendance: 85, target: 85 },
-    { month: 'Apr', attendance: 95, target: 85 },
-    { month: 'May', attendance: 91, target: 85 },
-    { month: 'Jun', attendance: 97, target: 85 },
-    { month: 'Jul', attendance: 94, target: 85 }
-  ];
+export default function AnalyticsSection({ yuvaks = [], sessions = [] }) {
+  const nextSabha = useMemo(() => getNextSaturdayInfo(), []);
 
-  const monthlySabhaData = [
-    { week: 'W1', present: 42, absent: 5 },
-    { week: 'W2', present: 45, absent: 3 },
-    { week: 'W3', present: 39, absent: 8 },
-    { week: 'W4', present: 48, absent: 2 }
-  ];
+  // 1. Process attendance session data dynamically
+  const { 
+    barChartData, 
+    trendData, 
+    distributionData, 
+    avgAttendanceRate, 
+    bestSabha, 
+    totalSabhasCount 
+  } = useMemo(() => {
+    const totalMembers = yuvaks.length || 1;
 
-  const distributionData = [
-    { name: 'Regular (90%+)', value: 65, color: '#ff7a18' },
-    { name: 'Moderate (70-89%)', value: 25, color: '#14b8a6' },
-    { name: 'Needs Follow-up (<70%)', value: 10, color: '#ef4444' }
-  ];
+    // Sort sessions chronologically (oldest to newest)
+    const sortedSessions = [...sessions].sort((a, b) => 
+      (a.sabha_date || '').localeCompare(b.sabha_date || '')
+    );
+
+    // Build Bar Chart & Trend Data for each Saturday session
+    const barData = sortedSessions.map((session, index) => {
+      const presentCount = session.present_yuvak_ids?.length || 0;
+      const totalForSession = Math.max(totalMembers, presentCount);
+      const absentCount = Math.max(0, totalForSession - presentCount);
+      const rate = Math.round((presentCount / totalForSession) * 100);
+      const displayDate = formatSabhaDate(session.sabha_date);
+
+      return {
+        date: session.sabha_date,
+        displayDate,
+        title: session.sabha_title || `Shanivariya Sabha #${index + 1}`,
+        present: presentCount,
+        absent: absentCount,
+        total: totalForSession,
+        rate
+      };
+    });
+
+    const trend = sortedSessions.map((session, index) => {
+      const presentCount = session.present_yuvak_ids?.length || 0;
+      const totalForSession = Math.max(totalMembers, presentCount);
+      const rate = Math.round((presentCount / totalForSession) * 100);
+      return {
+        displayDate: formatSabhaDate(session.sabha_date),
+        attendance: rate,
+        target: 85,
+        headcount: `${presentCount}/${totalForSession} Present`
+      };
+    });
+
+    // Calculate Engagement Distribution across registered Yuvaks
+    let regularCount = 0;
+    let moderateCount = 0;
+    let followUpCount = 0;
+
+    yuvaks.forEach(y => {
+      const attended = sortedSessions.filter(s => 
+        s.present_yuvak_ids?.includes(y.yuvak_id)
+      ).length;
+      const pct = sortedSessions.length > 0 
+        ? Math.round((attended / sortedSessions.length) * 100) 
+        : 100;
+
+      if (pct >= 90) regularCount++;
+      else if (pct >= 70) moderateCount++;
+      else followUpCount++;
+    });
+
+    const totalCalculated = yuvaks.length || 1;
+    const distData = [
+      { 
+        name: 'Regular (90%+)', 
+        count: regularCount, 
+        value: Math.round((regularCount / totalCalculated) * 100), 
+        color: '#ff7a18' 
+      },
+      { 
+        name: 'Moderate (70-89%)', 
+        count: moderateCount, 
+        value: Math.round((moderateCount / totalCalculated) * 100), 
+        color: '#14b8a6' 
+      },
+      { 
+        name: 'Needs Follow-up (<70%)', 
+        count: followUpCount, 
+        value: Math.round((followUpCount / totalCalculated) * 100), 
+        color: '#ef4444' 
+      }
+    ];
+
+    // Compute Overall Average Attendance %
+    const totalPresentSum = sortedSessions.reduce((acc, s) => acc + (s.present_yuvak_ids?.length || 0), 0);
+    const totalPossibleSum = sortedSessions.length * totalMembers;
+    const avgRate = totalPossibleSum > 0 
+      ? Math.round((totalPresentSum / totalPossibleSum) * 100) 
+      : 100;
+
+    // Find Best Attended Sabha
+    let best = null;
+    if (barData.length > 0) {
+      best = [...barData].sort((a, b) => b.rate - a.rate || b.present - a.present)[0];
+    }
+
+    return {
+      barChartData: barData,
+      trendData: trend,
+      distributionData: distData,
+      avgAttendanceRate: avgRate,
+      bestSabha: best,
+      totalSabhasCount: sortedSessions.length
+    };
+  }, [yuvaks, sessions]);
 
   return (
     <motion.div
@@ -54,55 +271,231 @@ export default function AnalyticsSection({ yuvaks = [] }) {
       transition={{ duration: 0.35 }}
       style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
     >
-      {/* Grid Row 1: Area Chart & Donut Chart */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
-        {/* Area Chart: Attendance Trend */}
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <div>
-              <h3 style={{ fontSize: '1.1rem' }}>📈 Sabha Attendance Trend</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>6-Month Participation Rate (%)</p>
-            </div>
-            <span className="badge badge-yuvak">+6.2% Overall</span>
+      {/* Dynamic Summary Metric Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+        <div className="glass-card" style={{ padding: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Mandal Attendance Rate</span>
+            <TrendingUp size={18} color="#14b8a6" />
           </div>
-
-          <div style={{ width: '100%', height: 240 }}>
-            <ResponsiveContainer>
-              <AreaChart data={attendanceTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ff7a18" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#ff7a18" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="month" stroke="#94A3B8" fontSize={12} />
-                <YAxis stroke="#94A3B8" fontSize={12} domain={[60, 100]} />
-                <Tooltip
-                  contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,122,24,0.3)', borderRadius: '8px' }}
-                />
-                <Area type="monotone" dataKey="attendance" stroke="#ff7a18" strokeWidth={3} fillOpacity={1} fill="url(#areaGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#14b8a6' }}>
+            {avgAttendanceRate}%
+          </div>
+          <div style={{ fontSize: '0.75rem', color: '#22c55e', marginTop: '0.25rem' }}>
+            ↑ Across {totalSabhasCount} Saturday Sessions
           </div>
         </div>
 
-        {/* Donut Chart: Distribution */}
-        <div className="glass-card">
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem' }}>🎯 Yuvak Engagement Categories</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Attendance rate breakdown across members</p>
+        <div className="glass-card" style={{ padding: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Total Saturday Sabhas</span>
+            <Calendar size={18} color="#ff9b42" />
+          </div>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#ff9b42' }}>
+            {totalSabhasCount}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+            Shanivariya Sessions Recorded
+          </div>
+        </div>
+
+        <div className="glass-card" style={{ padding: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Active Registered Yuvaks</span>
+            <Users size={18} color="#38bdf8" />
+          </div>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#38bdf8' }}>
+            {yuvaks.length}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+            Enrolled in Mandal Directory
+          </div>
+        </div>
+
+        <div className="glass-card" style={{ padding: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Peak Attended Sabha</span>
+            <Award size={18} color="#eab308" />
+          </div>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#eab308' }}>
+            {bestSabha ? `${bestSabha.rate}%` : '100%'}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {bestSabha ? `${bestSabha.displayDate} (${bestSabha.present} present)` : 'All Sabhas active'}
+          </div>
+        </div>
+      </div>
+
+      {/* Row 1: Primary Date-Based Bar Graph & Upcoming Saturday Card */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+        
+        {/* Main Bar Chart: Saturday Sabha Attendance by Date */}
+        <div className="glass-card" style={{ gridColumn: 'span 2 / span 2' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <BarChart3 size={20} color="#ff7a18" />
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                  Saturday Sabha Attendance by Date
+                </h3>
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
+                Present vs Absent headcount for each scheduled Saturday Sabha session.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.78rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ width: 12, height: 12, borderRadius: '3px', background: '#ff7a18' }}></span>
+                <span style={{ color: 'var(--text-secondary)' }}>Present</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ width: 12, height: 12, borderRadius: '3px', background: 'rgba(239, 68, 68, 0.5)' }}></span>
+                <span style={{ color: 'var(--text-secondary)' }}>Absent</span>
+              </div>
+            </div>
           </div>
 
-          <div style={{ width: '100%', height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ResponsiveContainer>
+          {barChartData.length === 0 ? (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              No Saturday Sabha attendance records found. Mark attendance in the Attendance tab to view charts.
+            </div>
+          ) : (
+            <div style={{ width: '100%', height: 280 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis 
+                    dataKey="displayDate" 
+                    stroke="#94A3B8" 
+                    fontSize={11} 
+                    tickLine={false}
+                    interval={0}
+                    angle={-15}
+                    textAnchor="end"
+                  />
+                  <YAxis stroke="#94A3B8" fontSize={12} allowDecimals={false} />
+                  <Tooltip content={<CustomBarTooltip />} />
+                  <Bar dataKey="present" fill="#ff7a18" radius={[4, 4, 0, 0]} maxBarSize={45} />
+                  <Bar dataKey="absent" fill="rgba(239, 68, 68, 0.45)" radius={[4, 4, 0, 0]} maxBarSize={45} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+        {/* Upcoming Saturday Prerna Sabha Card */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <Sparkles size={20} color="#ff7a18" />
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>Upcoming Shanivariya Sabha</h3>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+              Weekly spiritual session, youth leadership development, Satsang Chintan and Mahaprasad.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--text-secondary)' }}>
+                <Calendar size={16} color="#14b8a6" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <div>
+                  <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Next Scheduled Saturday:</strong>
+                  <span>{nextSabha.date}</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--text-secondary)' }}>
+                <Clock size={16} color="#22c55e" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <div>
+                  <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Sabha Timing:</strong>
+                  <span>{nextSabha.time}</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--text-secondary)' }}>
+                <MapPin size={16} color="#ff7a18" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <div>
+                  <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Venue:</strong>
+                  <span>{nextSabha.venue}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Target: 100% Attendance</span>
+            <span className="badge badge-success">● Saturday Scheduled</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2: Attendance Rate Trajectory (Area) & Engagement Distribution (Donut) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+        
+        {/* Area Chart: Attendance % Trend */}
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>📈 Attendance Percentage Trajectory</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>Participation rate (%) across consecutive Saturday Sabhas</p>
+            </div>
+            <span className="badge badge-yuvak">Target: 85%+</span>
+          </div>
+
+          {trendData.length === 0 ? (
+            <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>No trend data recorded.</div>
+          ) : (
+            <div style={{ width: '100%', height: 240 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                  <defs>
+                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.45} />
+                      <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis 
+                    dataKey="displayDate" 
+                    stroke="#94A3B8" 
+                    fontSize={11} 
+                    tickLine={false}
+                    interval={0}
+                    angle={-15}
+                    textAnchor="end"
+                  />
+                  <YAxis stroke="#94A3B8" fontSize={12} domain={[0, 100]} />
+                  <Tooltip content={<CustomAreaTooltip />} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="attendance" 
+                    stroke="#14b8a6" 
+                    strokeWidth={3} 
+                    fillOpacity={1} 
+                    fill="url(#areaGradient)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+        {/* Donut Chart: Yuvak Engagement Distribution */}
+        <div className="glass-card">
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>🎯 Member Engagement Categories</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>Dynamic attendance rate breakdown across all {yuvaks.length} registered members</p>
+          </div>
+
+          <div style={{ width: '100%', height: 210, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={distributionData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={85}
+                  innerRadius={58}
+                  outerRadius={82}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -110,77 +503,86 @@ export default function AnalyticsSection({ yuvaks = [] }) {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid var(--border-subtle)', borderRadius: '8px' }} />
+                <Tooltip 
+                  formatter={(val, name, entry) => [`${entry.payload.count} Members (${val}%)`, name]}
+                  contentStyle={{ background: '#0f172a', border: '1px solid var(--border-subtle)', borderRadius: '8px' }} 
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', fontSize: '0.75rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.85rem', flexWrap: 'wrap', fontSize: '0.75rem', marginTop: '0.5rem' }}>
             {distributionData.map((d, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', background: d.color }}></span>
-                <span style={{ color: 'var(--text-secondary)' }}>{d.name}</span>
+                <span style={{ color: 'var(--text-secondary)' }}>
+                  {d.name}: <strong style={{ color: '#ffffff' }}>{d.count}</strong> ({d.value}%)
+                </span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Grid Row 2: Bar Chart & Upcoming Sabha Card */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
-        {/* Bar Chart: Weekly Attendance */}
-        <div className="glass-card">
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem' }}>📊 Weekly Sabha Attendance (This Month)</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Present vs Absent headcount per week</p>
-          </div>
-
-          <div style={{ width: '100%', height: 220 }}>
-            <ResponsiveContainer>
-              <BarChart data={monthlySabhaData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="week" stroke="#94A3B8" fontSize={12} />
-                <YAxis stroke="#94A3B8" fontSize={12} />
-                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid var(--border-subtle)', borderRadius: '8px' }} />
-                <Bar dataKey="present" fill="#ff7a18" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="absent" fill="rgba(239, 68, 68, 0.4)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Upcoming Sabha & Announcement Card */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* Row 3: Recorded Saturday Sessions History Log */}
+      <div className="glass-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <Sparkles size={20} color="#ff7a18" />
-              <h3 style={{ fontSize: '1.1rem' }}>Upcoming Prerna Sabha</h3>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-              Special Sunday session on spiritual niyama, youth leadership, and mandal development.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-secondary)' }}>
-                <Calendar size={16} color="#14b8a6" />
-                <span><strong>Date:</strong> This Sunday, 5:30 PM IST</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-secondary)' }}>
-                <MapPin size={16} color="#ff7a18" />
-                <span><strong>Venue:</strong> Main Mandir Assembly Hall</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-secondary)' }}>
-                <Clock size={16} color="#22c55e" />
-                <span><strong>Duration:</strong> 90 Minutes (Sabha + Mahaprasad)</span>
-              </div>
-            </div>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>📜 Saturday Sabha History Log</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>All recorded Shanivariya Sabha sessions with headcounts and attendance rates</p>
           </div>
-
-          <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Target: 100% Attendance</span>
-            <span className="badge badge-success">On Schedule</span>
-          </div>
+          <span className="badge badge-admin">{sessions.length} Recorded Sessions</span>
         </div>
+
+        {sessions.length === 0 ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+            No Sabha attendance records found.
+          </div>
+        ) : (
+          <div className="table-responsive" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            <table className="custom-table" style={{ width: '100%', fontSize: '0.85rem' }}>
+              <thead>
+                <tr>
+                  <th>Saturday Date</th>
+                  <th>Sabha Topic / Title</th>
+                  <th>Present / Total</th>
+                  <th>Attendance %</th>
+                  <th>Marked By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...sessions].reverse().map((session, idx) => {
+                  const presentCount = session.present_yuvak_ids?.length || 0;
+                  const total = Math.max(yuvaks.length, presentCount);
+                  const pct = total > 0 ? Math.round((presentCount / total) * 100) : 0;
+                  const displayDate = formatSabhaDate(session.sabha_date);
+
+                  return (
+                    <tr key={idx}>
+                      <td style={{ fontWeight: 600, color: '#ff9b42' }}>
+                        {displayDate}
+                      </td>
+                      <td style={{ color: 'var(--text-primary)' }}>
+                        {session.sabha_title || 'Shanivariya Yuvak Sabha'}
+                      </td>
+                      <td>
+                        <strong>{presentCount}</strong> / {total} Yuvaks
+                      </td>
+                      <td>
+                        <span className={`badge ${pct >= 85 ? 'badge-success' : pct >= 70 ? 'badge-yuvak' : 'badge-admin'}`}>
+                          {pct}%
+                        </span>
+                      </td>
+                      <td style={{ color: 'var(--text-muted)' }}>
+                        {session.marked_by || 'Karyakar Admin'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </motion.div>
   );

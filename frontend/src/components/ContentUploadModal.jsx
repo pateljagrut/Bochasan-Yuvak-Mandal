@@ -77,7 +77,7 @@ export default function ContentUploadModal({ onClose, onPublish, publishing }) {
               type="text"
               name="title"
               className="form-control"
-              placeholder="e.g. Upcoming Sunday Prerna Sabha"
+              placeholder="e.g. Upcoming Saturday Shanivariya Prerna Sabha"
               value={formData.title}
               onChange={handleChange}
               required

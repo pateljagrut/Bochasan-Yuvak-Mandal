@@ -6,7 +6,7 @@ import AttendanceGrid from './AttendanceGrid';
  * AttendanceManager Component
  * 
  * Manages Sabha attendance view, rendering the primary AttendanceGrid component
- * for checking off Yuvak members present during Ravivariya Sabha sessions.
+ * for checking off Yuvak members present during Shanivariya Sabha sessions.
  */
 export default function AttendanceManager({ yuvaks = [], onSaveAttendance, saving = false }) {
   return (

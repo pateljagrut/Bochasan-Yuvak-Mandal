@@ -92,7 +92,7 @@ function SabhaAttendanceTracker({ metrics, p }) {
             📊 Attendance Tracker
           </h3>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-            Real-time circular progress of your Sunday Sabha participation rate.
+            Real-time circular progress of your Saturday Sabha participation rate.
           </p>
 
           <CircularAttendanceTracker
@@ -114,7 +114,7 @@ function SabhaAttendanceTracker({ metrics, p }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.85rem' }}>
           <Calendar size={20} color="#ff7a18" />
           <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            Personal Sabha Attendance History
+            Personal Saturday Sabha Attendance History
           </h3>
         </div>
 
@@ -125,30 +125,30 @@ function SabhaAttendanceTracker({ metrics, p }) {
             <table className="custom-table" style={{ width: '100%' }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Sabha Date</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Topic / Theme</th>
+                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Saturday Date</th>
+                  <th style={{ textAlign: 'left', padding: '0.75rem 1rem' }}>Sabha Topic</th>
                   <th style={{ textAlign: 'right', padding: '0.75rem 1rem' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {metrics.attendance_history.map((item, idx) => (
+                {metrics.attendance_history.map((record, idx) => (
                   <tr key={idx}>
-                    <td style={{ fontWeight: 600, padding: '0.85rem 1rem', color: 'var(--text-primary)' }}>{item.sabha_date}</td>
-                    <td style={{ padding: '0.85rem 1rem', color: 'var(--text-secondary)' }}>{item.sabha_title}</td>
+                    <td style={{ fontWeight: 600, padding: '0.85rem 1rem', color: 'var(--text-primary)' }}>{record.sabha_date} (Sat)</td>
+                    <td style={{ padding: '0.85rem 1rem', color: 'var(--text-secondary)' }}>{record.sabha_title || 'Shanivariya Yuvak Sabha'}</td>
                     <td style={{ textAlign: 'right', padding: '0.85rem 1rem' }}>
                       <span style={{
                         padding: '0.25rem 0.75rem',
-                        borderRadius: '9999px',
+                        borderRadius: '999px',
                         fontSize: '0.75rem',
                         fontWeight: 700,
-                        background: item.status === 'Present' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                        color: item.status === 'Present' ? '#4ade80' : '#f87171',
+                        background: record.status === 'Present' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
+                        color: record.status === 'Present' ? '#4ade80' : '#f87171',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.35rem'
                       }}>
-                        {item.status === 'Present' ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                        {item.status === 'Present' ? 'Present' : 'Absent'}
+                        {record.status === 'Present' ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                        {record.status}
                       </span>
                     </td>
                   </tr>
@@ -191,7 +191,7 @@ function YuvakAnalytics({ metrics }) {
           <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
             <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Total Sabhas Attended</div>
             <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ff9b42', margin: '0.2rem 0' }}>{metrics.attended_sabhas} Sessions</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Out of {metrics.total_sabhas} total sabhas</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Out of {metrics.total_sabhas} Saturday Sabhas</div>
           </div>
 
           <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
@@ -208,7 +208,7 @@ function YuvakAnalytics({ metrics }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.35rem' }}>
-                <span>Monthly Ravivariya Goal</span>
+                <span>Monthly Shanivariya Goal</span>
                 <span style={{ fontWeight: 700, color: '#14b8a6' }}>{metrics.attendance_percentage}% Achieved</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '999px', overflow: 'hidden' }}>
@@ -354,22 +354,17 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
   const loadYuvakData = async (showSpinner = true) => {
     try {
       if (showSpinner) setLoading(true);
-      const [profRes, attRes, feedRes, photoRes, eventsRes] = await Promise.all([
+      const [profRes, attRes, feedRes, photoRes] = await Promise.all([
         getYuvakProfileApi(token).catch(() => ({ profile: user })),
         getYuvakAttendanceApi(token).catch(() => null),
         getContentFeedsApi().catch(() => ({ feeds: [] })),
-        getEventPhotosApi().catch(() => ({ photos: [] })),
-        getEventsApi().catch(() => ({ events: [] }))
+        getEventPhotosApi().catch(() => ({ photos: [] }))
       ]);
 
       if (profRes && profRes.profile) setProfile(profRes.profile);
       if (attRes && attRes.metrics) setMetrics(attRes.metrics);
-      if (feedRes && feedRes.feeds) setFeeds(feedRes.feeds);
-      if (eventsRes && eventsRes.events && eventsRes.events.length > 0) {
-        setPhotos(eventsRes.events);
-      } else if (photoRes && photoRes.photos) {
-        setPhotos(photoRes.photos);
-      }
+      if (feedRes && Array.isArray(feedRes.feeds)) setFeeds(feedRes.feeds);
+      if (photoRes && Array.isArray(photoRes.photos)) setPhotos(photoRes.photos);
     } catch (err) {
       console.error('Failed loading Yuvak dashboard:', err);
     } finally {
@@ -548,7 +543,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
           </h1>
 
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', margin: 0, maxWidth: '640px', lineHeight: 1.5 }}>
-            Welcome to your personal Sunday Sabha attendance portal & mandal announcement feeds.
+            Welcome to your personal Saturday Sabha attendance portal & mandal announcement feeds.
           </p>
         </div>
 

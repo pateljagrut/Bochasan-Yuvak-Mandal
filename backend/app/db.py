@@ -154,34 +154,52 @@ def seed_initial_data():
             insert_user(yuvak)
             logger.info(f"[SEED] Seeded sample Yuvak: {yuvak['full_name']} ({yuvak['yuvak_id']})")
 
-    # 3. Seed initial sample attendance history
+    # 3. Seed initial sample attendance history (Saturday Shanivariya Sabhas)
     sample_attendance = [
         {
-            "sabha_date": "2026-07-19",
-            "sabha_title": "Niyama & Seva Orientation Sabha",
+            "sabha_date": "2026-07-18",
+            "sabha_title": "Shanivariya Yuvak Sabha - Niyama & Seva Orientation",
             "present_yuvak_ids": ["ROH3210", "HAR5678", "VID9898"],
             "created_at": datetime.now().isoformat()
         },
         {
-            "sabha_date": "2026-07-26",
-            "sabha_title": "Ekantik Dharma & Yuva Mahotsav Prep",
+            "sabha_date": "2026-07-25",
+            "sabha_title": "Shanivariya Yuvak Sabha - Ekantik Dharma & Yuva Mahotsav Prep",
             "present_yuvak_ids": ["ROH3210", "JAY1234", "VID9898"],
             "created_at": datetime.now().isoformat()
         },
         {
-            "sabha_date": "2026-08-02",
-            "sabha_title": "Monthly Prerna Sabha & Attendance Check",
+            "sabha_date": "2026-08-01",
+            "sabha_title": "Shanivariya Yuvak Sabha - Monthly Prerna Sabha & Attendance Check",
             "present_yuvak_ids": ["ROH3210", "HAR5678", "JAY1234", "VID9898"],
+            "created_at": datetime.now().isoformat()
+        },
+        {
+            "sabha_date": "2026-08-08",
+            "sabha_title": "Shanivariya Yuvak Sabha - Satsang Diksha Adhyayan",
+            "present_yuvak_ids": ["ROH3210", "HAR5678", "VID9898"],
             "created_at": datetime.now().isoformat()
         }
     ]
     
-    existing_attendance = get_all_attendance_records()
-    if not existing_attendance:
-        for att in sample_attendance:
-            insert_attendance_record(att)
+    if is_mongo_connected and db is not None:
+        meta_att = db.meta.find_one({"_id": "seed_attendance_sat"})
+        if not meta_att:
+            # Clean old Sunday sample dates if present and seed Saturday sessions
+            db.attendance.delete_many({"sabha_date": {"$in": ["2026-07-19", "2026-07-26", "2026-08-02"]}})
+            for att in sample_attendance:
+                db.attendance.update_one({"sabha_date": att["sabha_date"]}, {"$set": att}, upsert=True)
+            db.meta.update_one({"_id": "seed_attendance_sat"}, {"$set": {"seeded": True}}, upsert=True)
+            logger.info("[SEED] Seeded Saturday Shanivariya Sabha attendance sessions into MongoDB.")
+    else:
+        if "attendance" not in in_memory_store:
+            in_memory_store["attendance"] = []
+        if len(in_memory_store["attendance"]) == 0 or not in_memory_store.get("attendance_sat_initialized"):
+            in_memory_store["attendance"] = [a.copy() for a in sample_attendance]
+            in_memory_store["attendance_sat_initialized"] = True
 
-    # 4. Seed initial content feed
+
+    # 4. Seed initial content feed (seed once on initialization)
     sample_content = [
         {
             "id": "cnt_01",
@@ -201,10 +219,36 @@ def seed_initial_data():
         }
     ]
     
-    existing_content = get_all_content_feeds()
-    if not existing_content:
-        for cnt in sample_content:
-            insert_content_feed(cnt)
+    if is_mongo_connected and db is not None:
+        meta_content = db.meta.find_one({"_id": "seed_content_init"})
+        if not meta_content:
+            if db.content.count_documents({}) == 0:
+                for cnt in sample_content:
+                    insert_content_feed(cnt)
+                logger.info("[SEED] Seeded initial content feeds into MongoDB.")
+            db.meta.update_one({"_id": "seed_content_init"}, {"$set": {"seeded": True}}, upsert=True)
+    else:
+        if "content" not in in_memory_store:
+            in_memory_store["content"] = []
+        if len(in_memory_store["content"]) == 0 and not in_memory_store.get("content_initialized"):
+            in_memory_store["content"] = [c.copy() for c in sample_content]
+            in_memory_store["content_initialized"] = True
+
+    # 5. Seed initial event photos (seed once on initialization into MongoDB)
+    if is_mongo_connected and db is not None:
+        meta_photos = db.meta.find_one({"_id": "seed_photos_init"})
+        if not meta_photos:
+            if db.photos.count_documents({}) == 0:
+                for photo in get_sample_photos():
+                    db.photos.insert_one(photo)
+                logger.info("[SEED] Seeded initial event photos into MongoDB.")
+            db.meta.update_one({"_id": "seed_photos_init"}, {"$set": {"seeded": True}}, upsert=True)
+    else:
+        if "photos" not in in_memory_store:
+            in_memory_store["photos"] = []
+        if len(in_memory_store["photos"]) == 0 and not in_memory_store.get("photos_initialized"):
+            in_memory_store["photos"] = [p.copy() for p in get_sample_photos()]
+            in_memory_store["photos_initialized"] = True
 
 # ==========================================
 # MongoDB Data Access Helper Functions
@@ -228,6 +272,7 @@ def find_user_by_identifier(identifier: str) -> Optional[dict]:
         user = db.users.find_one({
             "$or": [
                 {"yuvak_id": identifier},
+                {"yuvak_id": identifier.upper() if isinstance(identifier, str) else identifier},
                 {"mobile_no": identifier},
                 {"username": identifier}
             ]
@@ -239,6 +284,7 @@ def find_user_by_identifier(identifier: str) -> Optional[dict]:
         # Search fallback memory array
         for user in in_memory_store["users"]:
             if (user.get("yuvak_id") == identifier or 
+                user.get("yuvak_id", "").upper() == (identifier.upper() if isinstance(identifier, str) else identifier) or
                 user.get("mobile_no") == identifier or 
                 user.get("username") == identifier):
                 return user
@@ -269,13 +315,13 @@ def update_yuvak_profile(yuvak_id: str, updates: dict) -> bool:
     """Updates a member's (Yuvak or Admin) profile fields in MongoDB."""
     if is_mongo_connected and db is not None:
         res = db.users.update_one(
-            {"$or": [{"yuvak_id": yuvak_id}, {"username": yuvak_id}]}, 
+            {"$or": [{"yuvak_id": yuvak_id}, {"yuvak_id": yuvak_id.upper()}, {"username": yuvak_id}]}, 
             {"$set": updates}
         )
-        return res.modified_count > 0
+        return res.matched_count > 0 or res.modified_count > 0
     else:
         for u in in_memory_store["users"]:
-            if u.get("yuvak_id") == yuvak_id or u.get("username") == yuvak_id:
+            if u.get("yuvak_id") == yuvak_id or u.get("yuvak_id", "").upper() == yuvak_id.upper() or u.get("username") == yuvak_id:
                 u.update(updates)
                 return True
         return False
@@ -294,20 +340,30 @@ def delete_yuvak_member(yuvak_id: str) -> bool:
         return len(in_memory_store["users"]) < initial_len
 
 def insert_attendance_record(record: dict) -> dict:
-    """Inserts a new Sabha attendance record into MongoDB."""
+    """Inserts or updates a Sabha attendance record for a specific date in MongoDB."""
+    sabha_date = record.get("sabha_date")
     if is_mongo_connected and db is not None:
-        db.attendance.insert_one(record)
+        db.attendance.update_one(
+            {"sabha_date": sabha_date},
+            {"$set": record},
+            upsert=True
+        )
     else:
-        in_memory_store["attendance"].append(record)
+        existing_idx = next((i for i, a in enumerate(in_memory_store["attendance"]) if a.get("sabha_date") == sabha_date), -1)
+        if existing_idx >= 0:
+            in_memory_store["attendance"][existing_idx].update(record)
+        else:
+            in_memory_store["attendance"].append(record)
     return record
 
 def get_all_attendance_records() -> List[dict]:
-    """Retrieves all Sabha attendance records."""
+    """Retrieves all Sabha attendance records sorted chronologically by sabha_date."""
     if is_mongo_connected and db is not None:
-        cursor = db.attendance.find({}, {"_id": 0})
+        cursor = db.attendance.find({}, {"_id": 0}).sort("sabha_date", pymongo.ASCENDING)
         return list(cursor)
     else:
-        return list(in_memory_store["attendance"])
+        return sorted(in_memory_store["attendance"], key=lambda x: x.get("sabha_date", ""))
+
 
 def insert_content_feed(content_doc: dict) -> dict:
     """Inserts a content item (announcement/niyama) into MongoDB."""
@@ -323,26 +379,41 @@ def get_all_content_feeds() -> List[dict]:
         cursor = db.content.find({}, {"_id": 0}).sort("created_at", pymongo.DESCENDING)
         return list(cursor)
     else:
-        return sorted(in_memory_store["content"], key=lambda x: x.get("created_at", ""), reverse=True)
+        return sorted(in_memory_store.get("content", []), key=lambda x: x.get("created_at", ""), reverse=True)
 
 def delete_content_feed(content_id: str) -> bool:
     """Deletes a content item (announcement/niyama) by ID from MongoDB or in-memory store."""
     if is_mongo_connected and db is not None:
-        res = db.content.delete_one({"id": content_id})
+        res = db.content.delete_one({"$or": [{"id": content_id}, {"id": str(content_id)}]})
+        if res.deleted_count == 0:
+            try:
+                from bson import ObjectId
+                res = db.content.delete_one({"_id": ObjectId(content_id)})
+            except Exception:
+                pass
         return res.deleted_count > 0
     else:
         initial_len = len(in_memory_store.get("content", []))
-        in_memory_store["content"] = [c for c in in_memory_store.get("content", []) if c.get("id") != content_id]
+        in_memory_store["content"] = [c for c in in_memory_store.get("content", []) if c.get("id") != content_id and str(c.get("_id", "")) != content_id]
         return len(in_memory_store.get("content", [])) < initial_len
 
 def update_content_feed(content_id: str, updates: dict) -> bool:
     """Updates a content item (announcement/niyama) by ID in MongoDB or in-memory store."""
     if is_mongo_connected and db is not None:
-        res = db.content.update_one({"id": content_id}, {"$set": updates})
-        return res.modified_count > 0
+        res = db.content.update_one(
+            {"$or": [{"id": content_id}, {"id": str(content_id)}]}, 
+            {"$set": updates}
+        )
+        if res.matched_count == 0:
+            try:
+                from bson import ObjectId
+                res = db.content.update_one({"_id": ObjectId(content_id)}, {"$set": updates})
+            except Exception:
+                pass
+        return res.matched_count > 0 or res.modified_count > 0
     else:
         for c in in_memory_store.get("content", []):
-            if c.get("id") == content_id:
+            if c.get("id") == content_id or str(c.get("_id", "")) == content_id:
                 c.update(updates)
                 return True
         return False
@@ -365,21 +436,47 @@ def get_all_event_photos() -> List[dict]:
     """Retrieves all event photos sorted by creation time."""
     if is_mongo_connected and db is not None:
         cursor = db.photos.find({}, {"_id": 0}).sort("created_at", pymongo.DESCENDING)
-        photos = list(cursor)
-        return photos if len(photos) > 0 else get_sample_photos()
+        return list(cursor)
     else:
         photos = in_memory_store.get("photos", [])
-        return sorted(photos if len(photos) > 0 else get_sample_photos(), key=lambda x: x.get("created_at", ""), reverse=True)
+        return sorted(photos, key=lambda x: x.get("created_at", ""), reverse=True)
 
 def delete_event_photo(photo_id: str) -> bool:
     """Deletes an event photo record from MongoDB or in-memory store."""
     if is_mongo_connected and db is not None:
-        res = db.photos.delete_one({"id": photo_id})
+        res = db.photos.delete_one({"$or": [{"id": photo_id}, {"id": str(photo_id)}]})
+        if res.deleted_count == 0:
+            try:
+                from bson import ObjectId
+                res = db.photos.delete_one({"_id": ObjectId(photo_id)})
+            except Exception:
+                pass
         return res.deleted_count > 0
     else:
         initial_len = len(in_memory_store.get("photos", []))
-        in_memory_store["photos"] = [p for p in in_memory_store.get("photos", []) if p.get("id") != photo_id]
+        in_memory_store["photos"] = [p for p in in_memory_store.get("photos", []) if p.get("id") != photo_id and str(p.get("_id", "")) != photo_id]
         return len(in_memory_store.get("photos", [])) < initial_len
+
+def update_event_photo(photo_id: str, updates: dict) -> bool:
+    """Updates an event photo record in MongoDB or in-memory store."""
+    if is_mongo_connected and db is not None:
+        res = db.photos.update_one(
+            {"$or": [{"id": photo_id}, {"id": str(photo_id)}]},
+            {"$set": updates}
+        )
+        if res.matched_count == 0:
+            try:
+                from bson import ObjectId
+                res = db.photos.update_one({"_id": ObjectId(photo_id)}, {"$set": updates})
+            except Exception:
+                pass
+        return res.matched_count > 0 or res.modified_count > 0
+    else:
+        for p in in_memory_store.get("photos", []):
+            if p.get("id") == photo_id or str(p.get("_id", "")) == photo_id:
+                p.update(updates)
+                return True
+        return False
 
 def get_sample_photos() -> List[dict]:
     """Returns sample initial event photos for gallery demonstration."""
@@ -421,3 +518,4 @@ def get_sample_photos() -> List[dict]:
             "created_at": "2026-07-20T10:15:00"
         }
     ]
+

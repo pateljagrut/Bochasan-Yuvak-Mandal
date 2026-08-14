@@ -11,20 +11,20 @@ export default function NotificationDrawer({ isOpen, onClose, feeds = [] }) {
   const sampleNotifications = [
     {
       id: 1,
-      title: 'Attendance Saved Successfully',
-      desc: 'Sunday Ravivariya Yuvak Sabha attendance has been recorded.',
-      time: '10 mins ago',
-      type: 'success',
-      icon: CheckCircle2,
+      title: 'Sabha Attendance Recorded',
+      desc: 'Yuvak Sabha attendance has been recorded.',
+      time: '10m ago',
+      type: 'attendance',
+      icon: CalendarCheck,
       color: '#22c55e'
     },
     {
       id: 2,
-      title: 'Upcoming Sunday Sabha',
-      desc: 'Niyama orientation session starting at 5:30 PM this Sunday.',
-      time: '2 hours ago',
-      type: 'event',
-      icon: Calendar,
+      title: 'Upcoming Saturday Sabha',
+      desc: 'Niyama orientation session starting at 6:00 PM this Saturday.',
+      time: '2h ago',
+      type: 'sabha',
+      icon: Clock,
       color: '#14b8a6'
     },
     ...feeds.map((f, i) => ({

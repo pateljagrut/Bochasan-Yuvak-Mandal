@@ -145,11 +145,7 @@ export async function getContentFeedsApi() {
 // ==========================================
 
 export async function getEventsApi() {
-  const url = import.meta.env.VITE_API_URL 
-    ? `${import.meta.env.VITE_API_URL}/api/events` 
-    : 'https://bochasan-yuvak-mandal.onrender.com/api/events';
-  const response = await axios.get(url);
-  return response.data;
+  return request('/content/photos');
 }
 
 export async function getEventPhotosApi() {
@@ -161,6 +157,14 @@ export async function postEventPhotoApi(photoData, token) {
     method: 'POST',
     token,
     body: photoData
+  });
+}
+
+export async function updateEventPhotoApi(photoId, updateData, token) {
+  return request(`/karyakar/photos/${photoId}`, {
+    method: 'PUT',
+    token,
+    body: updateData
   });
 }
 

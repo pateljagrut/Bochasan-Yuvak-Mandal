@@ -117,3 +117,14 @@ class EventPhotoPostRequest(BaseModel):
     image_url: str = Field(..., example="https://images.unsplash.com/photo-1609766857041-ed402ea8069a")
     author: Optional[str] = Field("Bochasan Media Team")
 
+class EventPhotoUpdateRequest(BaseModel):
+    """
+    Schema for updating Utsav & Prasang Event Photos.
+    """
+    title: Optional[str] = None
+    event_date: Optional[str] = None
+    category: Optional[str] = None
+    image_url: Optional[str] = None
+    author: Optional[str] = None
+
+

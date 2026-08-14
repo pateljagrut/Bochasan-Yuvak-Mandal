@@ -60,7 +60,7 @@ export default function DashboardOverview({
               icon={Award} 
               title="Today's Sabha Status" 
               value="Ready" 
-              description="Sunday Ravivariya Session" 
+              description="Saturday Shanivariya Session" 
               trend="100% Target"
               trendType="up"
               delay={0.15}
@@ -129,7 +129,7 @@ export default function DashboardOverview({
             <div style={{ padding: '0.85rem 1rem', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '10px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>Sabha Attendance Grid</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ready for Sunday marking</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ready for Saturday marking</div>
               </div>
               <button className="btn btn-primary" style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem' }} onClick={() => setActiveTab('attendance')}>
                 Open Grid

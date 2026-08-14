@@ -71,11 +71,11 @@ def init_db():
 
 def seed_initial_data():
     """
-    Seeds default system admin (Karyakar) and initial Yuvak profiles
-    if no users exist in the database yet. Ensures Admins have member IDs.
+    Seeds and maintains the 2 default system Admin users (vidur.patel and jagrut.patel).
+    Does NOT seed any dummy yuvaks, dummy attendance, or dummy content feeds.
     """
-    # 1. Ensure Super Admin Patel Vidur exists in MongoDB with a Yuvak/Member ID
-    admin_doc = {
+    # 1. Super Admin: Patel Vidur
+    admin_vidur = {
         "yuvak_id": "VID9898",
         "username": DEFAULT_ADMIN_USERNAME,
         "password": DEFAULT_ADMIN_PASSWORD,
@@ -87,168 +87,49 @@ def seed_initial_data():
         "created_at": datetime.now().isoformat()
     }
 
+    # 2. Admin: Jagrut Patel
+    admin_jagrut = {
+        "yuvak_id": "ADM-JAGRUT.PATEL",
+        "username": "jagrut.patel",
+        "password": "Jagrut@2026",
+        "full_name": "Jagrut Patel",
+        "dob": "2005-01-11",
+        "mobile_no": "7698011236",
+        "location": "Bochasan",
+        "role": "admin",
+        "created_by": "vidur.patel",
+        "created_at": datetime.now().isoformat()
+    }
+
     if is_mongo_connected and db is not None:
         db.users.update_one(
             {"$or": [{"username": DEFAULT_ADMIN_USERNAME}, {"username": "admin"}, {"yuvak_id": "VID9898"}]},
-            {"$set": admin_doc},
+            {"$set": admin_vidur},
             upsert=True
         )
-        logger.info(f"[SEED] Seeded & Updated Super Admin user: {DEFAULT_ADMIN_USERNAME} (VID9898)")
-
-        # Ensure all existing admin user documents in MongoDB have a yuvak_id persisted
-        admins_cursor = db.users.find({"role": "admin"})
-        for admin in admins_cursor:
-            if not admin.get("yuvak_id"):
-                uname = admin.get("username") or admin.get("full_name", "ADMIN").replace(" ", "").upper()
-                gen_id = f"ADM-{uname.upper()}"
-                db.users.update_one({"_id": admin["_id"]}, {"$set": {"yuvak_id": gen_id}})
-                logger.info(f"[SEED] Assigned yuvak_id '{gen_id}' to admin '{admin.get('username')}'")
+        db.users.update_one(
+            {"$or": [{"username": "jagrut.patel"}, {"yuvak_id": "ADM-JAGRUT.PATEL"}]},
+            {"$set": admin_jagrut},
+            upsert=True
+        )
+        logger.info("[SEED] Verified and maintained the 2 Admin users: vidur.patel & jagrut.patel.")
     else:
-        existing_idx = next((i for i, u in enumerate(in_memory_store["users"]) if u.get("username") in [DEFAULT_ADMIN_USERNAME, "admin"] or u.get("yuvak_id") == "VID9898"), -1)
-        if existing_idx >= 0:
-            in_memory_store["users"][existing_idx].update(admin_doc)
+        in_memory_store["users"] = [
+            u for u in in_memory_store.get("users", []) 
+            if u.get("role") == "admin"
+        ]
+        vidur_idx = next((i for i, u in enumerate(in_memory_store["users"]) if u.get("username") == DEFAULT_ADMIN_USERNAME or u.get("yuvak_id") == "VID9898"), -1)
+        if vidur_idx >= 0:
+            in_memory_store["users"][vidur_idx].update(admin_vidur)
         else:
-            in_memory_store["users"].append(admin_doc)
+            in_memory_store["users"].append(admin_vidur)
 
-        for u in in_memory_store["users"]:
-            if u.get("role") == "admin" and not u.get("yuvak_id"):
-                uname = u.get("username") or u.get("full_name", "ADMIN").replace(" ", "").upper()
-                u["yuvak_id"] = f"ADM-{uname.upper()}"
+        jagrut_idx = next((i for i, u in enumerate(in_memory_store["users"]) if u.get("username") == "jagrut.patel" or u.get("yuvak_id") == "ADM-JAGRUT.PATEL"), -1)
+        if jagrut_idx >= 0:
+            in_memory_store["users"][jagrut_idx].update(admin_jagrut)
+        else:
+            in_memory_store["users"].append(admin_jagrut)
 
-    # 2. Seed initial sample Yuvaks for testing and demonstration
-    sample_yuvaks = [
-        {
-            "yuvak_id": "ROH3210",
-            "full_name": "Rohan Patel",
-            "mobile_no": "9876543210",
-            "dob": "2002-05-15",
-            "location": "Bochasan",
-            "password": "9876543210",
-            "role": "yuvak",
-            "created_at": datetime.now().isoformat()
-        },
-        {
-            "yuvak_id": "HAR5678",
-            "full_name": "Harshil Shah",
-            "mobile_no": "9812345678",
-            "dob": "2001-08-20",
-            "location": "Atladara",
-            "password": "9812345678",
-            "role": "yuvak",
-            "created_at": datetime.now().isoformat()
-        },
-        {
-            "yuvak_id": "JAY1234",
-            "full_name": "Jayesh Joshi",
-            "mobile_no": "9988771234",
-            "dob": "2003-12-10",
-            "location": "Gadhada",
-            "password": "9988771234",
-            "role": "yuvak",
-            "created_at": datetime.now().isoformat()
-        }
-    ]
-    
-    for yuvak in sample_yuvaks:
-        if not find_user_by_identifier(yuvak["yuvak_id"]):
-            insert_user(yuvak)
-            logger.info(f"[SEED] Seeded sample Yuvak: {yuvak['full_name']} ({yuvak['yuvak_id']})")
-
-    # 3. Seed initial sample attendance history (Saturday Shanivariya Sabhas)
-    sample_attendance = [
-        {
-            "sabha_date": "2026-07-18",
-            "sabha_title": "Shanivariya Yuvak Sabha - Niyama & Seva Orientation",
-            "present_yuvak_ids": ["ROH3210", "HAR5678", "VID9898"],
-            "created_at": datetime.now().isoformat()
-        },
-        {
-            "sabha_date": "2026-07-25",
-            "sabha_title": "Shanivariya Yuvak Sabha - Ekantik Dharma & Yuva Mahotsav Prep",
-            "present_yuvak_ids": ["ROH3210", "JAY1234", "VID9898"],
-            "created_at": datetime.now().isoformat()
-        },
-        {
-            "sabha_date": "2026-08-01",
-            "sabha_title": "Shanivariya Yuvak Sabha - Monthly Prerna Sabha & Attendance Check",
-            "present_yuvak_ids": ["ROH3210", "HAR5678", "JAY1234", "VID9898"],
-            "created_at": datetime.now().isoformat()
-        },
-        {
-            "sabha_date": "2026-08-08",
-            "sabha_title": "Shanivariya Yuvak Sabha - Satsang Diksha Adhyayan",
-            "present_yuvak_ids": ["ROH3210", "HAR5678", "VID9898"],
-            "created_at": datetime.now().isoformat()
-        }
-    ]
-    
-    if is_mongo_connected and db is not None:
-        meta_att = db.meta.find_one({"_id": "seed_attendance_sat"})
-        if not meta_att:
-            # Clean old Sunday sample dates if present and seed Saturday sessions
-            db.attendance.delete_many({"sabha_date": {"$in": ["2026-07-19", "2026-07-26", "2026-08-02"]}})
-            for att in sample_attendance:
-                db.attendance.update_one({"sabha_date": att["sabha_date"]}, {"$set": att}, upsert=True)
-            db.meta.update_one({"_id": "seed_attendance_sat"}, {"$set": {"seeded": True}}, upsert=True)
-            logger.info("[SEED] Seeded Saturday Shanivariya Sabha attendance sessions into MongoDB.")
-    else:
-        if "attendance" not in in_memory_store:
-            in_memory_store["attendance"] = []
-        if len(in_memory_store["attendance"]) == 0 or not in_memory_store.get("attendance_sat_initialized"):
-            in_memory_store["attendance"] = [a.copy() for a in sample_attendance]
-            in_memory_store["attendance_sat_initialized"] = True
-
-
-    # 4. Seed initial content feed (seed once on initialization)
-    sample_content = [
-        {
-            "id": "cnt_01",
-            "title": "Welcome to Bochasan Yuvak Mandal Sabha!",
-            "content": "Join us every Sunday at 5:30 PM at the Mandal Mandir for inspiring discourses, group discussions, and cultural activities.",
-            "category": "announcement",
-            "author": "Bochasan Karyakar Team",
-            "created_at": "2026-08-01T10:00:00"
-        },
-        {
-            "id": "cnt_02",
-            "title": "Niyama of the Week: Daily Morning Puja",
-            "content": "Practicing daily morning Mansi Puja and Agna instills purity and strength in youth life.",
-            "category": "niyama",
-            "author": "Prerna Desk",
-            "created_at": "2026-08-02T08:00:00"
-        }
-    ]
-    
-    if is_mongo_connected and db is not None:
-        meta_content = db.meta.find_one({"_id": "seed_content_init"})
-        if not meta_content:
-            if db.content.count_documents({}) == 0:
-                for cnt in sample_content:
-                    insert_content_feed(cnt)
-                logger.info("[SEED] Seeded initial content feeds into MongoDB.")
-            db.meta.update_one({"_id": "seed_content_init"}, {"$set": {"seeded": True}}, upsert=True)
-    else:
-        if "content" not in in_memory_store:
-            in_memory_store["content"] = []
-        if len(in_memory_store["content"]) == 0 and not in_memory_store.get("content_initialized"):
-            in_memory_store["content"] = [c.copy() for c in sample_content]
-            in_memory_store["content_initialized"] = True
-
-    # 5. Seed initial event photos (seed once on initialization into MongoDB)
-    if is_mongo_connected and db is not None:
-        meta_photos = db.meta.find_one({"_id": "seed_photos_init"})
-        if not meta_photos:
-            if db.photos.count_documents({}) == 0:
-                for photo in get_sample_photos():
-                    db.photos.insert_one(photo)
-                logger.info("[SEED] Seeded initial event photos into MongoDB.")
-            db.meta.update_one({"_id": "seed_photos_init"}, {"$set": {"seeded": True}}, upsert=True)
-    else:
-        if "photos" not in in_memory_store:
-            in_memory_store["photos"] = []
-        if len(in_memory_store["photos"]) == 0 and not in_memory_store.get("photos_initialized"):
-            in_memory_store["photos"] = [p.copy() for p in get_sample_photos()]
-            in_memory_store["photos_initialized"] = True
 
 # ==========================================
 # MongoDB Data Access Helper Functions

@@ -9,7 +9,7 @@ Annotated with detailed comments for junior and fresher developer clarity.
 import sys
 import logging
 import certifi
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from datetime import datetime
 import pymongo
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
@@ -31,10 +31,12 @@ is_mongo_connected = False
 # ==========================================
 # If MongoDB service is unavailable on localhost:27017, this dictionary
 # ensures the API remains 100% operational for development, testing, and demos.
-in_memory_store = {
+in_memory_store: Dict[str, Any] = {
     "users": [],
     "attendance": [],
-    "content": []
+    "content": [],
+    "photos": [],
+    "sabha_schedule": {}
 }
 
 def init_db():
@@ -399,4 +401,48 @@ def get_sample_photos() -> List[dict]:
             "created_at": "2026-07-20T10:15:00"
         }
     ]
+
+# ==========================================
+# Upcoming Sabha Schedule Functions
+# ==========================================
+
+def get_upcoming_sabha_schedule() -> dict:
+    """Retrieves the upcoming Sabha schedule from MongoDB or default configuration."""
+    default_schedule: dict = {
+        "id": "upcoming_sabha_active",
+        "title": "Upcoming Shanivariya Sabha",
+        "date_str": None,
+        "timing": "8:30 PM IST",
+        "venue": "Mahant Hall 1st floor",
+        "description": "Weekly spiritual session, youth leadership development, Satsang Chintan and Mahaprasad.",
+        "target_attendance": "100% Attendance",
+        "status_badge": "● Saturday Scheduled",
+        "updated_at": datetime.now().isoformat()
+    }
+    if is_mongo_connected and db is not None:
+        doc = db.sabha_schedule.find_one({"id": "upcoming_sabha_active"}, {"_id": 0})
+        if doc and isinstance(doc, dict):
+            return doc
+        return default_schedule
+    else:
+        cached = in_memory_store.get("sabha_schedule")
+        if isinstance(cached, dict) and cached:
+            return cached
+        return default_schedule
+
+def update_upcoming_sabha_schedule(schedule_doc: dict) -> dict:
+    """Updates the upcoming Sabha schedule in MongoDB or in-memory store."""
+    schedule_doc["id"] = "upcoming_sabha_active"
+    schedule_doc["updated_at"] = datetime.now().isoformat()
+    if is_mongo_connected and db is not None:
+        db.sabha_schedule.update_one(
+            {"id": "upcoming_sabha_active"},
+            {"$set": schedule_doc},
+            upsert=True
+        )
+    else:
+        in_memory_store["sabha_schedule"] = schedule_doc
+    return schedule_doc
+
+
 

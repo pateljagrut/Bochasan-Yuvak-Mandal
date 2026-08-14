@@ -19,12 +19,14 @@ import uuid
 from app.auth import get_current_user, require_admin_role
 from app.models import (
     YuvakProfileUpdate, AttendanceMarkRequest, ContentPostRequest, 
-    ContentUpdateRequest, EventPhotoPostRequest, EventPhotoUpdateRequest
+    ContentUpdateRequest, EventPhotoPostRequest, EventPhotoUpdateRequest,
+    UpcomingSabhaScheduleRequest
 )
 from app.db import (
     get_all_yuvaks, update_yuvak_profile, delete_yuvak_member, insert_attendance_record, 
     get_all_attendance_records, insert_content_feed, find_user_by_identifier,
-    insert_event_photo, delete_event_photo, update_event_photo, delete_content_feed, update_content_feed
+    insert_event_photo, delete_event_photo, update_event_photo, delete_content_feed, update_content_feed,
+    get_upcoming_sabha_schedule, update_upcoming_sabha_schedule
 )
 from app.websocket_manager import ws_manager
 
@@ -333,5 +335,40 @@ async def remove_event_photo(photo_id: str, current_user: dict = Depends(get_cur
         "success": True,
         "message": "Photo removed from gallery successfully."
     }
+
+@router.get("/upcoming-sabha")
+async def get_sabha_schedule_admin(current_user: dict = Depends(get_current_user)):
+    """
+    Returns the currently configured upcoming Shanivariya Sabha schedule & details.
+    """
+    schedule = get_upcoming_sabha_schedule()
+    return {"success": True, "schedule": schedule}
+
+@router.put("/upcoming-sabha")
+async def update_sabha_schedule_admin(payload: UpcomingSabhaScheduleRequest, current_user: dict = Depends(get_current_user)):
+    """
+    Updates the upcoming Shanivariya Sabha schedule (title, date, timing, venue, agenda, target).
+    Broadcasts real-time sync event to all connected dashboards.
+    """
+    update_data = {k: v for k, v in payload.model_dump().items() if v is not None}
+    saved_schedule = update_upcoming_sabha_schedule(update_data)
+
+    admin_name = current_user.get("full_name") or current_user.get("username", "Admin")
+    await ws_manager.broadcast("SABHA_SCHEDULE_UPDATED", {
+        "schedule": saved_schedule,
+        "updated_by": admin_name,
+        "action": "updated"
+    })
+    await ws_manager.broadcast("CONTENT_UPDATED", {
+        "type": "sabha_schedule",
+        "action": "updated"
+    })
+
+    return {
+        "success": True,
+        "message": "Upcoming Shanivariya Sabha schedule updated successfully!",
+        "schedule": saved_schedule
+    }
+
 
 

@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -28,8 +28,14 @@ import {
   CheckCircle2, 
   AlertCircle,
   BarChart3,
-  Flame
+  Flame,
+  Edit3,
+  Save,
+  X,
+  Layers
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { getUpcomingSabhaApi, updateUpcomingSabhaApi } from '../services/api';
 
 /**
  * Helper function to format ISO date string (YYYY-MM-DD) into display label
@@ -49,12 +55,12 @@ function formatSabhaDate(dateStr) {
 }
 
 /**
- * Helper function to calculate next upcoming Saturday date
+ * Helper function to calculate default next upcoming Saturday date
  */
-function getNextSaturdayInfo() {
+function getDefaultSaturdayInfo() {
   const now = new Date();
   const dayOfWeek = now.getDay(); // 0 = Sun, 6 = Sat
-  const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7; // If today is Sat, next is in 7 days or today if early
+  const daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7;
   const nextSat = new Date(now);
   nextSat.setDate(now.getDate() + daysUntilSaturday);
 
@@ -66,10 +72,14 @@ function getNextSaturdayInfo() {
   });
 
   return {
+    title: 'Upcoming Shanivariya Sabha',
     date: formattedDate,
     iso: nextSat.toISOString().split('T')[0],
-    time: '6:00 PM – 7:30 PM IST',
-    venue: 'Main Mandir Assembly Hall, Bochasan'
+    timing: '8:30 PM IST',
+    venue: 'Mahant Hall 1st floor',
+    description: 'Weekly spiritual session, youth leadership development, Satsang Chintan and Mahaprasad.',
+    target_attendance: '100% Attendance',
+    status_badge: '● Saturday Scheduled'
   };
 }
 
@@ -150,9 +160,79 @@ function CustomAreaTooltip({ active, payload, label }) {
  * Recharts-Powered Analytics Dashboard Section.
  * 100% Dynamically calculates attendance rates, trends, headcount distributions,
  * and upcoming Saturday schedules directly from database records.
+ * Supports interactive in-place editing of the Upcoming Sabha Card.
  */
-export default function AnalyticsSection({ yuvaks = [], sessions = [] }) {
-  const nextSabha = useMemo(() => getNextSaturdayInfo(), []);
+export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefreshData }) {
+  const { token, role } = useAuth();
+  const isAdmin = role === 'admin';
+
+  const defaultSchedule = useMemo(() => getDefaultSaturdayInfo(), []);
+  const [sabhaSchedule, setSabhaSchedule] = useState(defaultSchedule);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState(defaultSchedule);
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const [toastMsg, setToastMsg] = useState(null);
+
+  // Load latest upcoming sabha schedule from API on mount
+  useEffect(() => {
+    getUpcomingSabhaApi()
+      .then(res => {
+        if (res?.schedule) {
+          setSabhaSchedule(prev => ({
+            ...prev,
+            title: res.schedule.title || prev.title,
+            date: res.schedule.date_str || prev.date,
+            timing: res.schedule.timing || prev.timing,
+            venue: res.schedule.venue || prev.venue,
+            description: res.schedule.description || prev.description,
+            target_attendance: res.schedule.target_attendance || prev.target_attendance,
+            status_badge: res.schedule.status_badge || prev.status_badge
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleOpenEditModal = () => {
+    setEditFormData({
+      title: sabhaSchedule.title || 'Upcoming Shanivariya Sabha',
+      date_str: sabhaSchedule.date || defaultSchedule.date,
+      timing: sabhaSchedule.timing || '8:30 PM IST',
+      venue: sabhaSchedule.venue || 'Mahant Hall 1st floor',
+      description: sabhaSchedule.description || defaultSchedule.description,
+      target_attendance: sabhaSchedule.target_attendance || '100% Attendance',
+      status_badge: sabhaSchedule.status_badge || '● Saturday Scheduled'
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveSchedule = async (e) => {
+    e.preventDefault();
+    try {
+      setSavingSchedule(true);
+      const res = await updateUpcomingSabhaApi(editFormData, token);
+      if (res?.success) {
+        setSabhaSchedule({
+          title: editFormData.title,
+          date: editFormData.date_str,
+          timing: editFormData.timing,
+          venue: editFormData.venue,
+          description: editFormData.description,
+          target_attendance: editFormData.target_attendance,
+          status_badge: editFormData.status_badge
+        });
+        setShowEditModal(false);
+        setToastMsg('Sabha schedule updated successfully!');
+        setTimeout(() => setToastMsg(null), 4000);
+        if (onRefreshData) onRefreshData();
+      }
+    } catch (err) {
+      console.error('Error saving upcoming sabha schedule:', err);
+      alert('Failed to save sabha schedule. Please try again.');
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
 
   // 1. Process attendance session data dynamically
   const { 
@@ -271,6 +351,21 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [] }) {
       transition={{ duration: 0.35 }}
       style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
     >
+      {toastMsg && (
+        <div style={{
+          padding: '0.75rem 1.25rem',
+          background: 'rgba(34, 197, 94, 0.18)',
+          border: '1px solid #22c55e',
+          color: '#4ade80',
+          borderRadius: '12px',
+          fontWeight: 600,
+          fontSize: '0.88rem',
+          textAlign: 'center'
+        }}>
+          ✅ {toastMsg}
+        </div>
+      )}
+
       {/* Dynamic Summary Metric Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
         <div className="glass-card" style={{ padding: '1.25rem' }}>
@@ -384,23 +479,37 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [] }) {
           )}
         </div>
 
-        {/* Upcoming Saturday Prerna Sabha Card */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        {/* Upcoming Saturday Prerna Sabha Card (Editable by Admins) */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <Sparkles size={20} color="#ff7a18" />
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>Upcoming Shanivariya Sabha</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Sparkles size={20} color="#ff7a18" />
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>{sabhaSchedule.title || 'Upcoming Shanivariya Sabha'}</h3>
+              </div>
+              {isAdmin && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                  onClick={handleOpenEditModal}
+                  title="Edit Upcoming Sabha Schedule"
+                >
+                  <Edit3 size={13} color="#14b8a6" /> Edit
+                </button>
+              )}
             </div>
+
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-              Weekly spiritual session, youth leadership development, Satsang Chintan and Mahaprasad.
+              {sabhaSchedule.description}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.85rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--text-secondary)' }}>
                 <Calendar size={16} color="#14b8a6" style={{ marginTop: '2px', flexShrink: 0 }} />
                 <div>
-                  <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Next Scheduled Saturday:</strong>
-                  <span>{nextSabha.date}</span>
+                  <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Scheduled Date:</strong>
+                  <span>{sabhaSchedule.date}</span>
                 </div>
               </div>
 
@@ -408,7 +517,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [] }) {
                 <Clock size={16} color="#22c55e" style={{ marginTop: '2px', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Sabha Timing:</strong>
-                  <span>{nextSabha.time}</span>
+                  <span>{sabhaSchedule.timing}</span>
                 </div>
               </div>
 
@@ -416,15 +525,15 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [] }) {
                 <MapPin size={16} color="#ff7a18" style={{ marginTop: '2px', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Venue:</strong>
-                  <span>{nextSabha.venue}</span>
+                  <span>{sabhaSchedule.venue}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Target: 100% Attendance</span>
-            <span className="badge badge-success">● Saturday Scheduled</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Target: {sabhaSchedule.target_attendance}</span>
+            <span className="badge badge-success">{sabhaSchedule.status_badge}</span>
           </div>
         </div>
       </div>
@@ -584,6 +693,177 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [] }) {
           </div>
         )}
       </div>
+
+      {/* Edit Upcoming Sabha Modal */}
+      <AnimatePresence>
+        {showEditModal && (
+          <div 
+            className="modal-overlay"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(6px)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              className="glass-card"
+              style={{
+                width: '100%',
+                maxWidth: '520px',
+                padding: '1.75rem',
+                borderRadius: '20px',
+                border: '1px solid rgba(255, 122, 24, 0.4)',
+                boxShadow: '0 20px 45px rgba(0,0,0,0.8)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <Sparkles size={22} color="#ff7a18" />
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                    Edit Upcoming Sabha Details
+                  </h3>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.3rem' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                    Sabha Title / Heading
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={editFormData.title}
+                    onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                      📅 Scheduled Date String
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editFormData.date_str}
+                      onChange={(e) => setEditFormData({ ...editFormData, date_str: e.target.value })}
+                      placeholder="e.g. Saturday, Aug 22, 2026"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                      ⏰ Sabha Timing
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editFormData.timing}
+                      onChange={(e) => setEditFormData({ ...editFormData, timing: e.target.value })}
+                      placeholder="e.g. 8:30 PM IST"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                    📍 Sabha Venue
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={editFormData.venue}
+                    onChange={(e) => setEditFormData({ ...editFormData, venue: e.target.value })}
+                    placeholder="e.g. Mahant Hall 1st floor"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                    📝 Agenda / Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="form-control"
+                    value={editFormData.description}
+                    onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                      Target Label
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editFormData.target_attendance}
+                      onChange={(e) => setEditFormData({ ...editFormData, target_attendance: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                      Status Badge
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editFormData.status_badge}
+                      onChange={(e) => setEditFormData({ ...editFormData, status_badge: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.75rem' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => setShowEditModal(false)}
+                    disabled={savingSchedule}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary" 
+                    disabled={savingSchedule}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    <Save size={16} />
+                    {savingSchedule ? 'Saving...' : 'Save Schedule'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

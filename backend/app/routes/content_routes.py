@@ -5,7 +5,7 @@ Provides read-only access to announcements, Niyama feeds, and Sabha schedule ite
 """
 
 from fastapi import APIRouter
-from app.db import get_all_content_feeds, get_all_event_photos
+from app.db import get_all_content_feeds, get_all_event_photos, get_upcoming_sabha_schedule
 
 router = APIRouter(prefix="/api/content", tags=["Content Feed"])
 
@@ -33,4 +33,13 @@ def get_public_events():
     """
     photos = get_all_event_photos()
     return {"success": True, "count": len(photos), "events": photos}
+
+@router.get("/upcoming-sabha")
+def get_public_upcoming_sabha():
+    """
+    Returns the currently configured upcoming Shanivariya Sabha schedule & details.
+    """
+    schedule = get_upcoming_sabha_schedule()
+    return {"success": True, "schedule": schedule}
+
 

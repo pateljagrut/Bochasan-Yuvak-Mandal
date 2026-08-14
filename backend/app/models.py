@@ -6,8 +6,7 @@ for Yuvak registration, login, attendance marking, content posts, and admin mana
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Optional
-from datetime import date, datetime
+from typing import List, Optional, Dict, Any
 
 # ==========================================
 # Authentication & User Registration Schemas
@@ -18,11 +17,11 @@ class YuvakRegisterRequest(BaseModel):
     Schema for Yuvak Registration request.
     Collects Full Name, Mobile Number, Date of Birth, and Location.
     """
-    full_name: str = Field(..., example="Rohan Patel", description="Full name of the Yuvak")
-    mobile_no: str = Field(..., example="9876543210", description="10-digit mobile number")
-    dob: str = Field(..., example="2002-05-15", description="Date of birth (YYYY-MM-DD)")
-    location: str = Field(..., example="Bochasan", description="Mandal or city location")
-    password: Optional[str] = Field(None, description="Optional custom password. Defaults to mobile number.")
+    full_name: str = Field(description="Full name of the Yuvak", examples=["Rohan Patel"])
+    mobile_no: str = Field(description="10-digit mobile number", examples=["9876543210"])
+    dob: str = Field(description="Date of birth (YYYY-MM-DD)", examples=["2002-05-15"])
+    location: str = Field(description="Mandal or city location", examples=["Bochasan"])
+    password: Optional[str] = Field(default=None, description="Optional custom password. Defaults to mobile number.")
 
 class YuvakRegisterResponse(BaseModel):
     """
@@ -31,7 +30,7 @@ class YuvakRegisterResponse(BaseModel):
     """
     success: bool
     message: str
-    yuvak_id: str = Field(..., example="ROH3210", description="Generated ID: Upper(First 3 letters) + Last 4 mobile digits")
+    yuvak_id: str = Field(description="Generated ID: Upper(First 3 letters) + Last 4 mobile digits", examples=["ROH3210"])
     full_name: str
     mobile_no: str
     location: str
@@ -42,8 +41,8 @@ class LoginRequest(BaseModel):
     Schema for Smart Login.
     Accepts Yuvak ID, Mobile Number, or Admin Username along with password.
     """
-    identifier: str = Field(..., example="ROH3210", description="Yuvak ID, Mobile Number, or Admin Username")
-    password: str = Field(..., example="9876543210", description="User password")
+    identifier: str = Field(description="Yuvak ID, Mobile Number, or Admin Username", examples=["ROH3210"])
+    password: str = Field(description="User password", examples=["9876543210"])
 
 class LoginResponse(BaseModel):
     """
@@ -53,19 +52,19 @@ class LoginResponse(BaseModel):
     message: str
     access_token: str
     token_type: str = "bearer"
-    role: str = Field(..., example="yuvak", description="Role: 'yuvak' or 'admin'")
+    role: str = Field(description="Role: 'yuvak' or 'admin'", examples=["yuvak"])
     user: dict
 
 class CreateKaryakarRequest(BaseModel):
     """
     Schema for Admin-protected endpoint to create a new Karyakar (Admin) profile.
     """
-    username: str = Field(..., example="karyakar_rohan", description="Unique admin username")
-    password: str = Field(..., example="SecurePass123", description="Admin password")
-    full_name: str = Field(..., example="Rohan Patel (Karyakar)", description="Admin full name")
-    dob: Optional[str] = Field(None, example="1995-04-15", description="Admin date of birth (YYYY-MM-DD)")
-    mobile_no: str = Field(..., example="9876543210", description="10-digit mobile number")
-    location: str = Field(..., example="Bochasan", description="Admin center location")
+    username: str = Field(description="Unique admin username", examples=["karyakar_rohan"])
+    password: str = Field(description="Admin password", examples=["SecurePass123"])
+    full_name: str = Field(description="Admin full name", examples=["Rohan Patel (Karyakar)"])
+    dob: Optional[str] = Field(default=None, description="Admin date of birth (YYYY-MM-DD)", examples=["1995-04-15"])
+    mobile_no: str = Field(description="10-digit mobile number", examples=["9876543210"])
+    location: str = Field(description="Admin center location", examples=["Bochasan"])
 
 # ==========================================
 # Profile & Attendance Schemas
@@ -79,24 +78,24 @@ class YuvakProfileUpdate(BaseModel):
     mobile_no: Optional[str] = None
     dob: Optional[str] = None
     location: Optional[str] = None
-    status: Optional[str] = Field(None, example="active", description="Status: 'active' or 'inactive'")
+    status: Optional[str] = Field(default=None, description="Status: 'active' or 'inactive'", examples=["active"])
 
 class AttendanceMarkRequest(BaseModel):
     """
     Schema for Karyakars to mark sabha attendance for a specific date.
     """
-    sabha_date: str = Field(..., example="2026-08-02", description="Sabha date in YYYY-MM-DD format")
-    sabha_title: Optional[str] = Field("Ravivariya Yuvak Sabha", description="Title or theme of the Sabha")
-    present_yuvak_ids: List[str] = Field(..., description="List of Yuvak IDs present in this Sabha")
+    sabha_date: str = Field(description="Sabha date in YYYY-MM-DD format", examples=["2026-08-02"])
+    sabha_title: Optional[str] = Field(default="Shanivariya Yuvak Sabha", description="Title or theme of the Sabha")
+    present_yuvak_ids: List[str] = Field(default_factory=list, description="List of Yuvak IDs present in this Sabha")
 
 class ContentPostRequest(BaseModel):
     """
     Schema for uploading Sabha announcements, Niyama feeds, or inspirational thoughts.
     """
-    title: str = Field(..., example="Weekly Sabha Theme: Satsang Diksha")
-    content: str = Field(..., example="Join us this Sunday at 6:00 PM for an engaging session...")
-    category: str = Field("announcement", example="announcement", description="Category: 'announcement', 'niyama', or 'schedule'")
-    author: Optional[str] = Field("Mandal Karyakar Team", description="Author or publishing entity")
+    title: str = Field(description="Title of the announcement or theme", examples=["Weekly Sabha Theme: Satsang Diksha"])
+    content: str = Field(description="Body content of the post", examples=["Join us this Saturday at 8:30 PM for an engaging session..."])
+    category: str = Field(default="announcement", description="Category: 'announcement', 'niyama', or 'schedule'", examples=["announcement"])
+    author: Optional[str] = Field(default="Mandal Karyakar Team", description="Author or publishing entity")
 
 class ContentUpdateRequest(BaseModel):
     """
@@ -111,11 +110,11 @@ class EventPhotoPostRequest(BaseModel):
     """
     Schema for uploading Utsav & Prasang Event Photos.
     """
-    title: str = Field(..., example="Hindola Utsav 2026")
-    event_date: str = Field(..., example="2026-08-04")
-    category: str = Field("Utsav", example="Utsav", description="Category: 'Utsav', 'Sabha', 'Cultural', 'Prasang'")
-    image_url: str = Field(..., example="https://images.unsplash.com/photo-1609766857041-ed402ea8069a")
-    author: Optional[str] = Field("Bochasan Media Team")
+    title: str = Field(description="Event photo title", examples=["Hindola Utsav 2026"])
+    event_date: str = Field(description="Event date in YYYY-MM-DD format", examples=["2026-08-04"])
+    category: str = Field(default="Utsav", description="Category: 'Utsav', 'Sabha', 'Cultural', 'Prasang'", examples=["Utsav"])
+    image_url: str = Field(description="Image URL", examples=["https://images.unsplash.com/photo-1609766857041-ed402ea8069a"])
+    author: Optional[str] = Field(default="Bochasan Media Team")
 
 class EventPhotoUpdateRequest(BaseModel):
     """
@@ -127,4 +126,17 @@ class EventPhotoUpdateRequest(BaseModel):
     image_url: Optional[str] = None
     author: Optional[str] = None
 
-
+class UpcomingSabhaScheduleRequest(BaseModel):
+    """
+    Schema for configuring Upcoming Shanivariya Sabha schedule & details.
+    """
+    title: Optional[str] = Field(default="Upcoming Shanivariya Sabha", examples=["Upcoming Shanivariya Sabha"])
+    date_str: Optional[str] = Field(default=None, examples=["Saturday, Aug 22, 2026"])
+    timing: Optional[str] = Field(default="8:30 PM IST", examples=["8:30 PM IST"])
+    venue: Optional[str] = Field(default="Mahant Hall 1st floor", examples=["Mahant Hall 1st floor"])
+    description: Optional[str] = Field(
+        default="Weekly spiritual session, youth leadership development, Satsang Chintan and Mahaprasad.",
+        examples=["Weekly spiritual session, youth leadership development, Satsang Chintan and Mahaprasad."]
+    )
+    target_attendance: Optional[str] = Field(default="100% Attendance", examples=["100% Attendance"])
+    status_badge: Optional[str] = Field(default="● Saturday Scheduled", examples=["● Saturday Scheduled"])

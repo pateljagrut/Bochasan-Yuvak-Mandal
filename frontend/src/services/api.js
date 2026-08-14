@@ -176,6 +176,23 @@ export async function deleteEventPhotoApi(photoId, token) {
 }
 
 // ==========================================
+// Upcoming Sabha Schedule API
+// ==========================================
+
+export async function getUpcomingSabhaApi() {
+  return request('/content/upcoming-sabha');
+}
+
+export async function updateUpcomingSabhaApi(scheduleData, token) {
+  return request('/karyakar/upcoming-sabha', {
+    method: 'PUT',
+    token,
+    body: scheduleData
+  });
+}
+
+
+// ==========================================
 // Admin Security (RBAC) API
 // ==========================================
 

@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 import { 
   Search, 
-  Bell, 
   LogOut, 
   LayoutDashboard, 
   CalendarCheck, 
@@ -22,8 +21,7 @@ export default function Navbar({
   activeTab = 'dashboard', 
   setActiveTab = () => {}, 
   onOpenCreateAdminModal,
-  onOpenSearch = () => {},
-  onOpenNotifications = () => {}
+  onOpenSearch = () => {}
 }) {
   const { user, role, logout } = useAuth();
 
@@ -44,31 +42,28 @@ export default function Navbar({
   const currentNavItems = role === 'admin' ? adminNavItems : yuvakNavItems;
 
   return (
-    <header className="w-full bg-slate-900/90 border-b border-gray-800 backdrop-blur-md sticky top-0 z-50 px-3 sm:px-6 py-2.5 min-h-[3.75rem] flex items-center justify-between app-header">
-      <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-2 sm:gap-3 header-container">
+    <header className="navbar-container sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/60 px-3 sm:px-6 py-2.5">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
         
-        {/* Left: Brand Logo */}
-        <div 
-          className="cursor-pointer shrink-0" 
-          onClick={() => setActiveTab(role === 'admin' ? 'dashboard' : 'attendance')}
-        >
-          <Logo size="md" />
+        {/* Left Side: Brand Logo */}
+        <div className="flex items-center gap-3 shrink-0">
+          <Logo />
         </div>
 
-        {/* Center: Desktop Navigation Tabs (Karyakar Admin / Yuvak Workspace) */}
-        <nav className="hidden md:flex items-center gap-0.5 bg-gray-800/40 p-1 rounded-full border border-gray-700/50 desktop-nav-tabs">
-          {currentNavItems.map((item) => {
+        {/* Center: Desktop Navigation Tabs */}
+        <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
-                className={`nav-tab-btn px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
-                  isActive 
-                    ? 'active bg-orange-500/20 text-orange-400 border border-orange-500/40 font-semibold' 
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700/30'
-                }`}
                 onClick={() => setActiveTab(item.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                  isActive
+                    ? 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                }`}
               >
                 <Icon size={15} />
                 <span>{item.label}</span>
@@ -89,16 +84,6 @@ export default function Navbar({
             <Search size={14} />
             <span className="whitespace-nowrap">Search</span>
             <span className="search-kbd bg-black/40 border border-gray-700 px-1 rounded text-[10px] text-gray-400">⌘K</span>
-          </button>
-
-          {/* Notification Bell */}
-          <button 
-            className="icon-btn-ghost relative p-2 rounded-lg border border-gray-700/60 bg-gray-800/40 text-gray-300 hover:text-white transition-all shrink-0"
-            onClick={onOpenNotifications} 
-            title="Notifications"
-          >
-            <Bell size={17} />
-            <span className="notification-badge-dot absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_#ff7a18]"></span>
           </button>
 
           {user && (

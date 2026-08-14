@@ -5,20 +5,17 @@ import YuvakDashboard from '../components/YuvakDashboard';
 import KaryakarDashboard from '../components/KaryakarDashboard';
 import AdminKaryakarCreationModal from '../components/AdminKaryakarCreationModal';
 import GlobalSearchModal from '../components/GlobalSearchModal';
-import NotificationDrawer from '../components/NotificationDrawer';
-import { getAllYuvaksApi, getContentFeedsApi } from '../services/api';
+import { getAllYuvaksApi } from '../services/api';
 
 export default function DashboardPage() {
   const { role, token } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [adminSuccessMsg, setAdminSuccessMsg] = useState(null);
   const [yuvaksList, setYuvaksList] = useState([]);
-  const [feedsList, setFeedsList] = useState([]);
 
-  // Fetch yuvaks & feeds for global search and notification drawer for all users
+  // Fetch yuvaks for global search
   useEffect(() => {
     if (!token) return;
 
@@ -27,16 +24,6 @@ export default function DashboardPage() {
         if (res?.yuvaks) setYuvaksList(res.yuvaks);
       }).catch(() => {});
     }
-
-    const loadFeeds = () => {
-      getContentFeedsApi().then(res => {
-        if (res?.feeds) setFeedsList(res.feeds);
-      }).catch(() => {});
-    };
-
-    loadFeeds();
-    const interval = setInterval(loadFeeds, 8000);
-    return () => clearInterval(interval);
   }, [token, role]);
 
   // Handle Ctrl + K shortcut
@@ -63,7 +50,6 @@ export default function DashboardPage() {
         setActiveTab={setActiveTab}
         onOpenCreateAdminModal={() => setShowAdminModal(true)} 
         onOpenSearch={() => setShowSearchModal(true)}
-        onOpenNotifications={() => setShowNotifications(true)}
       />
 
       {adminSuccessMsg && (
@@ -89,7 +75,6 @@ export default function DashboardPage() {
           setActiveTab={setActiveTab}
           onOpenCreateAdminModal={() => setShowAdminModal(true)} 
           onOpenSearch={() => setShowSearchModal(true)}
-          onOpenNotifications={() => setShowNotifications(true)}
         />
       ) : (
         <YuvakDashboard 
@@ -113,13 +98,6 @@ export default function DashboardPage() {
         yuvaks={yuvaksList}
         setActiveTab={setActiveTab}
         onOpenCreateAdminModal={() => setShowAdminModal(true)}
-      />
-
-      {/* Notification Drawer */}
-      <NotificationDrawer
-        isOpen={showNotifications}
-        onClose={() => setShowNotifications(false)}
-        feeds={feedsList}
       />
     </div>
   );

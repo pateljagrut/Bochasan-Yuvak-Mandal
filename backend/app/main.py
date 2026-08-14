@@ -19,7 +19,15 @@ from app.routes.karyakar_routes import router as karyakar_router
 from app.routes.admin_routes import router as admin_router
 from app.routes.content_routes import router as content_router
 from app.websocket_manager import ws_manager
+from fastapi import FastAPI
 
+app = FastAPI()
+
+@app.get("/")
+def root():
+    return {
+        "message": "Bochasan Yuvak Mandal Backend is running!"
+    }
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """

@@ -7,13 +7,25 @@ Designed with clear explanatory comments for fresher developers.
 """
 
 import os
+from pathlib import Path
+
+# Load environment variables from .env file if present
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if env_path.exists():
+        load_dotenv(dotenv_path=env_path)
+    else:
+        load_dotenv()
+except ImportError:
+    pass
 
 # ==========================================
 # MongoDB Connection Configuration
 # ==========================================
-# Default connection string for local MongoDB deployment.
-# Can be overridden via environment variables for MongoDB Atlas or custom servers.
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+# MongoDB Atlas Cloud Database URI
+DEFAULT_ATLAS_URI = "mongodb+srv://jagrutpatel1101_db_user:FvlgDCn5yeqd7ECE@cluster0.nqawozt.mongodb.net/?retryWrites=true&w=majority"
+MONGO_URI = os.getenv("MONGO_URI", DEFAULT_ATLAS_URI)
 DB_NAME = os.getenv("DB_NAME", "Bochasan_yuvak_mandal")
 
 # ==========================================

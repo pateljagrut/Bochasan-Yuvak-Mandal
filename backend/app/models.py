@@ -63,7 +63,7 @@ class CreateKaryakarRequest(BaseModel):
     username: str = Field(..., example="karyakar_rohan", description="Unique admin username")
     password: str = Field(..., example="SecurePass123", description="Admin password")
     full_name: str = Field(..., example="Rohan Patel (Karyakar)", description="Admin full name")
-    dob: str = Field(None, example="1995-04-15", description="Admin date of birth (YYYY-MM-DD)")
+    dob: Optional[str] = Field(None, example="1995-04-15", description="Admin date of birth (YYYY-MM-DD)")
     mobile_no: str = Field(..., example="9876543210", description="10-digit mobile number")
     location: str = Field(..., example="Bochasan", description="Admin center location")
 

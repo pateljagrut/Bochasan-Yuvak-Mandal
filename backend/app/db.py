@@ -44,9 +44,9 @@ def init_db():
     global mongo_client, db, is_mongo_connected
     
     try:
-        # Create PyMongo client with a 2-second timeout check
+        # Create PyMongo client with a 5-second timeout check
         logger.info(f"Connecting to MongoDB at {MONGO_URI}...")
-        mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
+        mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
         
         # Ping server to confirm connection status
         mongo_client.admin.command('ping')

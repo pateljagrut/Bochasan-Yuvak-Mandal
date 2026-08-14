@@ -39,31 +39,34 @@ export default function Navbar({
     { id: 'content', label: 'Content', icon: MessageSquareText }
   ];
 
-  const navItems = role === 'admin' ? adminNavItems : yuvakNavItems;
+  const currentNavItems = role === 'admin' ? adminNavItems : yuvakNavItems;
 
   return (
-    <header className="navbar-container sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/60 px-3 sm:px-6 py-2.5">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+    <header className="w-full bg-slate-900/90 border-b border-gray-800 backdrop-blur-md sticky top-0 z-50 px-3 sm:px-6 py-2.5 min-h-[3.75rem] flex items-center justify-between app-header">
+      <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-2 sm:gap-3 header-container">
         
-        {/* Left Side: Brand Logo */}
-        <div className="flex items-center gap-3 shrink-0">
-          <Logo />
+        {/* Left: Brand Logo */}
+        <div 
+          className="cursor-pointer shrink-0" 
+          onClick={() => setActiveTab(role === 'admin' ? 'dashboard' : 'attendance')}
+        >
+          <Logo size="md" />
         </div>
 
-        {/* Center: Desktop Navigation Tabs */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
-          {navItems.map((item) => {
+        {/* Center: Desktop Navigation Tabs (Karyakar Admin / Yuvak Workspace) */}
+        <nav className="hidden md:flex items-center gap-0.5 bg-gray-800/40 p-1 rounded-full border border-gray-700/50 desktop-nav-tabs">
+          {currentNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
-                  isActive
-                    ? 'bg-orange-500/15 text-orange-400 border border-orange-500/30'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                className={`nav-tab-btn px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                  isActive 
+                    ? 'active bg-orange-500/20 text-orange-400 border border-orange-500/40 font-semibold' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/30'
                 }`}
+                onClick={() => setActiveTab(item.id)}
               >
                 <Icon size={15} />
                 <span>{item.label}</span>

@@ -32,8 +32,7 @@ export default function KaryakarDashboard({
   activeTab: propsActiveTab, 
   setActiveTab: propsSetActiveTab, 
   onOpenCreateAdminModal, 
-  onOpenSearch, 
-  onOpenNotifications 
+  onOpenSearch 
 }) {
   const { token, user } = useAuth();
   

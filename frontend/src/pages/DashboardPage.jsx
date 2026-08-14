@@ -5,7 +5,7 @@ import YuvakDashboard from '../components/YuvakDashboard';
 import KaryakarDashboard from '../components/KaryakarDashboard';
 import AdminKaryakarCreationModal from '../components/AdminKaryakarCreationModal';
 import GlobalSearchModal from '../components/GlobalSearchModal';
-import { getAllYuvaksApi } from '../services/api';
+import { getAllYuvaksApi, getContentFeedsApi } from '../services/api';
 
 export default function DashboardPage() {
   const { role, token } = useAuth();
@@ -14,8 +14,9 @@ export default function DashboardPage() {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [adminSuccessMsg, setAdminSuccessMsg] = useState(null);
   const [yuvaksList, setYuvaksList] = useState([]);
+  const [feedsList, setFeedsList] = useState([]);
 
-  // Fetch yuvaks for global search
+  // Fetch yuvaks & feeds for global search and notification drawer for all users
   useEffect(() => {
     if (!token) return;
 
@@ -24,6 +25,16 @@ export default function DashboardPage() {
         if (res?.yuvaks) setYuvaksList(res.yuvaks);
       }).catch(() => {});
     }
+
+    const loadFeeds = () => {
+      getContentFeedsApi().then(res => {
+        if (res?.feeds) setFeedsList(res.feeds);
+      }).catch(() => {});
+    };
+
+    loadFeeds();
+    const interval = setInterval(loadFeeds, 8000);
+    return () => clearInterval(interval);
   }, [token, role]);
 
   // Handle Ctrl + K shortcut

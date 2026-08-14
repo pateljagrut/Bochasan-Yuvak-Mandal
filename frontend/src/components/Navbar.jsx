@@ -39,7 +39,7 @@ export default function Navbar({
     { id: 'content', label: 'Content', icon: MessageSquareText }
   ];
 
-  const currentNavItems = role === 'admin' ? adminNavItems : yuvakNavItems;
+  const navItems = role === 'admin' ? adminNavItems : yuvakNavItems;
 
   return (
     <header className="navbar-container sticky top-0 z-40 bg-gray-900/80 backdrop-blur-md border-b border-gray-800/60 px-3 sm:px-6 py-2.5">

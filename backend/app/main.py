@@ -39,10 +39,20 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure Cross-Origin Resource Sharing (CORS) for React Frontend
+# Configure Cross-Origin Resource Sharing (CORS) for Netlify React Frontend
+origins = [
+    "https://starlit-sprite-8c8bb0.netlify.app",
+    "https://starlit-sprite-8c8bb0.netlify.app/",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows connections from React frontend (http://localhost:5173)
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.netlify\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -96,6 +106,13 @@ async def admin_sse_endpoint():
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
+
+@app.get("/api/events")
+def get_events_direct():
+    """Endpoint returning events list for axios.get('/api/events')."""
+    from app.db import get_all_event_photos
+    photos = get_all_event_photos()
+    return {"success": True, "count": len(photos), "events": photos}
 
 @app.get("/api/health")
 def health_check():

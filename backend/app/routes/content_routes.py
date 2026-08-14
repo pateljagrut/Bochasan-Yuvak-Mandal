@@ -25,3 +25,12 @@ def get_public_event_photos():
     """
     photos = get_all_event_photos()
     return {"success": True, "count": len(photos), "photos": photos}
+
+@router.get("/events")
+def get_public_events():
+    """
+    Returns array of event objects for frontend axios consumption.
+    """
+    photos = get_all_event_photos()
+    return {"success": True, "count": len(photos), "events": photos}
+

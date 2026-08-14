@@ -41,14 +41,14 @@ export default function LoginPage({ onNavigateRegister }) {
       justifyContent: 'center',
       padding: '1.5rem'
     }}>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="glass-card" 
-        style={{ 
-          width: '100%', 
-          maxWidth: '440px', 
+        className="glass-card"
+        style={{
+          width: '100%',
+          maxWidth: '440px',
           padding: '2.5rem 2rem',
           border: '1px solid rgba(255, 122, 24, 0.3)',
           boxShadow: '0 20px 50px -10px rgba(0,0,0,0.7), 0 0 30px rgba(255,122,24,0.15)'
@@ -139,39 +139,10 @@ export default function LoginPage({ onNavigateRegister }) {
             disabled={loading}
           >
             <LogIn size={18} />
-            {loading ? 'Authenticating...' : 'Sign In to Portal →'}
+            {loading ? 'Authenticating...' : 'Sign In to Portal'}
           </button>
         </form>
 
-        {/* Quick Fill Test Helper */}
-        <div style={{
-          marginTop: '1.75rem',
-          paddingTop: '1.25rem',
-          borderTop: '1px solid var(--border-subtle)',
-          textAlign: 'center'
-        }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', marginBottom: '0.6rem' }}>
-            <Sparkles size={14} color="#ff9b42" /> Quick Demo Credentials:
-          </span>
-          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', height: '32px' }}
-              onClick={handleQuickFillYuvak}
-            >
-              <UserCheck size={14} color="#14b8a6" /> Yuvak (ROH3210)
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', height: '32px' }}
-              onClick={handleQuickFillAdmin}
-            >
-              <Shield size={14} color="#ff7a18" /> Super Admin (vidur.patel)
-            </button>
-          </div>
-        </div>
 
         <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           New Yuvak member?{' '}

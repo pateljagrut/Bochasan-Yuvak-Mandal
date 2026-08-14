@@ -42,6 +42,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
           username: usernameToUse,
           password: passwordToUse,
           full_name: formData.full_name,
+          dob: formData.dob,
           mobile_no: formData.mobile_no,
           location: formData.location
         }, token);
@@ -307,22 +308,19 @@ export default function AddMemberModal({ onClose, onSuccess }) {
               />
             </div>
 
-            {memberRole === 'yuvak' && (
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  <Calendar size={15} color="#14b8a6" /> Date of Birth
-                </label>
-                <input
-                  type="date"
-                  name="dob"
-                  className="form-control"
-                  style={{ padding: '0.7rem 1rem', fontSize: '0.9rem' }}
-                  value={formData.dob}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            )}
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <Calendar size={15} color={memberRole === 'admin' ? '#ff9b42' : '#14b8a6'} /> Date of Birth
+              </label>
+              <input
+                type="date"
+                name="dob"
+                className="form-control"
+                style={{ padding: '0.7rem 1rem', fontSize: '0.9rem' }}
+                value={formData.dob}
+                onChange={handleChange}
+              />
+            </div>
 
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>

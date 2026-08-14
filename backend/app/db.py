@@ -8,12 +8,14 @@ Annotated with detailed comments for junior and fresher developer clarity.
 
 import sys
 import logging
+import certifi
 from typing import Dict, List, Optional
 from datetime import datetime
 import pymongo
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 
 from app.config import MONGO_URI, DB_NAME, DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD, DEFAULT_ADMIN_NAME, DEFAULT_ADMIN_MOBILE, DEFAULT_ADMIN_LOCATION
+
 
 # Configure logging to trace database operations
 logging.basicConfig(level=logging.INFO)
@@ -46,7 +48,7 @@ def init_db():
     try:
         # Create PyMongo client with a 5-second timeout check
         logger.info(f"Connecting to MongoDB at {MONGO_URI}...")
-        mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000,tlsCAFile=certifi.where())
         
         # Ping server to confirm connection status
         mongo_client.admin.command('ping')

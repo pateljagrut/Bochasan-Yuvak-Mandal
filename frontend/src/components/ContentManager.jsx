@@ -17,7 +17,13 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getEventPhotosApi, postEventPhotoApi, deleteEventPhotoApi } from '../services/api';
+import { 
+  getEventPhotosApi, 
+  getEventsApi, 
+  postEventPhotoApi, 
+  deleteEventPhotoApi,
+  deleteContentFeedApi 
+} from '../services/api';
 
 /**
  * UploadPhotoModal Component
@@ -363,14 +369,20 @@ function UploadPhotoModal({ onClose, onPublishSuccess }) {
  * 
  * Annotated with educational notes for junior/fresher developers.
  */
-export default function ContentManager({ feeds = [], onOpenContentModal }) {
+export default function ContentManager({ 
+  feeds = [], 
+  photos: propPhotos = [], 
+  onOpenContentModal,
+  onRefreshContent 
+}) {
   const { token } = useAuth();
   const [contentTab, setContentTab] = useState('announcements'); // 'announcements' | 'photos'
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState(propPhotos);
   const [loadingPhotos, setLoadingPhotos] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [deletingPhotoId, setDeletingPhotoId] = useState(null);
+  const [deletingFeedId, setDeletingFeedId] = useState(null);
   const [notification, setNotification] = useState(null);
 
   const showNotify = (msg, type = 'success') => {
@@ -378,10 +390,22 @@ export default function ContentManager({ feeds = [], onOpenContentModal }) {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Fetch Event Photos from backend API
+  // Sync photos when parent passes updated props
+  useEffect(() => {
+    if (propPhotos && propPhotos.length > 0) {
+      setPhotos(propPhotos);
+    }
+  }, [propPhotos]);
+
+  // Fetch Event Photos from backend API via axios
   const loadPhotos = async () => {
     try {
       setLoadingPhotos(true);
+      const eventsRes = await getEventsApi().catch(() => null);
+      if (eventsRes && eventsRes.events && eventsRes.events.length > 0) {
+        setPhotos(eventsRes.events);
+        return;
+      }
       const res = await getEventPhotosApi();
       if (res && res.photos) {
         setPhotos(res.photos);
@@ -401,6 +425,7 @@ export default function ContentManager({ feeds = [], onOpenContentModal }) {
     showNotify(`✅ Event photo '${newPhoto.title}' published successfully!`);
     setPhotos(prev => [newPhoto, ...prev]);
     loadPhotos();
+    if (onRefreshContent) onRefreshContent();
   };
 
   const handleDeletePhoto = async (photoId, photoTitle) => {
@@ -412,12 +437,28 @@ export default function ContentManager({ feeds = [], onOpenContentModal }) {
       const res = await deleteEventPhotoApi(photoId, token).catch(() => ({ success: true }));
       if (res && res.success) {
         showNotify(`✅ Event photo '${photoTitle || photoId}' removed from gallery.`);
+        if (onRefreshContent) onRefreshContent();
       }
     } catch (err) {
       showNotify(`❌ Failed to remove photo: ${err.message}`, 'error');
       loadPhotos();
     } finally {
       setDeletingPhotoId(null);
+    }
+  };
+
+  const handleDeleteFeed = async (feedId, feedTitle) => {
+    try {
+      setDeletingFeedId(feedId);
+      const res = await deleteContentFeedApi(feedId, token);
+      if (res && res.success) {
+        showNotify(`✅ Announcement '${feedTitle || feedId}' removed from feed.`);
+        if (onRefreshContent) onRefreshContent();
+      }
+    } catch (err) {
+      showNotify(`❌ Failed to delete announcement: ${err.message}`, 'error');
+    } finally {
+      setDeletingFeedId(null);
     }
   };
 
@@ -521,7 +562,36 @@ export default function ContentManager({ feeds = [], onOpenContentModal }) {
                     <h4 style={{ color: '#ff9b42', fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)', margin: 0, flex: '1 1 200px' }}>
                       {feed.title}
                     </h4>
-                    <span className="badge badge-admin" style={{ flexShrink: 0 }}>{feed.category}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                      <span className="badge badge-admin">{feed.category}</span>
+                      {feed.id && (
+                        <button
+                          onClick={() => handleDeleteFeed(feed.id, feed.title)}
+                          disabled={deletingFeedId === feed.id}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            color: '#f87171',
+                            borderRadius: '8px',
+                            padding: '0.25rem 0.5rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            fontSize: '0.75rem',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title="Delete Announcement"
+                        >
+                          {deletingFeedId === feed.id ? (
+                            <Loader2 size={13} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={13} />
+                          )}
+                          <span>Delete</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.75rem', lineHeight: 1.5 }}>
                     {feed.content}

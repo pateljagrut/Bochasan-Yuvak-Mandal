@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * API Service Module.
  * Connects the React Frontend to the Python FastAPI Backend (http://127.0.0.1:8000).
@@ -7,6 +9,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api` 
   : 'https://bochasan-yuvak-mandal.onrender.com/api';
+
 
 /**
  * Generic HTTP Request Helper.
@@ -118,6 +121,21 @@ export async function postContentApi(contentData, token) {
   });
 }
 
+export async function updateContentFeedApi(contentId, updateData, token) {
+  return request(`/karyakar/content/${contentId}`, {
+    method: 'PUT',
+    token,
+    body: updateData
+  });
+}
+
+export async function deleteContentFeedApi(contentId, token) {
+  return request(`/karyakar/content/${contentId}`, {
+    method: 'DELETE',
+    token
+  });
+}
+
 export async function getContentFeedsApi() {
   return request('/content');
 }
@@ -125,6 +143,14 @@ export async function getContentFeedsApi() {
 // ==========================================
 // Event Photo Gallery APIs
 // ==========================================
+
+export async function getEventsApi() {
+  const url = import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/api/events` 
+    : 'https://bochasan-yuvak-mandal.onrender.com/api/events';
+  const response = await axios.get(url);
+  return response.data;
+}
 
 export async function getEventPhotosApi() {
   return request('/content/photos');
@@ -158,24 +184,37 @@ export async function createKaryakarAdminApi(adminData, token) {
 }
 
 /**
- * Returns the WebSocket URL for real-time cross-admin event broadcasting.
+ * Returns the WebSocket URL for real-time cross-user event broadcasting.
+ * Supports all users (Admins & Yuvaks).
  */
-export function getAdminWebSocketUrl() {
+export function getRealtimeWebSocketUrl() {
   if (import.meta.env.VITE_WS_URL) {
-    return `${import.meta.env.VITE_WS_URL}/api/ws/admin`;
+    return `${import.meta.env.VITE_WS_URL}/api/ws`;
   }
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? '127.0.0.1:8000' 
     : window.location.host;
-  return `${protocol}//${host}/api/ws/admin`;
+  return `${protocol}//${host}/api/ws`;
 }
 
-export function getAdminSseUrl() {
+export function getAdminWebSocketUrl() {
+  return getRealtimeWebSocketUrl();
+}
+
+/**
+ * Returns the Server-Sent Events (SSE) stream URL for all clients.
+ */
+export function getRealtimeSseUrl() {
   const baseUrl = import.meta.env.VITE_API_URL 
     ? `${import.meta.env.VITE_API_URL}/api`
     : 'http://127.0.0.1:8000/api';
-  return `${baseUrl}/admin/events`;
+  return `${baseUrl}/events/stream`;
 }
+
+export function getAdminSseUrl() {
+  return getRealtimeSseUrl();
+}
+
 
 

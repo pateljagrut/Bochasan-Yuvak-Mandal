@@ -1,0 +1,80 @@
+[{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54da"
+  },
+  "username": "vidur.patel",
+  "password": "Vidur#SuperAdmin2026",
+  "full_name": "Patel Vidur",
+  "mobile_no": "9898989898",
+  "location": "Bochasan",
+  "role": "admin",
+  "created_at": "2026-08-13T16:28:21.017707",
+  "dob": "1998-01-01",
+  "yuvak_id": "VID9898"
+},
+{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54db"
+  },
+  "yuvak_id": "ROH3210",
+  "full_name": "Rohan Patel",
+  "mobile_no": "9876543210",
+  "dob": "2002-05-15",
+  "location": "Bochasan",
+  "password": "9876543210",
+  "role": "yuvak",
+  "created_at": "2026-08-03T10:24:13.695981"
+},
+{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54dc"
+  },
+  "yuvak_id": "HAR5678",
+  "full_name": "Harshil Shah",
+  "mobile_no": "9812345678",
+  "dob": "2001-08-20",
+  "location": "Atladara",
+  "password": "9812345678",
+  "role": "yuvak",
+  "created_at": "2026-08-03T10:24:13.695981"
+},
+{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54dd"
+  },
+  "yuvak_id": "JAY1234",
+  "full_name": "Jayesh Joshi",
+  "mobile_no": "9988771234",
+  "dob": "2003-12-10",
+  "location": "Gadhada",
+  "password": "9988771234",
+  "role": "yuvak",
+  "created_at": "2026-08-03T10:24:13.695981"
+},
+{
+  "_id": {
+    "$oid": "6a74cd7932a47e07bf4dd843"
+  },
+  "yuvak_id": "SID6789",
+  "full_name": "Siddharth Joshi",
+  "mobile_no": "9123456789",
+  "dob": "2001-10-25",
+  "location": "Anand",
+  "password": "9123456789",
+  "role": "yuvak",
+  "created_at": "2026-08-06T23:37:53.696373"
+},
+{
+  "_id": {
+    "$oid": "6a76147c7de1203bae67e845"
+  },
+  "username": "jagrut.patel",
+  "password": "jagrut.patel11",
+  "full_name": "Patel Jagrut",
+  "mobile_no": "7698011236",
+  "location": "Bochasan",
+  "role": "admin",
+  "created_by": "vidur.patel",
+  "created_at": "2026-08-07T22:53:08.255152",
+  "yuvak_id": "ADM-JAGRUT.PATEL"
+}]

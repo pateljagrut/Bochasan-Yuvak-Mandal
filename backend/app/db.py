@@ -325,6 +325,28 @@ def get_all_content_feeds() -> List[dict]:
     else:
         return sorted(in_memory_store["content"], key=lambda x: x.get("created_at", ""), reverse=True)
 
+def delete_content_feed(content_id: str) -> bool:
+    """Deletes a content item (announcement/niyama) by ID from MongoDB or in-memory store."""
+    if is_mongo_connected and db is not None:
+        res = db.content.delete_one({"id": content_id})
+        return res.deleted_count > 0
+    else:
+        initial_len = len(in_memory_store.get("content", []))
+        in_memory_store["content"] = [c for c in in_memory_store.get("content", []) if c.get("id") != content_id]
+        return len(in_memory_store.get("content", [])) < initial_len
+
+def update_content_feed(content_id: str, updates: dict) -> bool:
+    """Updates a content item (announcement/niyama) by ID in MongoDB or in-memory store."""
+    if is_mongo_connected and db is not None:
+        res = db.content.update_one({"id": content_id}, {"$set": updates})
+        return res.modified_count > 0
+    else:
+        for c in in_memory_store.get("content", []):
+            if c.get("id") == content_id:
+                c.update(updates)
+                return True
+        return False
+
 # ==========================================
 # Event Photos Gallery Functions
 # ==========================================

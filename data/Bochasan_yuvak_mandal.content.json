@@ -1,0 +1,22 @@
+[{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54e1"
+  },
+  "id": "cnt_01",
+  "title": "Welcome to Bochasan Yuvak Mandal Sabha!",
+  "content": "Join us every Sunday at 5:30 PM at the Mandal Mandir for inspiring discourses, group discussions, and cultural activities.",
+  "category": "announcement",
+  "author": "Bochasan Karyakar Team",
+  "created_at": "2026-08-01T10:00:00"
+},
+{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54e2"
+  },
+  "id": "cnt_02",
+  "title": "Niyama of the Week: Daily Morning Puja",
+  "content": "Practicing daily morning Mansi Puja and Agna instills purity and strength in youth life.",
+  "category": "niyama",
+  "author": "Prerna Desk",
+  "created_at": "2026-08-02T08:00:00"
+}]

@@ -98,6 +98,15 @@ class ContentPostRequest(BaseModel):
     category: str = Field("announcement", example="announcement", description="Category: 'announcement', 'niyama', or 'schedule'")
     author: Optional[str] = Field("Mandal Karyakar Team", description="Author or publishing entity")
 
+class ContentUpdateRequest(BaseModel):
+    """
+    Schema for editing Sabha announcements or Niyama feeds.
+    """
+    title: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    author: Optional[str] = None
+
 class EventPhotoPostRequest(BaseModel):
     """
     Schema for uploading Utsav & Prasang Event Photos.
@@ -107,3 +116,4 @@ class EventPhotoPostRequest(BaseModel):
     category: str = Field("Utsav", example="Utsav", description="Category: 'Utsav', 'Sabha', 'Cultural', 'Prasang'")
     image_url: str = Field(..., example="https://images.unsplash.com/photo-1609766857041-ed402ea8069a")
     author: Optional[str] = Field("Bochasan Media Team")
+

@@ -1,7 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { getYuvakProfileApi, getYuvakAttendanceApi, getContentFeedsApi, getEventPhotosApi } from '../services/api';
+import { 
+  getYuvakProfileApi, 
+  getYuvakAttendanceApi, 
+  getContentFeedsApi, 
+  getEventPhotosApi, 
+  getEventsApi,
+  getRealtimeWebSocketUrl,
+  getRealtimeSseUrl
+} from '../services/api';
 import CircularAttendanceTracker from './CircularAttendanceTracker';
 import MobileNav from './MobileNav';
 import { 
@@ -15,7 +23,8 @@ import {
   TrendingUp,
   BarChart3,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 
 /* =========================================================================================
@@ -332,31 +341,138 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
   const [feeds, setFeeds] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(null);
+  const [isLiveConnected, setIsLiveConnected] = useState(false);
 
-  // Load personal Yuvak data on mount
-  useEffect(() => {
-    async function loadYuvakData() {
-      try {
-        setLoading(true);
-        const [profRes, attRes, feedRes, photoRes] = await Promise.all([
-          getYuvakProfileApi(token).catch(() => ({ profile: user })),
-          getYuvakAttendanceApi(token).catch(() => null),
-          getContentFeedsApi().catch(() => ({ feeds: [] })),
-          getEventPhotosApi().catch(() => ({ photos: [] }))
-        ]);
+  const socketRef = useRef(null);
 
-        if (profRes && profRes.profile) setProfile(profRes.profile);
-        if (attRes && attRes.metrics) setMetrics(attRes.metrics);
-        if (feedRes && feedRes.feeds) setFeeds(feedRes.feeds);
-        if (photoRes && photoRes.photos) setPhotos(photoRes.photos);
-      } catch (err) {
-        console.error('Failed loading Yuvak dashboard:', err);
-      } finally {
-        setLoading(false);
+  const showNotify = (msg, type = 'success') => {
+    setNotification({ msg, type });
+    setTimeout(() => setNotification(null), 5000);
+  };
+
+  const loadYuvakData = async (showSpinner = true) => {
+    try {
+      if (showSpinner) setLoading(true);
+      const [profRes, attRes, feedRes, photoRes, eventsRes] = await Promise.all([
+        getYuvakProfileApi(token).catch(() => ({ profile: user })),
+        getYuvakAttendanceApi(token).catch(() => null),
+        getContentFeedsApi().catch(() => ({ feeds: [] })),
+        getEventPhotosApi().catch(() => ({ photos: [] })),
+        getEventsApi().catch(() => ({ events: [] }))
+      ]);
+
+      if (profRes && profRes.profile) setProfile(profRes.profile);
+      if (attRes && attRes.metrics) setMetrics(attRes.metrics);
+      if (feedRes && feedRes.feeds) setFeeds(feedRes.feeds);
+      if (eventsRes && eventsRes.events && eventsRes.events.length > 0) {
+        setPhotos(eventsRes.events);
+      } else if (photoRes && photoRes.photos) {
+        setPhotos(photoRes.photos);
+      }
+    } catch (err) {
+      console.error('Failed loading Yuvak dashboard:', err);
+    } finally {
+      if (showSpinner) setLoading(false);
+    }
+  };
+
+  const handleLiveEvent = (message) => {
+    const { event: evtType, data: evtData } = message;
+    console.log('[YUVAK REALTIME EVENT]', evtType, evtData);
+
+    if (evtType === 'CONTENT_UPDATED') {
+      const typeLabel = evtData?.type === 'photo' ? 'Photo Gallery' : 'Announcements & Niyamas';
+      showNotify(`⚡ Real-time Update: ${typeLabel} updated by Mandal Admin!`);
+      loadYuvakData(false);
+    } else if (evtType === 'ATTENDANCE_UPDATED') {
+      showNotify(`⚡ Real-time Update: Sabha attendance for ${evtData?.sabha_date || 'recent session'} updated!`);
+      loadYuvakData(false);
+    } else if (evtType === 'MEMBER_UPDATED') {
+      const currentYuvakId = profile?.yuvak_id || user?.yuvak_id;
+      if (evtData?.yuvak_id === currentYuvakId) {
+        showNotify(`⚡ Real-time Update: Your member profile information has been updated!`);
+        loadYuvakData(false);
       }
     }
-    if (token) loadYuvakData();
-  }, [token, user]);
+  };
+
+  // Initial load
+  useEffect(() => {
+    if (token) loadYuvakData(true);
+  }, [token]);
+
+  // Real-Time Cross-Client Sync via EventSource (SSE) & WebSocket + 6s Polling Fallback
+  useEffect(() => {
+    if (!token) return;
+
+    let eventSource = null;
+    let ws = null;
+
+    // 1. Try EventSource (Server-Sent Events)
+    try {
+      const sseUrl = getRealtimeSseUrl();
+      eventSource = new EventSource(sseUrl);
+
+      eventSource.onopen = () => {
+        setIsLiveConnected(true);
+        console.log('[YUVAK SSE REALTIME] Connected to live event stream');
+      };
+
+      eventSource.onmessage = (e) => {
+        try {
+          const parsed = JSON.parse(e.data);
+          if (parsed && parsed.event && parsed.event !== 'CONNECTED') {
+            handleLiveEvent(parsed);
+          }
+        } catch (err) {
+          console.error('Yuvak SSE parse error:', err);
+        }
+      };
+
+      eventSource.onerror = () => {
+        setIsLiveConnected(false);
+      };
+    } catch (e) {
+      console.warn('Yuvak SSE fallback:', e);
+    }
+
+    // 2. Try WebSocket as secondary stream
+    try {
+      const wsUrl = getRealtimeWebSocketUrl();
+      ws = new WebSocket(wsUrl);
+      socketRef.current = ws;
+
+      ws.onopen = () => {
+        setIsLiveConnected(true);
+        console.log('[YUVAK WS REALTIME] Connected to live websocket stream');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message && message.event) {
+            handleLiveEvent(message);
+          }
+        } catch (err) {
+          console.error('Yuvak WS parse error:', err);
+        }
+      };
+    } catch (err) {
+      console.warn('Yuvak WS fallback:', err);
+    }
+
+    // 3. Resilient Background Polling Fallback (Every 6 seconds)
+    const pollInterval = setInterval(() => {
+      loadYuvakData(false);
+    }, 6000);
+
+    return () => {
+      if (eventSource) eventSource.close();
+      if (ws) ws.close();
+      clearInterval(pollInterval);
+    };
+  }, [token, user, profile]);
 
   const p = profile || user || {};
 
@@ -376,6 +492,28 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
   return (
     <div className="dashboard-layout" style={{ maxWidth: '1440px', margin: '1.5rem auto 5rem', padding: '0 1.5rem' }}>
       
+      {/* Real-time Notification Toast */}
+      {notification && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            padding: '1rem 1.25rem',
+            borderRadius: 'var(--radius-lg)',
+            marginBottom: '1.5rem',
+            fontWeight: 600,
+            background: notification.type === 'error' ? 'var(--danger-bg)' : 'var(--success-bg)',
+            border: notification.type === 'error' ? '1px solid var(--danger)' : '1px solid var(--success)',
+            color: notification.type === 'error' ? '#f87171' : '#4ade80',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem'
+          }}
+        >
+          {notification.msg}
+        </motion.div>
+      )}
+
       {/* Top Greeting Banner (Pinned above dynamic viewport) */}
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
@@ -397,6 +535,12 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
               ID: {p.yuvak_id || 'ROH3210'}
             </span>
+            {isLiveConnected && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#4ade80', fontWeight: 600, marginLeft: '0.5rem' }}>
+                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e', display: 'inline-block' }}></span>
+                Live
+              </span>
+            )}
           </div>
 
           <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 800, margin: '0 0 0.4rem 0', letterSpacing: '-0.02em', color: '#FF9B42', WebkitTextFillColor: '#FF9B42' }}>

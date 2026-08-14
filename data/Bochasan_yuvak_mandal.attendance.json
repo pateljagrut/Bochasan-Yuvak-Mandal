@@ -1,0 +1,37 @@
+[{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54de"
+  },
+  "sabha_date": "2026-07-19",
+  "sabha_title": "Niyama & Seva Orientation Sabha",
+  "present_yuvak_ids": [
+    "ROH3210",
+    "HAR5678"
+  ],
+  "created_at": "2026-08-03T10:24:13.706981"
+},
+{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54df"
+  },
+  "sabha_date": "2026-07-26",
+  "sabha_title": "Ekantik Dharma & Yuva Mahotsav Prep",
+  "present_yuvak_ids": [
+    "ROH3210",
+    "JAY1234"
+  ],
+  "created_at": "2026-08-03T10:24:13.706981"
+},
+{
+  "_id": {
+    "$oid": "6a701ef540e45c1cf10c54e0"
+  },
+  "sabha_date": "2026-08-02",
+  "sabha_title": "Monthly Prerna Sabha & Attendance Check",
+  "present_yuvak_ids": [
+    "ROH3210",
+    "HAR5678",
+    "JAY1234"
+  ],
+  "created_at": "2026-08-03T10:24:13.706981"
+}]

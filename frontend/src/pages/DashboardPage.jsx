@@ -18,16 +18,25 @@ export default function DashboardPage() {
   const [yuvaksList, setYuvaksList] = useState([]);
   const [feedsList, setFeedsList] = useState([]);
 
-  // Fetch yuvaks & feeds for global search and notification drawer
+  // Fetch yuvaks & feeds for global search and notification drawer for all users
   useEffect(() => {
-    if (token && role === 'admin') {
+    if (!token) return;
+
+    if (role === 'admin') {
       getAllYuvaksApi(token).then(res => {
         if (res?.yuvaks) setYuvaksList(res.yuvaks);
       }).catch(() => {});
+    }
+
+    const loadFeeds = () => {
       getContentFeedsApi().then(res => {
         if (res?.feeds) setFeedsList(res.feeds);
       }).catch(() => {});
-    }
+    };
+
+    loadFeeds();
+    const interval = setInterval(loadFeeds, 8000);
+    return () => clearInterval(interval);
   }, [token, role]);
 
   // Handle Ctrl + K shortcut

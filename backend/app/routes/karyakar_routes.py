@@ -17,11 +17,14 @@ from datetime import datetime
 import uuid
 
 from app.auth import get_current_user, require_admin_role
-from app.models import YuvakProfileUpdate, AttendanceMarkRequest, ContentPostRequest, EventPhotoPostRequest
+from app.models import (
+    YuvakProfileUpdate, AttendanceMarkRequest, ContentPostRequest, 
+    ContentUpdateRequest, EventPhotoPostRequest
+)
 from app.db import (
     get_all_yuvaks, update_yuvak_profile, delete_yuvak_member, insert_attendance_record, 
     get_all_attendance_records, insert_content_feed, find_user_by_identifier,
-    insert_event_photo, delete_event_photo
+    insert_event_photo, delete_event_photo, delete_content_feed, update_content_feed
 )
 from app.websocket_manager import ws_manager
 
@@ -185,14 +188,68 @@ async def post_content_feed(payload: ContentPostRequest, current_user: dict = De
     insert_content_feed(content_doc)
 
     await ws_manager.broadcast("CONTENT_UPDATED", {
+        "content_id": content_doc["id"],
         "title": payload.title,
-        "author": content_doc["author"]
+        "author": content_doc["author"],
+        "action": "created",
+        "type": "announcement"
     })
     
     return {
         "success": True,
         "message": "Content published successfully!",
         "content_id": content_doc["id"]
+    }
+
+@router.put("/content/{content_id}")
+async def edit_content_feed(content_id: str, payload: ContentUpdateRequest, current_user: dict = Depends(get_current_user)):
+    """
+    Updates an existing announcement or Niyama feed.
+    """
+    updates = {k: v for k, v in payload.dict().items() if v is not None}
+    if not updates:
+        return {"success": True, "message": "No changes provided."}
+    
+    updates["updated_at"] = datetime.now().isoformat()
+    success = update_content_feed(content_id, updates)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Content with ID '{content_id}' not found."
+        )
+
+    await ws_manager.broadcast("CONTENT_UPDATED", {
+        "content_id": content_id,
+        "action": "updated",
+        "type": "announcement"
+    })
+
+    return {
+        "success": True,
+        "message": "Content updated successfully!"
+    }
+
+@router.delete("/content/{content_id}")
+async def remove_content_feed(content_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Deletes an announcement or Niyama feed from the feed list.
+    """
+    success = delete_content_feed(content_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Content with ID '{content_id}' not found."
+        )
+
+    await ws_manager.broadcast("CONTENT_UPDATED", {
+        "content_id": content_id,
+        "action": "deleted",
+        "type": "announcement"
+    })
+
+    return {
+        "success": True,
+        "message": "Content announcement deleted successfully."
     }
 
 @router.post("/photos")
@@ -213,8 +270,11 @@ async def post_event_photo(payload: EventPhotoPostRequest, current_user: dict = 
     insert_event_photo(photo_doc)
 
     await ws_manager.broadcast("CONTENT_UPDATED", {
+        "photo_id": photo_doc["id"],
         "title": payload.title,
-        "author": photo_doc["author"]
+        "author": photo_doc["author"],
+        "action": "created",
+        "type": "photo"
     })
 
     return {
@@ -237,10 +297,12 @@ async def remove_event_photo(photo_id: str, current_user: dict = Depends(get_cur
 
     await ws_manager.broadcast("CONTENT_UPDATED", {
         "photo_id": photo_id,
-        "action": "deleted"
+        "action": "deleted",
+        "type": "photo"
     })
 
     return {
         "success": True,
         "message": "Photo removed from gallery successfully."
     }
+

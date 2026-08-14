@@ -113,10 +113,11 @@ def get_events_direct():
 
 
 # -----------------------------
-# WebSocket
+# WebSocket (For All Users: Admins & Yuvaks)
 # -----------------------------
+@app.websocket("/api/ws")
 @app.websocket("/api/ws/admin")
-async def admin_websocket_endpoint(websocket: WebSocket):
+async def realtime_websocket_endpoint(websocket: WebSocket):
     await ws_manager.connect(websocket)
 
     try:
@@ -134,10 +135,11 @@ async def admin_websocket_endpoint(websocket: WebSocket):
 
 
 # -----------------------------
-# Server Sent Events
+# Server Sent Events (For All Users: Admins & Yuvaks)
 # -----------------------------
+@app.get("/api/events/stream")
 @app.get("/api/admin/events")
-async def admin_sse_endpoint():
+async def realtime_sse_endpoint():
 
     q = ws_manager.add_sse_queue()
 

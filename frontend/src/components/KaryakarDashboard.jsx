@@ -7,8 +7,10 @@ import {
   recordAttendanceApi, 
   postContentApi, 
   getContentFeedsApi,
-  getAdminWebSocketUrl,
-  getAdminSseUrl
+  getEventPhotosApi,
+  getEventsApi,
+  getRealtimeWebSocketUrl,
+  getRealtimeSseUrl
 } from '../services/api';
 
 // Modular Workspace Sub-Components
@@ -49,6 +51,7 @@ export default function KaryakarDashboard({
   const [yuvaks, setYuvaks] = useState([]);
   const [deletedYuvakIds, setDeletedYuvakIds] = useState([]);
   const [feeds, setFeeds] = useState([]);
+  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savingAttendance, setSavingAttendance] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,7 +89,8 @@ export default function KaryakarDashboard({
       showNotify(`⚡ Real-time Update: New Karyakar Admin '${evtData.admin_name}' (${evtData.yuvak_id}) created!`);
       loadData(false);
     } else if (evtType === 'CONTENT_UPDATED') {
-      showNotify(`⚡ Real-time Update: Announcements/Gallery updated!`);
+      const typeLabel = evtData?.type === 'photo' ? 'Photo Gallery' : 'Announcements/Niyamas';
+      showNotify(`⚡ Real-time Update: ${typeLabel} updated by Mandal Admin!`);
       loadData(false);
     }
   };
@@ -94,13 +98,20 @@ export default function KaryakarDashboard({
   const loadData = async (showSpinner = true) => {
     try {
       if (showSpinner) setLoading(true);
-      const [yuvakRes, feedRes] = await Promise.all([
+      const [yuvakRes, feedRes, photoRes, eventsRes] = await Promise.all([
         getAllYuvaksApi(token).catch(() => ({ yuvaks: [] })),
-        getContentFeedsApi().catch(() => ({ feeds: [] }))
+        getContentFeedsApi().catch(() => ({ feeds: [] })),
+        getEventPhotosApi().catch(() => ({ photos: [] })),
+        getEventsApi().catch(() => ({ events: [] }))
       ]);
 
       if (yuvakRes && yuvakRes.yuvaks) setYuvaks(yuvakRes.yuvaks);
       if (feedRes && feedRes.feeds) setFeeds(feedRes.feeds);
+      if (eventsRes && eventsRes.events && eventsRes.events.length > 0) {
+        setPhotos(eventsRes.events);
+      } else if (photoRes && photoRes.photos) {
+        setPhotos(photoRes.photos);
+      }
     } catch (err) {
       console.error('Error loading Karyakar dashboard:', err);
     } finally {
@@ -324,7 +335,9 @@ export default function KaryakarDashboard({
         return (
           <ContentManager
             feeds={feeds}
+            photos={photos}
             onOpenContentModal={() => setShowContentModal(true)}
+            onRefreshContent={() => loadData(false)}
           />
         );
 

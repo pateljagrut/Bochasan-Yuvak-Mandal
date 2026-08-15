@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Save,
-  Send
+  Send,
+  Sliders
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
@@ -26,8 +27,10 @@ import {
   updateEventPhotoApi,
   deleteEventPhotoApi,
   updateContentFeedApi,
-  deleteContentFeedApi 
+  deleteContentFeedApi,
+  getSlideshowSlidesApi
 } from '../services/api';
+import SlideshowEditorModal from './SlideshowEditorModal';
 
 /**
  * PhotoModal Component
@@ -540,8 +543,26 @@ export default function ContentManager({
   
   // Modal states
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showSlideshowModal, setShowSlideshowModal] = useState(false);
+  const [slideshowSlides, setSlideshowSlides] = useState([]);
   const [editingPhoto, setEditingPhoto] = useState(null);
   const [editingFeed, setEditingFeed] = useState(null);
+
+  // Fetch slideshow slides
+  const loadSlideshowSlides = async () => {
+    try {
+      const res = await getSlideshowSlidesApi();
+      if (res && Array.isArray(res.slides)) {
+        setSlideshowSlides(res.slides);
+      }
+    } catch (err) {
+      console.error('Failed to load slideshow slides:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadSlideshowSlides();
+  }, []);
   
   // Action in-progress states
   const [deletingPhotoId, setDeletingPhotoId] = useState(null);
@@ -664,6 +685,13 @@ export default function ContentManager({
           onClick={() => setContentTab('photos')}
         >
           <ImageIcon size={16} /> <span>Utsav & Prasang Photos</span>
+        </button>
+
+        <button
+          className={`content-switcher-btn ${contentTab === 'slideshow' ? 'active' : ''}`}
+          onClick={() => setContentTab('slideshow')}
+        >
+          <Sliders size={16} /> <span>BAPS Hero Slideshow</span>
         </button>
       </div>
 
@@ -992,6 +1020,80 @@ export default function ContentManager({
         </motion.div>
       )}
 
+      {/* MODULE 3: BAPS Hero Slideshow Manager */}
+      {contentTab === 'slideshow' && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="glass-card content-manager-container"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.25rem)', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+                🎞️ BAPS Hero Photo Slideshow Manager
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.25rem 0 0 0' }}>
+                Manage photos, titles, badges, and quick CTA links for the homepage hero slideshow.
+              </p>
+            </div>
+            <button className="btn btn-primary" onClick={() => setShowSlideshowModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <Sliders size={18} /> Manage & Edit Slideshow
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+            {slideshowSlides.map((slide, idx) => (
+              <div
+                key={slide.id || idx}
+                style={{
+                  background: 'var(--bg-stat-box)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
+                <div style={{ height: '150px', position: 'relative' }}>
+                  <img
+                    src={slide.image}
+                    alt={slide.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  <div style={{ position: 'absolute', top: '8px', left: '8px', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                    Slide #{idx + 1}
+                  </div>
+                  <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(15,23,42,0.85)', color: slide.badge_color || '#ff7a18', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '999px', fontWeight: 700, border: `1px solid ${slide.badge_color || '#ff7a18'}55` }}>
+                    ● {slide.badge}
+                  </div>
+                </div>
+
+                <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.35rem 0' }}>
+                    {slide.title}
+                  </h4>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0 0 0.75rem 0', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {slide.subtitle}
+                  </p>
+                  <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    <span>Target Tab: <strong>{slide.action_tab || 'attendance'}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setShowSlideshowModal(true)}
+                      className="btn btn-secondary"
+                      style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Photo Upload / Edit Modal */}
       {showPhotoModal && (
         <PhotoModal
@@ -1010,6 +1112,19 @@ export default function ContentManager({
           feed={editingFeed}
           onClose={() => setEditingFeed(null)}
           onSaveSuccess={handleFeedSaved}
+        />
+      )}
+
+      {/* Slideshow Editor Modal */}
+      {showSlideshowModal && (
+        <SlideshowEditorModal
+          isOpen={showSlideshowModal}
+          onClose={() => setShowSlideshowModal(false)}
+          initialSlides={slideshowSlides}
+          onSlidesUpdated={(updated) => {
+            setSlideshowSlides(updated);
+            showNotify('✅ Slideshow updated and published successfully!');
+          }}
         />
       )}
     </div>

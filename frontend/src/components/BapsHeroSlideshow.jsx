@@ -1,73 +1,97 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Play, Pause, Sparkles, Calendar, HeartHandshake, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Pause, Sparkles, Calendar, HeartHandshake, Eye, Edit3, Sliders } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { getSlideshowSlidesApi } from '../services/api';
+import SlideshowEditorModal from './SlideshowEditorModal';
 
-const SLIDES = [
+const DEFAULT_SLIDES = [
   {
-    id: 1,
+    id: '1',
     image: '/slides/slide1_mandir.jpg',
     badge: 'Bochasan Tirthdham',
-    badgeIcon: Sparkles,
-    badgeColor: '#ff7a18',
+    badge_color: '#ff7a18',
     title: 'Bochasan Swaminarayan Akshar Mandir',
     subtitle: 'The Sacred Foundation of Akshar Purushottam Satsang • Established by Brahmaswarup Shastriji Maharaj',
-    ctaText: 'Explore Mandal Portal',
-    actionTab: 'dashboard'
+    cta_text: 'Explore Mandal Portal',
+    action_tab: 'dashboard',
+    is_active: true
   },
   {
-    id: 2,
+    id: '2',
     image: '/slides/slide2_sabha.jpg',
     badge: 'Saturday 8:30 PM',
-    badgeIcon: Calendar,
-    badgeColor: '#14b8a6',
+    badge_color: '#14b8a6',
     title: 'Shanivariya Yuvak Sabha',
     subtitle: 'Fostering Youth Leadership, Spiritual Sanskar, Samp, Suhradbhav & Ekta through weekly satsang assemblies',
-    ctaText: 'Mark Sabha Attendance',
-    actionTab: 'attendance'
+    cta_text: 'Mark Sabha Attendance',
+    action_tab: 'attendance',
+    is_active: true
   },
   {
-    id: 3,
+    id: '3',
     image: '/slides/slide3_darshan.jpg',
     badge: 'Daily Darshan',
-    badgeIcon: Eye,
-    badgeColor: '#eab308',
+    badge_color: '#eab308',
     title: 'Shri Akshar Purushottam Maharaj Darshan',
     subtitle: 'Divine Murti Darshan & Daily Satsang Upasana • Guided by the divine presence of Pragat Brahmaswarup Mahant Swami Maharaj',
-    ctaText: 'View Niyama & Feeds',
-    actionTab: 'content'
+    cta_text: 'View Niyama & Feeds',
+    action_tab: 'content',
+    is_active: true
   },
   {
-    id: 4,
+    id: '4',
     image: '/slides/slide4_seva.jpg',
     badge: 'Nishkam Seva',
-    badgeIcon: HeartHandshake,
-    badgeColor: '#22c55e',
+    badge_color: '#22c55e',
     title: 'Youth Seva & Humanitarian Services',
     subtitle: '“In the joy of others, lies our own. In the progress of others, rests our own.” — Brahmaswarup Pramukh Swami Maharaj',
-    ctaText: 'Yuvak Directory',
-    actionTab: 'yuvaks'
+    cta_text: 'Yuvak Directory',
+    action_tab: 'yuvaks',
+    is_active: true
   }
 ];
 
-export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
+export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab, isAdmin: propIsAdmin }) {
+  const { role } = useAuth();
+  const isAdmin = propIsAdmin !== undefined ? propIsAdmin : role === 'admin';
+
+  const [slides, setSlides] = useState(DEFAULT_SLIDES);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [direction, setDirection] = useState(1); // 1 = next, -1 = prev
+  const [showEditorModal, setShowEditorModal] = useState(false);
+
+  // Fetch real slides from backend if available
+  useEffect(() => {
+    getSlideshowSlidesApi()
+      .then(res => {
+        if (res?.slides && res.slides.length > 0) {
+          const activeSlides = res.slides.filter(s => s.is_active !== false);
+          if (activeSlides.length > 0) {
+            setSlides(activeSlides);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Touch Swipe Gesture Refs for iOS & Android
   const touchStartXRef = useRef(0);
   const touchEndXRef = useRef(0);
   const touchStartYRef = useRef(0);
 
-  const totalSlides = SLIDES.length;
+  const totalSlides = slides.length;
 
   const nextSlide = useCallback(() => {
+    if (totalSlides <= 1) return;
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % totalSlides);
   }, [totalSlides]);
 
   const prevSlide = useCallback(() => {
+    if (totalSlides <= 1) return;
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
   }, [totalSlides]);
@@ -79,12 +103,12 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
 
   // Autoplay Timer (5.5 seconds)
   useEffect(() => {
-    if (!isPlaying || isHovered) return;
+    if (!isPlaying || isHovered || totalSlides <= 1) return;
     const timer = setInterval(() => {
       nextSlide();
     }, 5500);
     return () => clearInterval(timer);
-  }, [isPlaying, isHovered, nextSlide]);
+  }, [isPlaying, isHovered, nextSlide, totalSlides]);
 
   // Touch Gesture Listeners (iOS Safari & Android Chrome)
   const handleTouchStart = (e) => {
@@ -98,26 +122,34 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
 
   const handleTouchEnd = () => {
     const deltaX = touchStartXRef.current - touchEndXRef.current;
-    if (touchEndXRef.current === 0) return; // Tap without drag
-    const minSwipeDistance = 45; // Minimum px to trigger swipe
+    if (touchEndXRef.current === 0) return;
+    const minSwipeDistance = 45;
     if (deltaX > minSwipeDistance) {
       nextSlide(); // Swiped left -> next
     } else if (deltaX < -minSwipeDistance) {
       prevSlide(); // Swiped right -> prev
     }
-    // Reset refs
     touchStartXRef.current = 0;
     touchEndXRef.current = 0;
   };
 
-  const currentSlide = SLIDES[currentIndex];
-  const BadgeIcon = currentSlide.badgeIcon;
+  // Safe fallback if index exceeds array
+  const safeIndex = currentIndex < totalSlides ? currentIndex : 0;
+  const currentSlide = slides[safeIndex] || DEFAULT_SLIDES[0];
 
   const handleAction = (tab) => {
     if (onNavigateTab) {
       onNavigateTab(tab);
     } else if (onCtaClick) {
       onCtaClick(tab);
+    }
+  };
+
+  const handleSlidesUpdated = (newSlides) => {
+    if (newSlides && newSlides.length > 0) {
+      const activeSlides = newSlides.filter(s => s.is_active !== false);
+      setSlides(activeSlides.length > 0 ? activeSlides : newSlides);
+      setCurrentIndex(0);
     }
   };
 
@@ -184,6 +216,42 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
         }}
       />
 
+      {/* Admin Floating "Edit Slideshow" Quick-Access Button */}
+      {isAdmin && (
+        <div 
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: 'clamp(1rem, 4vw, 2.5rem)',
+            zIndex: 5
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setShowEditorModal(true)}
+            className="btn btn-secondary"
+            style={{
+              background: 'rgba(15, 23, 42, 0.82)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 122, 24, 0.5)',
+              color: '#ffffff',
+              padding: '0.45rem 0.9rem',
+              borderRadius: '999px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.6)'
+            }}
+            title="Edit Slideshow Photos & Content"
+          >
+            <Sliders size={15} color="#ff7a18" />
+            <span>Edit Slideshow</span>
+          </button>
+        </div>
+      )}
+
       {/* Slide Content Caption Overlay */}
       <div 
         style={{
@@ -219,18 +287,18 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
                 borderRadius: '999px',
                 background: 'rgba(15, 23, 42, 0.75)',
                 backdropFilter: 'blur(12px)',
-                border: `1px solid ${currentSlide.badgeColor}55`,
-                color: currentSlide.badgeColor,
+                border: `1px solid ${currentSlide.badge_color || '#ff7a18'}55`,
+                color: currentSlide.badge_color || '#ff7a18',
                 fontSize: 'clamp(0.72rem, 1.8vw, 0.82rem)',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
                 marginBottom: '0.65rem',
-                boxShadow: `0 4px 14px ${currentSlide.badgeColor}22`
+                boxShadow: `0 4px 14px ${currentSlide.badge_color || '#ff7a18'}22`
               }}
             >
-              <BadgeIcon size={14} />
-              {currentSlide.badge}
+              <Sparkles size={14} />
+              {currentSlide.badge || 'Bochasan Mandal'}
             </div>
 
             {/* Slide Heading */}
@@ -267,7 +335,7 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <button
                 type="button"
-                onClick={() => handleAction(currentSlide.actionTab)}
+                onClick={() => handleAction(currentSlide.action_tab || 'attendance')}
                 className="btn btn-primary"
                 style={{
                   padding: '0.65rem 1.4rem',
@@ -279,7 +347,7 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
                   gap: '0.45rem'
                 }}
               >
-                <span>{currentSlide.ctaText}</span>
+                <span>{currentSlide.cta_text || 'Explore Portal'}</span>
                 <ChevronRight size={16} />
               </button>
             </div>
@@ -288,70 +356,72 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
       </div>
 
       {/* Navigation Arrows (Prev / Next) */}
-      <div 
-        style={{
-          position: 'absolute',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'space-between',
-          padding: '0 clamp(0.5rem, 2vw, 1.5rem)',
-          zIndex: 4,
-          pointerEvents: 'none'
-        }}
-      >
-        <button
-          type="button"
-          onClick={prevSlide}
-          className="slideshow-arrow-btn"
-          aria-label="Previous Slide"
+      {totalSlides > 1 && (
+        <div 
           style={{
-            pointerEvents: 'auto',
-            width: '46px',
-            height: '46px',
-            borderRadius: '50%',
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            color: '#ffffff',
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            left: 0,
+            right: 0,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
+            justifyContent: 'space-between',
+            padding: '0 clamp(0.5rem, 2vw, 1.5rem)',
+            zIndex: 4,
+            pointerEvents: 'none'
           }}
         >
-          <ChevronLeft size={24} />
-        </button>
+          <button
+            type="button"
+            onClick={prevSlide}
+            className="slideshow-arrow-btn"
+            aria-label="Previous Slide"
+            style={{
+              pointerEvents: 'auto',
+              width: '46px',
+              height: '46px',
+              borderRadius: '50%',
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
+            }}
+          >
+            <ChevronLeft size={24} />
+          </button>
 
-        <button
-          type="button"
-          onClick={nextSlide}
-          className="slideshow-arrow-btn"
-          aria-label="Next Slide"
-          style={{
-            pointerEvents: 'auto',
-            width: '46px',
-            height: '46px',
-            borderRadius: '50%',
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
-          }}
-        >
-          <ChevronRight size={24} />
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={nextSlide}
+            className="slideshow-arrow-btn"
+            aria-label="Next Slide"
+            style={{
+              pointerEvents: 'auto',
+              width: '46px',
+              height: '46px',
+              borderRadius: '50%',
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.5)'
+            }}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      )}
 
       {/* Bottom Controls Bar: Dots, Counter, Play/Pause */}
       <div 
@@ -394,13 +464,13 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
 
         {/* Slide Counter (01 / 04) */}
         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ffffff', letterSpacing: '0.05em' }}>
-          0{currentIndex + 1} <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>/ 0{totalSlides}</span>
+          0{safeIndex + 1} <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>/ 0{totalSlides}</span>
         </span>
 
         {/* Indicator Dots */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          {SLIDES.map((slide, idx) => {
-            const isActive = idx === currentIndex;
+          {slides.map((slide, idx) => {
+            const isActive = idx === safeIndex;
             return (
               <button
                 key={slide.id}
@@ -422,6 +492,16 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab }) {
           })}
         </div>
       </div>
+
+      {/* Admin Slideshow Editor Modal */}
+      {showEditorModal && (
+        <SlideshowEditorModal
+          isOpen={showEditorModal}
+          onClose={() => setShowEditorModal(false)}
+          initialSlides={slides}
+          onSlidesUpdated={handleSlidesUpdated}
+        />
+      )}
     </div>
   );
 }

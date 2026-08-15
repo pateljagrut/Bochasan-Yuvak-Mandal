@@ -126,6 +126,31 @@ class EventPhotoUpdateRequest(BaseModel):
     image_url: Optional[str] = None
     author: Optional[str] = None
 
+# ==========================================
+# Hero Photo Slideshow Schemas
+# ==========================================
+
+class SlideshowSlide(BaseModel):
+    """
+    Schema for a single slide in the BAPS Hero Photo Slideshow.
+    """
+    id: str = Field(description="Unique slide ID", examples=["slide_1"])
+    image: str = Field(description="Image URL or public path", examples=["/slides/slide1_mandir.jpg"])
+    badge: str = Field(default="Bochasan Mandal", description="Category badge", examples=["Bochasan Tirthdham"])
+    badge_color: Optional[str] = Field(default="#ff7a18", description="Badge accent color", examples=["#ff7a18"])
+    title: str = Field(description="Slide heading title", examples=["Bochasan Swaminarayan Akshar Mandir"])
+    subtitle: str = Field(description="Slide description", examples=["The Sacred Foundation of Akshar Purushottam Satsang"])
+    cta_text: Optional[str] = Field(default="Explore Portal", description="Button call to action text", examples=["Explore Mandal Portal"])
+    action_tab: Optional[str] = Field(default="attendance", description="Target workspace tab", examples=["attendance"])
+    order: Optional[int] = Field(default=1, description="Sort display order")
+    is_active: Optional[bool] = Field(default=True, description="Whether slide is displayed")
+
+class SlideshowUpdateRequest(BaseModel):
+    """
+    Schema for full batch update of slideshow slides.
+    """
+    slides: List[SlideshowSlide]
+
 class UpcomingSabhaScheduleRequest(BaseModel):
     """
     Schema for configuring Upcoming Shanivariya Sabha schedule & details.

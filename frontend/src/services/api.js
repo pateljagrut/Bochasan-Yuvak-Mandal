@@ -204,6 +204,46 @@ export async function createKaryakarAdminApi(adminData, token) {
   });
 }
 
+// ==========================================
+// Hero Photo Slideshow APIs
+// ==========================================
+
+export async function getSlideshowSlidesApi() {
+  return request('/content/slideshow');
+}
+
+export async function updateAllSlideshowSlidesApi(slides, token) {
+  return request('/karyakar/slideshow', {
+    method: 'PUT',
+    token,
+    body: { slides }
+  });
+}
+
+export async function addSlideshowSlideApi(slide, token) {
+  return request('/karyakar/slideshow/slide', {
+    method: 'POST',
+    token,
+    body: slide
+  });
+}
+
+export async function updateSingleSlideApi(slideId, slide, token) {
+  return request(`/karyakar/slideshow/slide/${slideId}`, {
+    method: 'PUT',
+    token,
+    body: slide
+  });
+}
+
+export async function deleteSlideshowSlideApi(slideId, token) {
+  return request(`/karyakar/slideshow/slide/${slideId}`, {
+    method: 'DELETE',
+    token
+  });
+}
+
+
 /**
  * Returns the WebSocket URL for real-time cross-user event broadcasting.
  * Supports all users (Admins & Yuvaks).

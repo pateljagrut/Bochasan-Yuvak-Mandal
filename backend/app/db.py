@@ -36,8 +36,60 @@ in_memory_store: Dict[str, Any] = {
     "attendance": [],
     "content": [],
     "photos": [],
-    "sabha_schedule": {}
+    "sabha_schedule": {},
+    "slideshow": []
 }
+
+DEFAULT_SLIDESHOW_SLIDES: List[dict] = [
+    {
+        "id": "1",
+        "image": "/slides/slide1_mandir.jpg",
+        "badge": "Bochasan Tirthdham",
+        "badge_color": "#ff7a18",
+        "title": "Bochasan Swaminarayan Akshar Mandir",
+        "subtitle": "The Sacred Foundation of Akshar Purushottam Satsang • Established by Brahmaswarup Shastriji Maharaj",
+        "cta_text": "Explore Mandal Portal",
+        "action_tab": "dashboard",
+        "order": 1,
+        "is_active": True
+    },
+    {
+        "id": "2",
+        "image": "/slides/slide2_sabha.jpg",
+        "badge": "Saturday 8:30 PM",
+        "badge_color": "#14b8a6",
+        "title": "Shanivariya Yuvak Sabha",
+        "subtitle": "Fostering Youth Leadership, Spiritual Sanskar, Samp, Suhradbhav & Ekta through weekly satsang assemblies",
+        "cta_text": "Mark Sabha Attendance",
+        "action_tab": "attendance",
+        "order": 2,
+        "is_active": True
+    },
+    {
+        "id": "3",
+        "image": "/slides/slide3_darshan.jpg",
+        "badge": "Daily Darshan",
+        "badge_color": "#eab308",
+        "title": "Shri Akshar Purushottam Maharaj Darshan",
+        "subtitle": "Divine Murti Darshan & Daily Satsang Upasana • Guided by the divine presence of Pragat Brahmaswarup Mahant Swami Maharaj",
+        "cta_text": "View Niyama & Feeds",
+        "action_tab": "content",
+        "order": 3,
+        "is_active": True
+    },
+    {
+        "id": "4",
+        "image": "/slides/slide4_seva.jpg",
+        "badge": "Nishkam Seva",
+        "badge_color": "#22c55e",
+        "title": "Youth Seva & Humanitarian Services",
+        "subtitle": "“In the joy of others, lies our own. In the progress of others, rests our own.” — Brahmaswarup Pramukh Swami Maharaj",
+        "cta_text": "Yuvak Directory",
+        "action_tab": "yuvaks",
+        "order": 4,
+        "is_active": True
+    }
+]
 
 def init_db():
     """
@@ -443,6 +495,63 @@ def update_upcoming_sabha_schedule(schedule_doc: dict) -> dict:
     else:
         in_memory_store["sabha_schedule"] = schedule_doc
     return schedule_doc
+
+# ==========================================
+# Hero Photo Slideshow Storage Functions
+# ==========================================
+
+def get_all_slideshow_slides() -> List[dict]:
+    """Retrieves all slideshow slides ordered by their sequence order."""
+    if is_mongo_connected and db is not None:
+        slides = list(db.slideshow.find({}, {"_id": 0}).sort("order", 1))
+        if slides and len(slides) > 0:
+            return slides
+        # If DB is empty, seed defaults
+        for s in DEFAULT_SLIDESHOW_SLIDES:
+            db.slideshow.update_one({"id": s["id"]}, {"$set": s}, upsert=True)
+        return list(DEFAULT_SLIDESHOW_SLIDES)
+    else:
+        stored = in_memory_store.get("slideshow", [])
+        if not stored:
+            in_memory_store["slideshow"] = [dict(s) for s in DEFAULT_SLIDESHOW_SLIDES]
+            return in_memory_store["slideshow"]
+        return sorted(stored, key=lambda x: x.get("order", 1))
+
+def save_all_slideshow_slides(slides_list: List[dict]) -> List[dict]:
+    """Saves the complete list of slideshow slides."""
+    if is_mongo_connected and db is not None:
+        db.slideshow.delete_many({})
+        if slides_list:
+            db.slideshow.insert_many([dict(s) for s in slides_list])
+    in_memory_store["slideshow"] = [dict(s) for s in slides_list]
+    return get_all_slideshow_slides()
+
+def upsert_slideshow_slide(slide_dict: dict) -> dict:
+    """Adds or updates a single slide."""
+    slide_id = slide_dict.get("id")
+    if is_mongo_connected and db is not None:
+        db.slideshow.update_one({"id": slide_id}, {"$set": slide_dict}, upsert=True)
+    
+    current_slides = in_memory_store.get("slideshow", [])
+    found = False
+    for i, s in enumerate(current_slides):
+        if s.get("id") == slide_id:
+            current_slides[i] = slide_dict
+            found = True
+            break
+    if not found:
+        current_slides.append(slide_dict)
+    in_memory_store["slideshow"] = current_slides
+    return slide_dict
+
+def delete_slideshow_slide(slide_id: str) -> bool:
+    """Deletes a single slide by its ID."""
+    if is_mongo_connected and db is not None:
+        db.slideshow.delete_one({"id": slide_id})
+    current_slides = in_memory_store.get("slideshow", [])
+    in_memory_store["slideshow"] = [s for s in current_slides if s.get("id") != slide_id]
+    return True
+
 
 
 

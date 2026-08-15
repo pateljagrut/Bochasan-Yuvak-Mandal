@@ -20,13 +20,14 @@ from app.auth import get_current_user, require_admin_role
 from app.models import (
     YuvakProfileUpdate, AttendanceMarkRequest, ContentPostRequest, 
     ContentUpdateRequest, EventPhotoPostRequest, EventPhotoUpdateRequest,
-    UpcomingSabhaScheduleRequest
+    UpcomingSabhaScheduleRequest, SlideshowSlide, SlideshowUpdateRequest
 )
 from app.db import (
     get_all_yuvaks, update_yuvak_profile, delete_yuvak_member, insert_attendance_record, 
     get_all_attendance_records, insert_content_feed, find_user_by_identifier,
     insert_event_photo, delete_event_photo, update_event_photo, delete_content_feed, update_content_feed,
-    get_upcoming_sabha_schedule, update_upcoming_sabha_schedule
+    get_upcoming_sabha_schedule, update_upcoming_sabha_schedule,
+    get_all_slideshow_slides, save_all_slideshow_slides, upsert_slideshow_slide, delete_slideshow_slide
 )
 from app.websocket_manager import ws_manager
 
@@ -369,6 +370,104 @@ async def update_sabha_schedule_admin(payload: UpcomingSabhaScheduleRequest, cur
         "message": "Upcoming Shanivariya Sabha schedule updated successfully!",
         "schedule": saved_schedule
     }
+
+# ==========================================
+# Hero Photo Slideshow Admin Endpoints
+# ==========================================
+
+@router.get("/slideshow")
+async def get_slideshow_admin(current_user: dict = Depends(get_current_user)):
+    """
+    Returns full list of slideshow slides including active/inactive status.
+    """
+    slides = get_all_slideshow_slides()
+    return {"success": True, "count": len(slides), "slides": slides}
+
+@router.put("/slideshow")
+async def update_all_slideshow_admin(payload: SlideshowUpdateRequest, current_user: dict = Depends(require_admin_role)):
+    """
+    Replaces and saves the entire slideshow slides configuration.
+    Broadcasts real-time sync event to all viewers.
+    """
+    slides_dicts = [s.model_dump() for s in payload.slides]
+    saved_slides = save_all_slideshow_slides(slides_dicts)
+
+    admin_name = current_user.get("full_name") or current_user.get("username", "Admin")
+    await ws_manager.broadcast("SLIDESHOW_UPDATED", {
+        "count": len(saved_slides),
+        "updated_by": admin_name,
+        "action": "batch_update"
+    })
+
+    return {
+        "success": True,
+        "message": f"Successfully updated {len(saved_slides)} slideshow slides!",
+        "slides": saved_slides
+    }
+
+@router.post("/slideshow/slide")
+async def add_slide_admin(payload: SlideshowSlide, current_user: dict = Depends(require_admin_role)):
+    """
+    Adds a new custom slide to the slideshow.
+    """
+    slide_dict = payload.model_dump()
+    if not slide_dict.get("id"):
+        slide_dict["id"] = f"slide_{uuid.uuid4().hex[:6]}"
+    
+    saved_slide = upsert_slideshow_slide(slide_dict)
+    admin_name = current_user.get("full_name") or current_user.get("username", "Admin")
+    await ws_manager.broadcast("SLIDESHOW_UPDATED", {
+        "slide_id": saved_slide["id"],
+        "updated_by": admin_name,
+        "action": "slide_added"
+    })
+
+    return {
+        "success": True,
+        "message": "New slide added to slideshow successfully!",
+        "slide": saved_slide
+    }
+
+@router.put("/slideshow/slide/{slide_id}")
+async def update_single_slide_admin(slide_id: str, payload: SlideshowSlide, current_user: dict = Depends(require_admin_role)):
+    """
+    Updates an individual slide.
+    """
+    slide_dict = payload.model_dump()
+    slide_dict["id"] = slide_id
+    saved_slide = upsert_slideshow_slide(slide_dict)
+
+    admin_name = current_user.get("full_name") or current_user.get("username", "Admin")
+    await ws_manager.broadcast("SLIDESHOW_UPDATED", {
+        "slide_id": slide_id,
+        "updated_by": admin_name,
+        "action": "slide_updated"
+    })
+
+    return {
+        "success": True,
+        "message": "Slide updated successfully!",
+        "slide": saved_slide
+    }
+
+@router.delete("/slideshow/slide/{slide_id}")
+async def delete_slide_admin(slide_id: str, current_user: dict = Depends(require_admin_role)):
+    """
+    Deletes a slide from the slideshow.
+    """
+    success = delete_slideshow_slide(slide_id)
+    admin_name = current_user.get("full_name") or current_user.get("username", "Admin")
+    await ws_manager.broadcast("SLIDESHOW_UPDATED", {
+        "slide_id": slide_id,
+        "updated_by": admin_name,
+        "action": "slide_deleted"
+    })
+
+    return {
+        "success": True,
+        "message": "Slide deleted successfully."
+    }
+
 
 
 

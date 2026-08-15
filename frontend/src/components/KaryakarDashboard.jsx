@@ -362,29 +362,34 @@ export default function KaryakarDashboard({
   };
 
   return (
-    <div className="dashboard-layout">
-      {/* BAPS Photo Slideshow directly below Navbar on Home/Dashboard tab */}
+    <div className="dashboard-layout" style={{ maxWidth: '1440px', margin: '0 auto 5rem', padding: '0 0' }}>
+      {/* 1. BAPS Hero Photo Slideshow directly below Navbar on Home/Dashboard tab */}
       {activeTab === 'dashboard' && (
-        <div style={{ margin: '-1.5rem -1.5rem 1.5rem -1.5rem' }}>
-          <BapsHeroSlideshow onNavigateTab={handleTabChange} />
+        <div style={{ marginBottom: '2rem' }}>
+          <BapsHeroSlideshow onNavigateTab={handleTabChange} isAdmin={true} />
+        </div>
+      )}
+
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 1.5rem' }}>
+        {/* 2. Hero Header Section (Kept directly AFTER the Slideshow) */}
+        <HeroSection 
+          title="Karyakar Admin Dashboard"
+          subtitle="Manage members, attendance, analytics and sabha content from one unified workspace."
+          totalYuvaks={yuvaks.length}
+          avgAttendance={avgAttendance}
+          location={user?.location || 'Bochasan'}
+          onOpenCreateAdminModal={onOpenCreateAdminModal}
+        />
+
+        {/* 3. BAPS Home Gateway & Live Countdown Section on Dashboard tab */}
+        {activeTab === 'dashboard' && (
           <BapsHomeSection 
             onNavigateTab={handleTabChange} 
             feeds={feeds} 
             yuvaksCount={yuvaks.length} 
             isAdmin={true} 
           />
-        </div>
-      )}
-
-      {/* Hero Header Section */}
-      <HeroSection 
-        title="Karyakar Admin Dashboard"
-        subtitle="Manage members, attendance, analytics and sabha content from one unified workspace."
-        totalYuvaks={yuvaks.length}
-        avgAttendance={avgAttendance}
-        location={user?.location || 'Bochasan'}
-        onOpenCreateAdminModal={onOpenCreateAdminModal}
-      />
+        )}
 
       {/* Notification Toast */}
       {notification && (
@@ -414,6 +419,7 @@ export default function KaryakarDashboard({
       <main className="main-content-area">
         {renderContent()}
       </main>
+      </div>
 
       {/* Profile Editor Modal */}
       {editingYuvak && (

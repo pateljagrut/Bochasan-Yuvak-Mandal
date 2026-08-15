@@ -479,10 +479,12 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
     switch (activeTab) {
       case 'dashboard':
         return (
-          <div style={{ margin: '-1.5rem -1.5rem 1.5rem -1.5rem' }}>
-            <BapsHeroSlideshow onNavigateTab={setActiveTab} />
-            <BapsHomeSection onNavigateTab={setActiveTab} feeds={feeds} yuvaksCount={metrics.total_sabhas} isAdmin={false} />
-          </div>
+          <BapsHomeSection 
+            onNavigateTab={setActiveTab} 
+            feeds={feeds} 
+            yuvaksCount={metrics.total_sabhas} 
+            isAdmin={false} 
+          />
         );
       case 'analytics':
         return <YuvakAnalytics metrics={metrics} p={p} />;
@@ -495,94 +497,103 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
   };
 
   return (
-    <div className="dashboard-layout" style={{ maxWidth: '1440px', margin: '1.5rem auto 5rem', padding: '0 1.5rem' }}>
+    <div className="dashboard-layout" style={{ maxWidth: '1440px', margin: '0 auto 5rem', padding: '0 0' }}>
       
-      {/* Real-time Notification Toast */}
-      {notification && (
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            padding: '1rem 1.25rem',
-            borderRadius: 'var(--radius-lg)',
-            marginBottom: '1.5rem',
-            fontWeight: 600,
-            background: notification.type === 'error' ? 'var(--danger-bg)' : 'var(--success-bg)',
-            border: notification.type === 'error' ? '1px solid var(--danger)' : '1px solid var(--success)',
-            color: notification.type === 'error' ? '#f87171' : '#4ade80',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.6rem'
-          }}
-        >
-          {notification.msg}
-        </motion.div>
+      {/* 1. BAPS Hero Photo Slideshow (Directly at the Top when on Home / Dashboard) */}
+      {activeTab === 'dashboard' && (
+        <div style={{ marginBottom: '2rem' }}>
+          <BapsHeroSlideshow onNavigateTab={setActiveTab} />
+        </div>
       )}
 
-      {/* Top Greeting Banner (Pinned above dynamic viewport) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="hero-banner"
-        style={{ 
-          background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(255, 122, 24, 0.1) 100%)', 
-          borderColor: 'rgba(20, 184, 166, 0.35)',
-          borderRadius: '20px',
-          padding: '1.75rem 2rem',
-          marginBottom: '2rem'
-        }}
-      >
-        <div className="hero-content">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.6rem' }}>
-            <span className="badge badge-yuvak" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 700 }}>
-              Yuvak Portal
-            </span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              ID: {p.yuvak_id || 'DHE2712'}
-            </span>
-            {isLiveConnected && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#4ade80', fontWeight: 600, marginLeft: '0.5rem' }}>
-                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e', display: 'inline-block' }}></span>
-                Live
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 1.5rem' }}>
+        {/* Real-time Notification Toast */}
+        {notification && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              padding: '1rem 1.25rem',
+              borderRadius: 'var(--radius-lg)',
+              marginBottom: '1.5rem',
+              fontWeight: 600,
+              background: notification.type === 'error' ? 'var(--danger-bg)' : 'var(--success-bg)',
+              border: notification.type === 'error' ? '1px solid var(--danger)' : '1px solid var(--success)',
+              color: notification.type === 'error' ? '#f87171' : '#4ade80',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.6rem'
+            }}
+          >
+            {notification.msg}
+          </motion.div>
+        )}
+
+        {/* 2. Top Greeting Banner (Kept directly AFTER the Slideshow) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="hero-banner"
+          style={{ 
+            background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(255, 122, 24, 0.1) 100%)', 
+            borderColor: 'rgba(20, 184, 166, 0.35)',
+            borderRadius: '20px',
+            padding: '1.75rem 2rem',
+            marginBottom: '2rem'
+          }}
+        >
+          <div className="hero-content">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.6rem' }}>
+              <span className="badge badge-yuvak" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 700 }}>
+                Yuvak Portal
               </span>
-            )}
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                ID: {p.yuvak_id || 'DHE2712'}
+              </span>
+              {isLiveConnected && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#4ade80', fontWeight: 600, marginLeft: '0.5rem' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e', display: 'inline-block' }}></span>
+                  Live
+                </span>
+              )}
+            </div>
+
+            <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 800, margin: '0 0 0.4rem 0', letterSpacing: '-0.02em', color: 'var(--text-orange)', WebkitTextFillColor: 'var(--text-orange)' }}>
+              Jay Swaminarayan, {p.full_name || 'Yuvak'}! <span className="emoji-color">🙏</span>
+            </h1>
+
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', margin: 0, maxWidth: '640px', lineHeight: 1.5 }}>
+              Welcome to your personal Saturday Sabha attendance portal & mandal announcement feeds.
+            </p>
           </div>
 
-          <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 800, margin: '0 0 0.4rem 0', letterSpacing: '-0.02em', color: 'var(--text-orange)', WebkitTextFillColor: 'var(--text-orange)' }}>
-            Jay Swaminarayan, {p.full_name || 'Yuvak'}! <span className="emoji-color">🙏</span>
-          </h1>
-
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', margin: 0, maxWidth: '640px', lineHeight: 1.5 }}>
-            Welcome to your personal Saturday Sabha attendance portal & mandal announcement feeds.
-          </p>
-        </div>
-
-        {/* Hero Stats */}
-        <div className="hero-stats-grid" style={{ display: 'flex', gap: '1.25rem' }}>
-          <div className="hero-stat-box" style={{ background: 'var(--bg-stat-box)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid var(--border-subtle)', minWidth: '130px', textAlign: 'center' }}>
-            <div className="hero-stat-value" style={{ color: '#14b8a6', fontSize: '1.75rem', fontWeight: 800 }}>
-              {metrics.attendance_percentage}%
+          {/* Hero Stats */}
+          <div className="hero-stats-grid" style={{ display: 'flex', gap: '1.25rem' }}>
+            <div className="hero-stat-box" style={{ background: 'var(--bg-stat-box)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid var(--border-subtle)', minWidth: '130px', textAlign: 'center' }}>
+              <div className="hero-stat-value" style={{ color: '#14b8a6', fontSize: '1.75rem', fontWeight: 800 }}>
+                {metrics.attendance_percentage}%
+              </div>
+              <div className="hero-stat-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                Attendance Rate
+              </div>
             </div>
-            <div className="hero-stat-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-              Attendance Rate
-            </div>
-          </div>
 
-          <div className="hero-stat-box" style={{ background: 'var(--bg-stat-box)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid var(--border-subtle)', minWidth: '130px', textAlign: 'center' }}>
-            <div className="hero-stat-value" style={{ color: 'var(--text-orange)', fontSize: '1.75rem', fontWeight: 800 }}>
-              {metrics.attended_sabhas} / {metrics.total_sabhas}
-            </div>
-            <div className="hero-stat-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-              Sabhas Attended
+            <div className="hero-stat-box" style={{ background: 'var(--bg-stat-box)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid var(--border-subtle)', minWidth: '130px', textAlign: 'center' }}>
+              <div className="hero-stat-value" style={{ color: 'var(--text-orange)', fontSize: '1.75rem', fontWeight: 800 }}>
+                {metrics.attended_sabhas} / {metrics.total_sabhas}
+              </div>
+              <div className="hero-stat-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                Sabhas Attended
+              </div>
             </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* Primary Dynamic Viewport (Swaps components based on activeTab) */}
-      <main className="yuvak-main-viewport">
-        {renderActiveView()}
-      </main>
+        {/* 3. Primary Dynamic Viewport */}
+        <main className="yuvak-main-viewport">
+          {renderActiveView()}
+        </main>
+      </div>
 
       {/* Fixed Bottom Glass Navigation (3 Tabs: Attendance, Analytics, Content) */}
       <MobileNav 

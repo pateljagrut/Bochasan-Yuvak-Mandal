@@ -91,15 +91,15 @@ function CustomBarTooltip({ active, payload, label }) {
     const data = payload[0].payload;
     return (
       <div style={{
-        background: '#0f172a',
-        border: '1px solid rgba(255, 122, 24, 0.4)',
+        background: 'var(--bg-modal)',
+        border: '1px solid var(--primary-border)',
         borderRadius: '12px',
         padding: '0.85rem 1rem',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.8)',
+        boxShadow: 'var(--shadow-card)',
         fontSize: '0.82rem',
-        color: '#ffffff'
+        color: 'var(--text-primary)'
       }}>
-        <div style={{ fontWeight: 700, color: '#ff9b42', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+        <div style={{ fontWeight: 700, color: 'var(--text-orange)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <Calendar size={13} /> {data.displayDate}
         </div>
         <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
@@ -111,11 +111,11 @@ function CustomBarTooltip({ active, payload, label }) {
             <strong>{data.present} Yuvaks</strong>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-            <span style={{ color: '#f87171' }}>● Absent:</span>
+            <span style={{ color: '#ef4444' }}>● Absent:</span>
             <strong>{data.absent} Yuvaks</strong>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', paddingTop: '0.35rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-            <span style={{ color: '#ff9b42' }}>Attendance Rate:</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', paddingTop: '0.35rem', borderTop: '1px solid var(--border-subtle)' }}>
+            <span style={{ color: 'var(--text-orange)' }}>Attendance Rate:</span>
             <strong>{data.rate}%</strong>
           </div>
         </div>
@@ -133,21 +133,21 @@ function CustomAreaTooltip({ active, payload, label }) {
     const data = payload[0].payload;
     return (
       <div style={{
-        background: '#0f172a',
+        background: 'var(--bg-modal)',
         border: '1px solid rgba(20, 184, 166, 0.4)',
         borderRadius: '12px',
         padding: '0.75rem 1rem',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.8)',
+        boxShadow: 'var(--shadow-card)',
         fontSize: '0.82rem',
-        color: '#ffffff'
+        color: 'var(--text-primary)'
       }}>
         <div style={{ fontWeight: 700, color: '#14b8a6', marginBottom: '0.25rem' }}>
           📅 {data.displayDate}
         </div>
         <div style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>
-          Rate: <strong style={{ color: '#ffffff' }}>{data.attendance}%</strong> ({data.headcount})
+          Rate: <strong style={{ color: 'var(--text-primary)' }}>{data.attendance}%</strong> ({data.headcount})
         </div>
-        <div style={{ color: '#94a3b8', fontSize: '0.72rem', marginTop: '0.2rem' }}>
+        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '0.2rem' }}>
           Target: 85%
         </div>
       </div>
@@ -459,17 +459,17 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
             <div style={{ width: '100%', height: 280 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                   <XAxis 
                     dataKey="displayDate" 
-                    stroke="#94A3B8" 
+                    stroke="var(--text-muted)" 
                     fontSize={11} 
                     tickLine={false}
                     interval={0}
                     angle={-15}
                     textAnchor="end"
                   />
-                  <YAxis stroke="#94A3B8" fontSize={12} allowDecimals={false} />
+                  <YAxis stroke="var(--text-muted)" fontSize={12} allowDecimals={false} />
                   <Tooltip content={<CustomBarTooltip />} />
                   <Bar dataKey="present" fill="#ff7a18" radius={[4, 4, 0, 0]} maxBarSize={45} />
                   <Bar dataKey="absent" fill="rgba(239, 68, 68, 0.45)" radius={[4, 4, 0, 0]} maxBarSize={45} />
@@ -563,17 +563,17 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                       <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                   <XAxis 
                     dataKey="displayDate" 
-                    stroke="#94A3B8" 
+                    stroke="var(--text-muted)" 
                     fontSize={11} 
                     tickLine={false}
                     interval={0}
                     angle={-15}
                     textAnchor="end"
                   />
-                  <YAxis stroke="#94A3B8" fontSize={12} domain={[0, 100]} />
+                  <YAxis stroke="var(--text-muted)" fontSize={12} domain={[0, 100]} />
                   <Tooltip content={<CustomAreaTooltip />} />
                   <Area 
                     type="monotone" 
@@ -614,7 +614,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                 </Pie>
                 <Tooltip 
                   formatter={(val, name, entry) => [`${entry.payload.count} Members (${val}%)`, name]}
-                  contentStyle={{ background: '#0f172a', border: '1px solid var(--border-subtle)', borderRadius: '8px' }} 
+                  contentStyle={{ background: 'var(--bg-modal)', border: '1px solid var(--border-subtle)', borderRadius: '8px', color: 'var(--text-primary)' }} 
                 />
               </PieChart>
             </ResponsiveContainer>

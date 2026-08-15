@@ -183,26 +183,26 @@ function YuvakAnalytics({ metrics }) {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
-          <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ background: 'var(--bg-stat-box)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
             <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Overall Rate</div>
             <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#14b8a6', margin: '0.2rem 0' }}>{metrics.attendance_percentage}%</div>
             <div style={{ fontSize: '0.75rem', color: '#22c55e' }}>↑ Consistent Attendance</div>
           </div>
 
-          <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ background: 'var(--bg-stat-box)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
             <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Total Sabhas Attended</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ff9b42', margin: '0.2rem 0' }}>{metrics.attended_sabhas} Sessions</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-orange)', margin: '0.2rem 0' }}>{metrics.attended_sabhas} Sessions</div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Out of {metrics.total_sabhas} Saturday Sabhas</div>
           </div>
 
-          <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ background: 'var(--bg-stat-box)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
             <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Niyama Commitment</div>
             <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#22c55e', margin: '0.2rem 0' }}>100%</div>
             <div style={{ fontSize: '0.75rem', color: '#22c55e' }}>Active Niyama Record</div>
           </div>
         </div>
 
-        <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
           <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 1rem 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <TrendingUp size={18} color="#ff7a18" /> Participation Milestone Status
           </h4>
@@ -212,7 +212,7 @@ function YuvakAnalytics({ metrics }) {
                 <span>Monthly Shanivariya Goal</span>
                 <span style={{ fontWeight: 700, color: '#14b8a6' }}>{metrics.attendance_percentage}% Achieved</span>
               </div>
-              <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '999px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '8px', background: 'var(--border-subtle)', borderRadius: '999px', overflow: 'hidden' }}>
                 <div style={{ width: `${metrics.attendance_percentage}%`, height: '100%', background: 'linear-gradient(90deg, #14b8a6, #22c55e)', borderRadius: '999px' }} />
               </div>
             </div>
@@ -249,13 +249,13 @@ function SatsangContentFeed({ feeds, photos }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {feeds.map((feed, idx) => (
               <div key={idx} style={{
-                background: 'rgba(15, 23, 42, 0.6)',
+                background: 'var(--bg-stat-box)',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: '14px',
                 padding: '1.25rem'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', alignItems: 'center' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#ff9b42', margin: 0 }}>{feed.title}</h4>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-orange)', margin: 0 }}>{feed.title}</h4>
                   <span className="badge badge-yuvak" style={{ fontSize: '0.7rem' }}>{feed.category}</span>
                 </div>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.65rem', lineHeight: 1.55 }}>
@@ -285,13 +285,13 @@ function SatsangContentFeed({ feeds, photos }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.25rem' }}>
             {photos.map((photo, idx) => (
               <div key={idx} style={{
-                background: 'rgba(15, 23, 42, 0.7)',
+                background: 'var(--bg-stat-box)',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: '14px',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+                boxShadow: 'var(--shadow-sm)'
               }}>
                 <div style={{ height: '140px', overflow: 'hidden', position: 'relative' }}>
                   <img 
@@ -539,7 +539,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
             )}
           </div>
 
-          <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 800, margin: '0 0 0.4rem 0', letterSpacing: '-0.02em', color: '#FF9B42', WebkitTextFillColor: '#FF9B42' }}>
+          <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 800, margin: '0 0 0.4rem 0', letterSpacing: '-0.02em', color: 'var(--text-orange)', WebkitTextFillColor: 'var(--text-orange)' }}>
             Jay Swaminarayan, {p.full_name || 'Yuvak'}! <span className="emoji-color">🙏</span>
           </h1>
 
@@ -550,7 +550,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
 
         {/* Hero Stats */}
         <div className="hero-stats-grid" style={{ display: 'flex', gap: '1.25rem' }}>
-          <div className="hero-stat-box" style={{ background: 'rgba(11, 17, 32, 0.75)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid rgba(20, 184, 166, 0.3)', minWidth: '130px', textAlign: 'center' }}>
+          <div className="hero-stat-box" style={{ background: 'var(--bg-stat-box)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid var(--border-subtle)', minWidth: '130px', textAlign: 'center' }}>
             <div className="hero-stat-value" style={{ color: '#14b8a6', fontSize: '1.75rem', fontWeight: 800 }}>
               {metrics.attendance_percentage}%
             </div>
@@ -559,8 +559,8 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
             </div>
           </div>
 
-          <div className="hero-stat-box" style={{ background: 'rgba(11, 17, 32, 0.75)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid rgba(255, 122, 24, 0.3)', minWidth: '130px', textAlign: 'center' }}>
-            <div className="hero-stat-value" style={{ color: '#ff9b42', fontSize: '1.75rem', fontWeight: 800 }}>
+          <div className="hero-stat-box" style={{ background: 'var(--bg-stat-box)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid var(--border-subtle)', minWidth: '130px', textAlign: 'center' }}>
+            <div className="hero-stat-value" style={{ color: 'var(--text-orange)', fontSize: '1.75rem', fontWeight: 800 }}>
               {metrics.attended_sabhas} / {metrics.total_sabhas}
             </div>
             <div className="hero-stat-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>

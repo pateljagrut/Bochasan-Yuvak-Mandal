@@ -347,37 +347,22 @@ export default function MemberDirectory({
       {deletingYuvak && createPortal(
         <AnimatePresence>
           <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              width: '100vw',
-              height: '100vh',
-              background: 'rgba(0, 0, 0, 0.82)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 99999,
-              padding: '1.5rem'
-            }}
+            className="modal-overlay"
             onClick={() => setDeletingYuvak(null)}
           >
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="modal-container"
               style={{
                 maxWidth: '440px',
                 width: '100%',
-                background: '#0f172a',
+                background: 'var(--bg-modal)',
                 borderRadius: '18px',
                 padding: '1.75rem',
                 border: '1px solid rgba(239, 68, 68, 0.4)',
-                boxShadow: '0 25px 60px -10px rgba(0,0,0,0.9), 0 0 30px rgba(239, 68, 68, 0.2)',
+                boxShadow: 'var(--shadow-card)',
                 textAlign: 'center'
               }}
               onClick={(e) => e.stopPropagation()}
@@ -397,7 +382,7 @@ export default function MemberDirectory({
                 <AlertTriangle size={26} />
               </div>
 
-              <h3 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
                 Delete Yuvak Member?
               </h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>

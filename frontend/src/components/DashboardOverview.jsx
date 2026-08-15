@@ -105,7 +105,7 @@ export default function DashboardOverview({
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               {feeds.slice(0, 3).map((feed, idx) => (
-                <div key={idx} style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                <div key={idx} style={{ background: 'var(--bg-stat-box)', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                     <h4 style={{ color: '#ff9b42', fontSize: '0.9rem', fontWeight: 600 }}>{feed.title}</h4>
                     <span className="badge badge-admin" style={{ fontSize: '0.65rem' }}>{feed.category}</span>
@@ -126,7 +126,7 @@ export default function DashboardOverview({
             <h3 style={{ fontSize: '1.15rem' }}>Quick Workspace Status</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ padding: '0.85rem 1rem', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '10px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-stat-box)', borderRadius: '10px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>Sabha Attendance Grid</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ready for Saturday marking</div>
@@ -136,7 +136,7 @@ export default function DashboardOverview({
               </button>
             </div>
 
-            <div style={{ padding: '0.85rem 1rem', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '10px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-stat-box)', borderRadius: '10px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>Member Profiles</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{yuvaks.length} Members registered</div>
@@ -146,7 +146,7 @@ export default function DashboardOverview({
               </button>
             </div>
 
-            <div style={{ padding: '0.85rem 1rem', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '10px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-stat-box)', borderRadius: '10px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>Interactive Analytics</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Participation graphs & trends</div>

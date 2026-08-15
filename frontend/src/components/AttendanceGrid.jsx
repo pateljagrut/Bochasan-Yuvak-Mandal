@@ -256,7 +256,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                             }}>
                               {yuvak.attendance_pct || 100}%
                             </span>
-                            <div style={{ flex: 1, maxWidth: '60px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ flex: 1, maxWidth: '60px', height: '6px', background: 'var(--border-hover)', borderRadius: '3px', overflow: 'hidden' }}>
                               <div style={{ 
                                 width: `${yuvak.attendance_pct || 100}%`, 
                                 height: '100%', 
@@ -292,7 +292,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                     onClick={() => toggleYuvak(yuvak.yuvak_id)}
                     style={{
                       border: isChecked ? '1px solid rgba(255, 122, 24, 0.4)' : '1px solid var(--border-subtle)',
-                      background: isChecked ? 'rgba(255, 122, 24, 0.1)' : 'rgba(17, 24, 39, 0.85)'
+                      background: isChecked ? 'rgba(255, 122, 24, 0.12)' : 'var(--bg-card)'
                     }}
                   >
                     <div className="member-mobile-left">
@@ -338,12 +338,14 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
         {/* Sticky Action Footer */}
         <div style={{
           display: 'flex',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(15, 23, 42, 0.95)',
+          background: 'var(--bg-card)',
+          backdropFilter: 'blur(16px)',
           padding: '1rem 1.25rem',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--shadow-card)',
           flexWrap: 'wrap',
           gap: '1rem'
         }}>

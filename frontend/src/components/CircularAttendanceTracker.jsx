@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * Circular Attendance Tracker Component.
- * Dynamic SVG circular progress meter featuring animated stroke offsets.
+ * Dynamic SVG circular progress meter featuring animated stroke offsets and theme adaptation.
  */
 export default function CircularAttendanceTracker({ attended = 0, total = 0, percentage = 100 }) {
   const radius = 80;
@@ -26,7 +26,7 @@ export default function CircularAttendanceTracker({ attended = 0, total = 0, per
             cy="100"
             r={radius}
             fill="none"
-            stroke="rgba(255, 255, 255, 0.08)"
+            stroke="var(--border-hover)"
             strokeWidth="12"
           />
 
@@ -60,15 +60,15 @@ export default function CircularAttendanceTracker({ attended = 0, total = 0, per
 
       {/* Metric Pills */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', width: '100%', marginTop: '1.25rem' }}>
-        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)' }}>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#ff9b42' }}>{total}</div>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
+          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-orange)' }}>{total}</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Total Sabhas</div>
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)' }}>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
           <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#14b8a6' }}>{attended}</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Attended</div>
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)' }}>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
           <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#ef4444' }}>{total - attended}</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Absences</div>
         </div>

@@ -24,40 +24,24 @@ export default function ProfileEditorModal({ yuvak, onClose, onSave, saving }) {
 
   const modalContent = (
     <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: '100vw',
-        height: '100vh',
-        background: 'rgba(0, 0, 0, 0.82)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 99999,
-        padding: '1.5rem',
-        overflowY: 'auto'
-      }}
+      className="modal-overlay"
       onClick={onClose}
     >
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className="modal-container"
         style={{
           maxWidth: '500px',
           width: '100%',
           maxHeight: '90vh',
           overflowY: 'auto',
-          background: '#0f172a',
+          background: 'var(--bg-modal)',
           borderRadius: '20px',
           padding: '2rem',
           border: '1px solid rgba(255, 122, 24, 0.4)',
-          boxShadow: '0 25px 60px -10px rgba(0,0,0,0.9), 0 0 40px rgba(255,122,24,0.2)',
+          boxShadow: 'var(--shadow-card)',
           margin: 'auto'
         }}
         onClick={(e) => e.stopPropagation()}
@@ -66,7 +50,7 @@ export default function ProfileEditorModal({ yuvak, onClose, onSave, saving }) {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <UserCheck size={20} color="#ff7a18" />
-              <h3 style={{ fontSize: '1.25rem', color: '#ffffff' }}>Edit Yuvak Profile</h3>
+              <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)' }}>Edit Yuvak Profile</h3>
             </div>
             <span className="yuvak-id-highlight" style={{ fontSize: '0.8rem', marginTop: '0.2rem', display: 'inline-block' }}>ID: {yuvak.yuvak_id}</span>
           </div>

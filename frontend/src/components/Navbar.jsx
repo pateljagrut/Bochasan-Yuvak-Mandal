@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { ThemeToggle } from '../context/ThemeContext';
 import Logo from './Logo';
 import { 
   Search, 
@@ -12,10 +13,7 @@ import {
 } from 'lucide-react';
 
 /**
- * Refactored Responsive Header Navigation Bar.
- * 
- * Fixes layout cramping, text wrapping, and profile pill overflow
- * using Tailwind Flexbox layout, `whitespace-nowrap`, and responsive `hidden sm:flex` breakpoints.
+ * Modern Header Navigation Bar with Light and Night mode support.
  */
 export default function Navbar({ 
   activeTab = 'dashboard', 
@@ -42,8 +40,8 @@ export default function Navbar({
   const currentNavItems = role === 'admin' ? adminNavItems : yuvakNavItems;
 
   return (
-    <header className="w-full bg-slate-900/90 border-b border-gray-800 backdrop-blur-md sticky top-0 z-50 px-3 sm:px-6 py-2.5 min-h-[3.75rem] flex items-center justify-between app-header">
-      <div className="w-full max-w-[1440px] mx-auto flex items-center justify-between gap-2 sm:gap-3 header-container">
+    <header className="app-header">
+      <div className="header-container">
         
         {/* Left: Brand Logo */}
         <div 
@@ -53,19 +51,15 @@ export default function Navbar({
           <Logo size="md" />
         </div>
 
-        {/* Center: Desktop Navigation Tabs (Karyakar Admin / Yuvak Workspace) */}
-        <nav className="hidden md:flex items-center gap-0.5 bg-gray-800/40 p-1 rounded-full border border-gray-700/50 desktop-nav-tabs">
+        {/* Center: Desktop Navigation Tabs */}
+        <nav className="desktop-nav-tabs">
           {currentNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
-                className={`nav-tab-btn px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
-                  isActive 
-                    ? 'active bg-orange-500/20 text-orange-400 border border-orange-500/40 font-semibold' 
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700/30'
-                }`}
+                className={`nav-tab-btn ${isActive ? 'active' : ''}`}
                 onClick={() => setActiveTab(item.id)}
               >
                 <Icon size={15} />
@@ -76,18 +70,21 @@ export default function Navbar({
         </nav>
 
         {/* Right-Side Action Group */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 user-nav-actions">
+        <div className="user-nav-actions">
           
           {/* Quick Search Shortcut Trigger */}
           <button 
-            className="search-trigger-btn hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-700/60 bg-gray-800/40 text-gray-400 hover:text-white hover:border-gray-600 text-xs transition-all"
+            className="search-trigger-btn hidden xl:flex"
             onClick={onOpenSearch} 
             title="Search Workspace (Ctrl+K)"
           >
             <Search size={14} />
             <span className="whitespace-nowrap">Search</span>
-            <span className="search-kbd bg-black/40 border border-gray-700 px-1 rounded text-[10px] text-gray-400">⌘K</span>
+            <span className="search-kbd">⌘K</span>
           </button>
+
+          {/* Theme Toggle Button (Light / Night) */}
+          <ThemeToggle />
 
           {user && (
             <>
@@ -109,12 +106,12 @@ export default function Navbar({
                 </div>
               </div>
 
-
               {/* Logout Button */}
               <button
-                className="btn btn-secondary p-2 rounded-lg border border-gray-700/60 bg-gray-800/40 text-gray-300 hover:text-white hover:border-gray-600 transition-all shrink-0"
+                className="btn btn-secondary p-2 rounded-lg transition-all shrink-0"
                 onClick={logout}
                 title="Logout"
+                style={{ width: '38px', height: '38px', minHeight: 'unset', padding: 0 }}
               >
                 <LogOut size={16} />
               </button>

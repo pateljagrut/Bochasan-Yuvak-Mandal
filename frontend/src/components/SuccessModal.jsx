@@ -46,25 +46,25 @@ export default function SuccessModal({ registrationData, onClose, onGoToLogin })
         </p>
 
         <div style={{
-          background: 'linear-gradient(135deg, rgba(255, 122, 24, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%)',
+          background: 'linear-gradient(135deg, rgba(255, 122, 24, 0.15) 0%, var(--bg-stat-box) 100%)',
           border: '1px solid rgba(255, 122, 24, 0.4)',
           borderRadius: 'var(--radius-lg)',
           padding: '1.25rem',
           margin: '1.25rem 0',
-          boxShadow: '0 0 25px rgba(255, 122, 24, 0.2)'
+          boxShadow: 'var(--shadow-card)'
         }}>
           <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
             Your Unique Auto-Generated Yuvak ID
           </span>
-          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '2.2rem', fontWeight: 800, color: '#ff9b42', letterSpacing: '0.08em', margin: '0.4rem 0' }}>
+          <div style={{ fontFamily: 'var(--font-heading)', fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-orange)', letterSpacing: '0.08em', margin: '0.4rem 0' }}>
             {yuvak_id}
           </div>
-          <p style={{ fontSize: '0.75rem', color: '#ff9b42' }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-orange)' }}>
             Formula: Upper(First 3 Letters) + DOB (DDMM e.g. DHE2712)
           </p>
         </div>
 
-        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.8rem', borderRadius: '10px', marginBottom: '1.5rem', textAlign: 'left', fontSize: '0.85rem' }}>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '0.8rem', borderRadius: '10px', marginBottom: '1.5rem', textAlign: 'left', fontSize: '0.85rem', border: '1px solid var(--border-subtle)' }}>
           <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
             📱 <strong>Mobile:</strong> {mobile_no}
           </div>

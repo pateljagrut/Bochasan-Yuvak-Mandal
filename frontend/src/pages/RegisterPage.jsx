@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { registerYuvakApi } from '../services/api';
+import { ThemeToggle } from '../context/ThemeContext';
 import SuccessModal from '../components/SuccessModal';
 import Logo from '../components/Logo';
 import { UserPlus, Sparkles } from 'lucide-react';
@@ -42,8 +43,12 @@ export default function RegisterPage({ onNavigateLogin }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1.5rem'
+      padding: '1.5rem',
+      position: 'relative'
     }}>
+      {/* Top Floating Theme Switcher */}
+      <ThemeToggle variant="floating" />
+
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -53,15 +58,21 @@ export default function RegisterPage({ onNavigateLogin }) {
           width: '100%', 
           maxWidth: '480px', 
           padding: '2.5rem 2rem',
-          border: '1px solid rgba(255, 122, 24, 0.3)',
-          boxShadow: '0 20px 50px -10px rgba(0,0,0,0.7), 0 0 30px rgba(255,122,24,0.15)'
+          border: '1px solid var(--primary-border)',
+          boxShadow: 'var(--shadow-card), 0 0 30px var(--primary-glow)'
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
             <Logo size="lg" showSubtitle={false} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', marginBottom: '0.3rem', background: 'linear-gradient(135deg, #FFF, #ff9b42)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <h2 style={{ 
+            fontSize: '1.75rem', 
+            marginBottom: '0.3rem', 
+            background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--text-orange) 100%)', 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent' 
+          }}>
             Yuvak Member Registration
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
@@ -73,7 +84,7 @@ export default function RegisterPage({ onNavigateLogin }) {
           <div style={{
             background: 'var(--danger-bg)',
             border: '1px solid var(--danger)',
-            color: '#f87171',
+            color: '#ef4444',
             padding: '0.75rem',
             borderRadius: '10px',
             marginBottom: '1.25rem',
@@ -112,7 +123,7 @@ export default function RegisterPage({ onNavigateLogin }) {
               pattern="[0-9]{10}"
               required
             />
-            <span style={{ fontSize: '0.7rem', color: '#ff9b42', marginTop: '0.25rem', display: 'block' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-orange)', marginTop: '0.25rem', display: 'block' }}>
               Used as your default initial login password.
             </span>
           </div>
@@ -127,7 +138,7 @@ export default function RegisterPage({ onNavigateLogin }) {
               onChange={handleChange}
               required
             />
-            <span style={{ fontSize: '0.7rem', color: '#ff9b42', marginTop: '0.25rem', display: 'block' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-orange)', marginTop: '0.25rem', display: 'block' }}>
               Used to generate ID suffix (DDMM e.g. 2712).
             </span>
           </div>
@@ -160,7 +171,7 @@ export default function RegisterPage({ onNavigateLogin }) {
           Already registered?{' '}
           <button
             onClick={onNavigateLogin}
-            style={{ background: 'none', border: 'none', color: '#ff9b42', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-orange)', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
           >
             Back to Smart Login
           </button>

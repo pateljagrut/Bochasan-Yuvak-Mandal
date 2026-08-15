@@ -95,17 +95,18 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
                         padding: '0.6rem 0.8rem',
                         borderRadius: '8px',
                         cursor: 'pointer',
-                        background: 'rgba(255,255,255,0.03)',
+                        background: 'var(--bg-stat-box)',
+                        border: '1px solid var(--border-subtle)',
                         marginBottom: '0.4rem',
                         transition: 'all 0.2s'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,122,24,0.12)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                      onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(255,122,24,0.4)'}
+                      onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-subtle)'}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <User size={18} color="#ff9b42" />
+                        <User size={18} color="#ff7a18" />
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{y.full_name}</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{y.full_name}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                             {y.location || 'Bochasan'} • {y.mobile_no}{y.dob ? ` • DOB: ${formatDob(y.dob)}` : ''}
                           </div>
@@ -132,7 +133,7 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <CalendarCheck size={18} color="#14b8a6" />
-                  <span>Mark Sabha Attendance</span>
+                  <span style={{ color: 'var(--text-primary)' }}>Mark Sabha Attendance</span>
                 </div>
                 <ArrowRight size={16} color="var(--text-muted)" />
               </div>
@@ -145,7 +146,7 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <Megaphone size={18} color="#ff7a18" />
-                  <span>Upload Announcements / Niyama</span>
+                  <span style={{ color: 'var(--text-primary)' }}>Upload Announcements / Niyama</span>
                 </div>
                 <ArrowRight size={16} color="var(--text-muted)" />
               </div>
@@ -159,7 +160,7 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <ShieldPlus size={18} color="#22c55e" />
-                    <span>Create Karyakar Admin Account</span>
+                    <span style={{ color: 'var(--text-primary)' }}>Create Karyakar Admin Account</span>
                   </div>
                   <ArrowRight size={16} color="var(--text-muted)" />
                 </div>
@@ -179,11 +180,12 @@ const cmdItemStyle = {
   padding: '0.65rem 0.8rem',
   borderRadius: '8px',
   cursor: 'pointer',
-  background: 'rgba(255,255,255,0.03)',
+  background: 'var(--bg-stat-box)',
+  border: '1px solid var(--border-subtle)',
   marginBottom: '0.4rem',
   fontSize: '0.9rem',
   transition: 'all 0.2s'
 };
 
-const hoverIn = (e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; };
-const hoverOut = (e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; };
+const hoverIn = (e) => { e.currentTarget.style.borderColor = 'rgba(255,122,24,0.4)'; };
+const hoverOut = (e) => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; };

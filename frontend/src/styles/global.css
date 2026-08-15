@@ -1,15 +1,32 @@
 /* ==========================================================================
-   Bochasan Yuvak Mandal - Premium Design System (Linear / Apple / Vercel Inspired)
+   Bochasan Yuvak Mandal - Premium Design System (Light & Night Theme Engine)
    ========================================================================== */
 
-:root {
-  /* Brand Palette */
+/* --------------------------------------------------------------------------
+   Theme Tokens: Night Mode (Default)
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
+
+  /* Surfaces & Backgrounds */
   --bg-primary: #0B1120;
-  --bg-card: rgba(17, 24, 39, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.85);
-  --bg-glass: rgba(17, 24, 39, 0.75);
-  --bg-input: rgba(15, 23, 42, 0.85);
+  --bg-card: rgba(17, 24, 39, 0.78);
+  --bg-card-hover: rgba(30, 41, 59, 0.88);
+  --bg-glass: rgba(17, 24, 39, 0.78);
+  --bg-input: rgba(15, 23, 42, 0.88);
+  --bg-modal: #0f172a;
+  --bg-header: rgba(15, 23, 42, 0.92);
+  --bg-nav-tab: rgba(255, 255, 255, 0.04);
+  --bg-nav-hover: rgba(255, 255, 255, 0.08);
+  --bg-stat-box: rgba(11, 17, 32, 0.65);
+  --bg-table-header: rgba(17, 24, 39, 0.92);
+  --bg-table-hover: rgba(255, 255, 255, 0.035);
+  --bg-user-chip: rgba(31, 41, 55, 0.65);
+  --bg-overlay: rgba(5, 9, 18, 0.82);
   
+  /* Brand Accents */
   --primary: #ff7a18;
   --primary-hover: #ff9b42;
   --primary-glow: rgba(255, 122, 24, 0.25);
@@ -24,17 +41,31 @@
   --danger: #ef4444;
   --danger-bg: rgba(239, 68, 68, 0.15);
 
+  /* Typography */
   --text-primary: #F8FAFC;
   --text-secondary: #CBD5E1;
   --text-muted: #94A3B8;
   --text-orange: #ff9b42;
 
+  /* Borders & Shadows */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.18);
   
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-card: 0 12px 32px -4px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
   --shadow-glow: 0 0 35px rgba(255, 122, 24, 0.18);
+
+  /* Ambient Wallpapers & Gradients */
+  --body-bg-pattern: 
+    radial-gradient(circle at 5% 10%, rgba(255, 122, 24, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 95% 90%, rgba(20, 184, 166, 0.12) 0%, transparent 45%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  
+  --header-bg-gradient: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
+  --hero-banner-bg: linear-gradient(135deg, rgba(255, 122, 24, 0.12) 0%, rgba(20, 184, 166, 0.08) 100%);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 122, 24, 0.4);
 
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   --font-heading: 'Outfit', 'Inter', sans-serif;
@@ -45,6 +76,74 @@
   --radius-sm: 6px;
 }
 
+/* --------------------------------------------------------------------------
+   Theme Tokens: Light Mode (Clean, Apple/Linear Inspired Luminous Aesthetic)
+   -------------------------------------------------------------------------- */
+[data-theme="light"],
+.light {
+  color-scheme: light;
+
+  /* Surfaces & Backgrounds */
+  --bg-primary: #F8FAFC;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.88);
+  --bg-input: #FFFFFF;
+  --bg-modal: #FFFFFF;
+  --bg-header: rgba(255, 255, 255, 0.92);
+  --bg-nav-tab: rgba(15, 23, 42, 0.05);
+  --bg-nav-hover: rgba(15, 23, 42, 0.09);
+  --bg-stat-box: rgba(241, 245, 249, 0.9);
+  --bg-table-header: #F1F5F9;
+  --bg-table-hover: rgba(241, 245, 249, 0.7);
+  --bg-user-chip: rgba(241, 245, 249, 0.95);
+  --bg-overlay: rgba(15, 23, 42, 0.5);
+
+  /* Brand Accents */
+  --primary: #ff7a18;
+  --primary-hover: #ea580c;
+  --primary-glow: rgba(255, 122, 24, 0.2);
+  --primary-border: rgba(255, 122, 24, 0.35);
+
+  --secondary: #0d9488;
+  --secondary-hover: #0f766e;
+  --secondary-glow: rgba(13, 148, 136, 0.18);
+
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.12);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.12);
+
+  /* Typography */
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --text-orange: #ea580c;
+
+  /* Borders & Shadows */
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-hover: rgba(15, 23, 42, 0.16);
+  
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 10px 25px -4px rgba(15, 23, 42, 0.07), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  --shadow-glow: 0 0 30px rgba(255, 122, 24, 0.12);
+
+  /* Ambient Wallpapers & Gradients */
+  --body-bg-pattern: 
+    radial-gradient(circle at 5% 10%, rgba(255, 122, 24, 0.09) 0%, transparent 45%),
+    radial-gradient(circle at 95% 90%, rgba(13, 148, 136, 0.08) 0%, transparent 45%),
+    linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+  
+  --header-bg-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+  --hero-banner-bg: linear-gradient(135deg, rgba(255, 122, 24, 0.08) 0%, rgba(20, 184, 166, 0.06) 100%);
+  --scrollbar-thumb: rgba(15, 23, 42, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 122, 24, 0.5);
+}
+
+/* --------------------------------------------------------------------------
+   Global Reset & Base Setup
+   -------------------------------------------------------------------------- */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -67,16 +166,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
-  background-image: 
-    /* Soft Orange Glow Top-Left */
-    radial-gradient(circle at 5% 10%, rgba(255, 122, 24, 0.14) 0%, transparent 45%),
-    /* Soft Blue/Teal Glow Bottom-Right */
-    radial-gradient(circle at 95% 90%, rgba(20, 184, 166, 0.12) 0%, transparent 45%),
-    /* Subtle Grid Pattern */
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-image: var(--body-bg-pattern);
   background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
   background-attachment: fixed;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Custom Scrollbar */
@@ -88,11 +181,11 @@ body {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 122, 24, 0.4);
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Typography Hierarchy */
@@ -101,6 +194,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
   font-weight: 700;
   letter-spacing: -0.02em;
+  transition: color 0.25s ease;
 }
 
 h1 { font-size: 2.25rem; line-height: 1.2; }
@@ -111,13 +205,16 @@ h4 { font-size: 1.05rem; line-height: 1.4; }
 p {
   color: var(--text-secondary);
   font-size: 0.95rem;
+  transition: color 0.25s ease;
 }
 
 .text-muted {
   color: var(--text-muted) !important;
 }
 
-/* Glass Container Base */
+/* --------------------------------------------------------------------------
+   Glass Cards & Containers
+   -------------------------------------------------------------------------- */
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: blur(24px);
@@ -128,18 +225,21 @@ p {
   padding: 1.5rem;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
               box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.25s ease;
+              border-color 0.25s ease,
+              background-color 0.25s ease;
   position: relative;
   overflow: hidden;
 }
 
 .glass-card-hover:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 122, 24, 0.15);
-  border-color: rgba(255, 122, 24, 0.25);
+  box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 122, 24, 0.15);
+  border-color: rgba(255, 122, 24, 0.35);
 }
 
-/* Button System */
+/* --------------------------------------------------------------------------
+   Button System
+   -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -178,16 +278,16 @@ p {
   transform: translateY(-1px);
 }
 
-/* Secondary Button (Glass Border) */
+/* Secondary Button */
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-nav-tab);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--bg-nav-hover);
+  border-color: var(--border-hover);
   transform: translateY(-1px);
 }
 
@@ -217,7 +317,9 @@ p {
   transform: translateY(-1px);
 }
 
-/* Badges */
+/* --------------------------------------------------------------------------
+   Badges
+   -------------------------------------------------------------------------- */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -231,23 +333,25 @@ p {
 
 .badge-yuvak {
   background: rgba(20, 184, 166, 0.15);
-  color: #2dd4bf;
+  color: var(--secondary);
   border: 1px solid rgba(20, 184, 166, 0.3);
 }
 
 .badge-admin {
   background: rgba(255, 122, 24, 0.15);
-  color: #ff9b42;
+  color: var(--text-orange);
   border: 1px solid rgba(255, 122, 24, 0.35);
 }
 
 .badge-success {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
+  background: var(--success-bg);
+  color: var(--success);
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-/* Form Controls */
+/* --------------------------------------------------------------------------
+   Form Controls
+   -------------------------------------------------------------------------- */
 .form-group {
   margin-bottom: 1.25rem;
 }
@@ -276,7 +380,7 @@ p {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-glow);
-  background: rgba(20, 30, 50, 0.95);
+  background: var(--bg-input);
 }
 
 .form-control::placeholder {
@@ -291,7 +395,7 @@ p {
   height: 22px;
   border: 2px solid var(--border-subtle);
   border-radius: 6px;
-  background: rgba(15, 23, 42, 0.9);
+  background: var(--bg-input);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -313,11 +417,13 @@ p {
   font-weight: 800;
 }
 
-/* Modal Overlay */
+/* --------------------------------------------------------------------------
+   Modals & Overlays
+   -------------------------------------------------------------------------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 9, 18, 0.82);
+  background: var(--bg-overlay);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -331,13 +437,14 @@ p {
 .modal-container {
   width: 100%;
   max-width: 520px;
-  background: var(--bg-card);
+  background: var(--bg-modal);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
   padding: 2rem;
   position: relative;
   animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-primary);
 }
 
 @keyframes fadeIn {
@@ -350,13 +457,23 @@ p {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* Floating Theme Toggle on Auth Pages */
+.theme-toggle-floating {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-card) !important;
+}
+
 /* Skeleton Pulse Loading */
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.04) 25%,
-    rgba(255, 255, 255, 0.08) 37%,
-    rgba(255, 255, 255, 0.04) 63%
+    var(--border-subtle) 25%,
+    var(--border-hover) 37%,
+    var(--border-subtle) 63%
   );
   background-size: 400% 100%;
   animation: skeletonLoading 1.4s ease infinite;

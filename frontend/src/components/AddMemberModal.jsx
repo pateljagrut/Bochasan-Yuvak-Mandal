@@ -82,41 +82,25 @@ export default function AddMemberModal({ onClose, onSuccess }) {
   const modalContent = (
     <AnimatePresence>
       <div 
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100vw',
-          height: '100vh',
-          background: 'rgba(0, 0, 0, 0.82)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 99999,
-          padding: '1.5rem',
-          overflowY: 'auto'
-        }}
+        className="modal-overlay"
         onClick={onClose}
       >
         <motion.div 
-          initial={{ opacity: 0, scale: 0.92, y: 20 }}
+          initial={{ opacity: 0, scale: 0.94, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 20 }}
+          exit={{ opacity: 0, scale: 0.94, y: 20 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="modal-container"
           style={{
             maxWidth: '520px',
             width: '100%',
             maxHeight: '90vh',
             overflowY: 'auto',
-            background: '#0f172a',
+            background: 'var(--bg-modal)',
             borderRadius: '20px',
             padding: '2rem',
             border: memberRole === 'admin' ? '1px solid rgba(255, 122, 24, 0.6)' : '1px solid rgba(20, 184, 166, 0.4)',
-            boxShadow: memberRole === 'admin' ? '0 25px 60px -10px rgba(0,0,0,0.9), 0 0 40px rgba(255,122,24,0.3)' : '0 25px 60px -10px rgba(0,0,0,0.9), 0 0 40px rgba(20,184,166,0.2)',
+            boxShadow: 'var(--shadow-card)',
             margin: 'auto'
           }}
           onClick={(e) => e.stopPropagation()}
@@ -139,7 +123,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
                 {memberRole === 'admin' ? <ShieldCheck size={22} /> : <UserPlus size={22} />}
               </div>
               <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
                   {memberRole === 'admin' ? 'Add New Karyakar Admin' : 'Add New Yuvak Member'}
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>
@@ -152,7 +136,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
               onClick={onClose}
               className="icon-btn-ghost"
               style={{ 
-                background: 'rgba(255, 255, 255, 0.05)', 
+                background: 'var(--bg-nav-tab)', 
                 border: '1px solid var(--border-subtle)',
                 color: 'var(--text-muted)',
                 padding: '0.5rem', 
@@ -181,7 +165,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
           )}
 
           {/* Member Role Toggle Buttons */}
-          <div style={{ display: 'flex', background: 'rgba(15, 23, 42, 0.8)', padding: '0.3rem', borderRadius: '12px', border: '1px solid var(--border-subtle)', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', background: 'var(--bg-stat-box)', padding: '0.3rem', borderRadius: '12px', border: '1px solid var(--border-subtle)', marginBottom: '1.25rem' }}>
             <button
               type="button"
               style={{

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { ThemeToggle } from '../context/ThemeContext';
 import Logo from '../components/Logo';
 import { Eye, EyeOff, LogIn, Sparkles, UserCheck, Shield } from 'lucide-react';
 
@@ -39,8 +40,12 @@ export default function LoginPage({ onNavigateRegister }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1.5rem'
+      padding: '1.5rem',
+      position: 'relative'
     }}>
+      {/* Top Floating Theme Switcher */}
+      <ThemeToggle variant="floating" />
+
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -50,8 +55,8 @@ export default function LoginPage({ onNavigateRegister }) {
           width: '100%',
           maxWidth: '440px',
           padding: '2.5rem 2rem',
-          border: '1px solid rgba(255, 122, 24, 0.3)',
-          boxShadow: '0 20px 50px -10px rgba(0,0,0,0.7), 0 0 30px rgba(255,122,24,0.15)'
+          border: '1px solid var(--primary-border)',
+          boxShadow: 'var(--shadow-card), 0 0 30px var(--primary-glow)'
         }}
       >
         {/* Brand Header */}
@@ -59,7 +64,13 @@ export default function LoginPage({ onNavigateRegister }) {
           <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
             <Logo size="lg" showSubtitle={false} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', marginBottom: '0.3rem', background: 'linear-gradient(135deg, #FFF, #ff9b42)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <h2 style={{ 
+            fontSize: '1.75rem', 
+            marginBottom: '0.3rem', 
+            background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--text-orange) 100%)', 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent' 
+          }}>
             Unified Smart Login
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
@@ -71,7 +82,7 @@ export default function LoginPage({ onNavigateRegister }) {
           <div style={{
             background: 'var(--danger-bg)',
             border: '1px solid var(--danger)',
-            color: '#f87171',
+            color: '#ef4444',
             padding: '0.75rem',
             borderRadius: '10px',
             marginBottom: '1.25rem',
@@ -89,7 +100,7 @@ export default function LoginPage({ onNavigateRegister }) {
             <input
               type="text"
               className="form-control"
-              placeholder="e.g. DHE2712, 7096617464, or admin"
+              placeholder="e.g. DHE2712, 7096617464, or vidur.patel"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               required
@@ -143,12 +154,11 @@ export default function LoginPage({ onNavigateRegister }) {
           </button>
         </form>
 
-
         <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           New Yuvak member?{' '}
           <button
             onClick={onNavigateRegister}
-            style={{ background: 'none', border: 'none', color: '#ff9b42', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-orange)', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
           >
             Register Profile Here
           </button>

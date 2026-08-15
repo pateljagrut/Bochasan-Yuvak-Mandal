@@ -44,11 +44,11 @@ export default function HeroSection({
           fontWeight: 800, 
           margin: '0 0 0.35rem 0', 
           lineHeight: 1.25, 
-          color: '#FF9B42', 
-          WebkitTextFillColor: '#FF9B42' 
+          color: 'var(--text-orange)', 
+          WebkitTextFillColor: 'var(--text-orange)' 
         }}>
           {title.startsWith('Karyakar Admin') ? (
-            <>Karyakar Admin <span style={{ color: '#FF9B42', WebkitTextFillColor: '#FF9B42' }}>Dashboard</span></>
+            <>Karyakar Admin <span style={{ color: 'var(--text-orange)', WebkitTextFillColor: 'var(--text-orange)' }}>Dashboard</span></>
           ) : title}
         </h1>
 

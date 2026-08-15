@@ -44,7 +44,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 # ==========================================
 # Seeded default super admin account for initial setup and system bootstrap.
 DEFAULT_ADMIN_USERNAME = "vidur.patel"
-DEFAULT_ADMIN_PASSWORD = "Vidur#SuperAdmin2026"
+DEFAULT_ADMIN_PASSWORD = "Vidur@2026"
 DEFAULT_ADMIN_NAME = "Patel Vidur"
 DEFAULT_ADMIN_MOBILE = "9898989898"
 DEFAULT_ADMIN_LOCATION = "Bochasan"

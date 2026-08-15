@@ -29,7 +29,7 @@ export default function LoginPage({ onNavigateRegister }) {
 
   const handleQuickFillAdmin = () => {
     setIdentifier('vidur.patel');
-    setPassword('Vidur#SuperAdmin2026');
+    setPassword('Vidur@2026');
     setError(null);
   };
 

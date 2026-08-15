@@ -32,6 +32,7 @@ export default function Navbar({
   ];
 
   const yuvakNavItems = [
+    { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
     { id: 'attendance', label: 'Attendance', icon: CalendarCheck },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'content', label: 'Content', icon: MessageSquareText }

@@ -891,3 +891,37 @@
     justify-content: center !important;
   }
 }
+
+/* =========================================================================
+   BAPS Hero Photo Slideshow & Home Section Styles
+   ========================================================================= */
+.baps-slideshow-wrapper {
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+}
+
+.slideshow-arrow-btn:hover {
+  background: rgba(255, 122, 24, 0.85) !important;
+  border-color: #ff7a18 !important;
+  transform: scale(1.08);
+}
+
+.slideshow-arrow-btn:active {
+  transform: scale(0.95);
+}
+
+.countdown-box {
+  transition: transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease;
+}
+
+.countdown-box:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 122, 24, 0.45) !important;
+}
+
+@media (max-width: 640px) {
+  .slideshow-arrow-btn {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}

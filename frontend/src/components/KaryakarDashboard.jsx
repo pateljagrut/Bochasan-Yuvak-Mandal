@@ -21,6 +21,10 @@ import MemberDirectory from './MemberDirectory';
 import AnalyticsView from './AnalyticsView';
 import ContentManager from './ContentManager';
 
+// BAPS Hero Slideshow & Home Section
+import BapsHeroSlideshow from './BapsHeroSlideshow';
+import BapsHomeSection from './BapsHomeSection';
+
 // Modals & Navigation Helpers
 import HeroSection from './HeroSection';
 import ProfileEditorModal from './ProfileEditorModal';
@@ -359,6 +363,19 @@ export default function KaryakarDashboard({
 
   return (
     <div className="dashboard-layout">
+      {/* BAPS Photo Slideshow directly below Navbar on Home/Dashboard tab */}
+      {activeTab === 'dashboard' && (
+        <div style={{ margin: '-1.5rem -1.5rem 1.5rem -1.5rem' }}>
+          <BapsHeroSlideshow onNavigateTab={handleTabChange} />
+          <BapsHomeSection 
+            onNavigateTab={handleTabChange} 
+            feeds={feeds} 
+            yuvaksCount={yuvaks.length} 
+            isAdmin={true} 
+          />
+        </div>
+      )}
+
       {/* Hero Header Section */}
       <HeroSection 
         title="Karyakar Admin Dashboard"

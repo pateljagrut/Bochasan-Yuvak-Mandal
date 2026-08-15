@@ -89,7 +89,7 @@ export default function DashboardPage() {
         />
       ) : (
         <YuvakDashboard 
-          activeTab={activeTab === 'dashboard' ? 'attendance' : activeTab}
+          activeTab={activeTab}
           setActiveTab={setActiveTab}
         />
       )}

@@ -12,6 +12,8 @@ import {
 } from '../services/api';
 import CircularAttendanceTracker from './CircularAttendanceTracker';
 import MobileNav from './MobileNav';
+import BapsHeroSlideshow from './BapsHeroSlideshow';
+import BapsHomeSection from './BapsHomeSection';
 import { formatDob } from '../utils/formatDate';
 import { 
   User, 
@@ -475,6 +477,13 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
   /* Conditional Rendering Handler based on activeTab */
   const renderActiveView = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return (
+          <div style={{ margin: '-1.5rem -1.5rem 1.5rem -1.5rem' }}>
+            <BapsHeroSlideshow onNavigateTab={setActiveTab} />
+            <BapsHomeSection onNavigateTab={setActiveTab} feeds={feeds} yuvaksCount={metrics.total_sabhas} isAdmin={false} />
+          </div>
+        );
       case 'analytics':
         return <YuvakAnalytics metrics={metrics} p={p} />;
       case 'content':

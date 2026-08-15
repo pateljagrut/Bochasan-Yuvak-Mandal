@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, User, CalendarCheck, Megaphone, ShieldPlus, ArrowRight } from 'lucide-react';
+import { formatDob } from '../utils/formatDate';
 
 /**
  * Global Search Modal triggered via Ctrl + K.
@@ -58,7 +59,7 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
             <input
               type="text"
               className="search-modal-input"
-              placeholder="Search Yuvaks by Name, ID (ROH3210), or jump to tabs..."
+              placeholder="Search Yuvaks by Name, ID (DHE2712), or jump to tabs..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               autoFocus
@@ -105,7 +106,9 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
                         <User size={18} color="#ff9b42" />
                         <div>
                           <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{y.full_name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{y.location || 'Bochasan'} • {y.mobile_no}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            {y.location || 'Bochasan'} • {y.mobile_no}{y.dob ? ` • DOB: ${formatDob(y.dob)}` : ''}
+                          </div>
                         </div>
                       </div>
                       <span className="yuvak-id-highlight">{y.yuvak_id}</span>

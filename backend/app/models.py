@@ -30,7 +30,7 @@ class YuvakRegisterResponse(BaseModel):
     """
     success: bool
     message: str
-    yuvak_id: str = Field(description="Generated ID: Upper(First 3 letters) + Last 4 mobile digits", examples=["ROH3210"])
+    yuvak_id: str = Field(description="Generated ID: Upper(First 3 letters) + DOB (DDMM)", examples=["DHE2712"])
     full_name: str
     mobile_no: str
     location: str
@@ -41,7 +41,7 @@ class LoginRequest(BaseModel):
     Schema for Smart Login.
     Accepts Yuvak ID, Mobile Number, or Admin Username along with password.
     """
-    identifier: str = Field(description="Yuvak ID, Mobile Number, or Admin Username", examples=["ROH3210"])
+    identifier: str = Field(description="Yuvak ID, Mobile Number, or Admin Username", examples=["DHE2712"])
     password: str = Field(description="User password", examples=["9876543210"])
 
 class LoginResponse(BaseModel):

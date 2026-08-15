@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Copy, ArrowRight } from 'lucide-react';
+import { formatDob } from '../utils/formatDate';
 
 export default function SuccessModal({ registrationData, onClose, onGoToLogin }) {
   const [copied, setCopied] = useState(false);
 
   if (!registrationData) return null;
 
-  const { yuvak_id, full_name, mobile_no, location } = registrationData;
+  const { yuvak_id, full_name, mobile_no, location, dob } = registrationData;
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(yuvak_id);
@@ -59,7 +60,7 @@ export default function SuccessModal({ registrationData, onClose, onGoToLogin })
             {yuvak_id}
           </div>
           <p style={{ fontSize: '0.75rem', color: '#ff9b42' }}>
-            Formula: Upper(First 3 Letters) + Last 4 Mobile Digits
+            Formula: Upper(First 3 Letters) + DOB (DDMM e.g. DHE2712)
           </p>
         </div>
 
@@ -67,6 +68,11 @@ export default function SuccessModal({ registrationData, onClose, onGoToLogin })
           <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
             📱 <strong>Mobile:</strong> {mobile_no}
           </div>
+          {dob && (
+            <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+              🎂 <strong>Date of Birth:</strong> {formatDob(dob)}
+            </div>
+          )}
           <div style={{ color: 'var(--text-secondary)' }}>
             📍 <strong>Location:</strong> {location} Mandal
           </div>

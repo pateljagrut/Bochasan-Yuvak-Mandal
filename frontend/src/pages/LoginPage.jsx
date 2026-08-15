@@ -22,8 +22,8 @@ export default function LoginPage({ onNavigateRegister }) {
   };
 
   const handleQuickFillYuvak = () => {
-    setIdentifier('ROH3210');
-    setPassword('9876543210');
+    setIdentifier('DHE2712');
+    setPassword('7096617464');
     setError(null);
   };
 
@@ -89,7 +89,7 @@ export default function LoginPage({ onNavigateRegister }) {
             <input
               type="text"
               className="form-control"
-              placeholder="e.g. ROH3210, 9876543210, or admin"
+              placeholder="e.g. DHE2712, 7096617464, or admin"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               required

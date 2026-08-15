@@ -113,7 +113,7 @@ export default function RegisterPage({ onNavigateLogin }) {
               required
             />
             <span style={{ fontSize: '0.7rem', color: '#ff9b42', marginTop: '0.25rem', display: 'block' }}>
-              Used to generate ID suffix (last 4 digits) & default password.
+              Used as your default initial login password.
             </span>
           </div>
 
@@ -127,6 +127,9 @@ export default function RegisterPage({ onNavigateLogin }) {
               onChange={handleChange}
               required
             />
+            <span style={{ fontSize: '0.7rem', color: '#ff9b42', marginTop: '0.25rem', display: 'block' }}>
+              Used to generate ID suffix (DDMM e.g. 2712).
+            </span>
           </div>
 
           <div className="form-group">

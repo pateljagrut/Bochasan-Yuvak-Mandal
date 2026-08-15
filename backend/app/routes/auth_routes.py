@@ -5,6 +5,7 @@ Handles Yuvak registration with automatic Yuvak ID generation logic
 and Unified Smart Login query routing based on MongoDB user roles.
 """
 
+import re
 from fastapi import APIRouter, HTTPException, status
 from datetime import datetime
 
@@ -15,25 +16,50 @@ from app.websocket_manager import ws_manager
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-def generate_yuvak_id(full_name: str, mobile_no: str) -> str:
+def generate_yuvak_id(full_name: str, dob: str = "", mobile_no: str = "") -> str:
     """
     Auto-Generates Unique Yuvak ID based on business rules:
-    Formula: First 3 letters of Full Name (UPPERCASE) + Last 4 digits of Mobile Number.
+    Formula: First 3 letters of Full Name (UPPERCASE) + Date of Birth Day and Month (DDMM).
     
     Example:
-      Input:  Full Name = "Rohan Patel", Mobile = "9876543210"
-      Step 1: First 3 letters -> "ROH"
-      Step 2: Last 4 digits -> "3210"
-      Result: "ROH3210"
+      Input:  Full Name = "Dheeren Patel", DOB = "2000-12-27"
+      Step 1: First 3 letters -> "DHE"
+      Step 2: DDMM from DOB (27-12) -> "2712"
+      Result: "DHE2712"
     """
     # Clean non-alphabet characters and take first 3 letters uppercase
     name_clean = "".join(filter(str.isalpha, full_name)).upper()
     prefix = name_clean[:3] if len(name_clean) >= 3 else (name_clean + "YUV")[:3]
     
-    # Extract last 4 digits of mobile number
-    mobile_clean = "".join(filter(str.isdigit, mobile_no))
-    suffix = mobile_clean[-4:] if len(mobile_clean) >= 4 else "0000"
-    
+    # Extract DDMM from DOB
+    suffix = ""
+    if dob:
+        dob_str = str(dob).strip()
+        # Check YYYY-MM-DD or YYYY/MM/DD
+        match_ymd = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})", dob_str)
+        if match_ymd:
+            day = int(match_ymd.group(3))
+            month = int(match_ymd.group(2))
+            suffix = f"{day:02d}{month:02d}"
+        else:
+            # Check DD-MM-YYYY or DD/MM/YYYY
+            match_dmy = re.match(r"^(\d{1,2})[-/](\d{1,2})[-/](\d{4})", dob_str)
+            if match_dmy:
+                day = int(match_dmy.group(1))
+                month = int(match_dmy.group(2))
+                suffix = f"{day:02d}{month:02d}"
+            else:
+                try:
+                    dt = datetime.fromisoformat(dob_str)
+                    suffix = f"{dt.day:02d}{dt.month:02d}"
+                except Exception:
+                    pass
+
+    # Fallback to last 4 digits of mobile number or 0101
+    if not suffix or len(suffix) != 4:
+        mobile_clean = "".join(filter(str.isdigit, mobile_no or ""))
+        suffix = mobile_clean[-4:] if len(mobile_clean) >= 4 else "0101"
+
     generated_id = f"{prefix}{suffix}"
     return generated_id
 
@@ -42,14 +68,14 @@ def register_yuvak(payload: YuvakRegisterRequest):
     """
     Registers a new Yuvak profile into MongoDB and generates a unique Yuvak ID.
     
-    1. Validates input parameters (Mobile format, Name).
-    2. Calculates Yuvak ID (e.g. ROH3210 for Rohan + 9876543210).
+    1. Validates input parameters (Mobile format, Name, DOB).
+    2. Calculates Yuvak ID (e.g. DHE2712 for Dheeren + 2000-12-27).
     3. Checks MongoDB for duplicate mobile numbers or IDs.
     4. Inserts new user document with role='yuvak'.
     5. Returns Success payload for frontend Success Modal presentation.
     """
     # Step 1: Generate unique Yuvak ID
-    yuvak_id = generate_yuvak_id(payload.full_name, payload.mobile_no)
+    yuvak_id = generate_yuvak_id(payload.full_name, payload.dob, payload.mobile_no)
     
     # Step 2: Check for existing user in MongoDB database
     existing_user_by_mobile = find_user_by_identifier(payload.mobile_no)

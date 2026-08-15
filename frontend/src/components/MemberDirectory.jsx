@@ -5,6 +5,7 @@ import { Search, Edit, UserPlus, Trash2, AlertTriangle, Loader2 } from 'lucide-r
 import AddMemberModal from './AddMemberModal';
 import { deleteYuvakMemberApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { formatDob } from '../utils/formatDate';
 
 /**
  * MemberDirectory Component
@@ -230,7 +231,7 @@ export default function MemberDirectory({
                         )}
                       </td>
                       <td style={{ padding: '0.85rem 1rem' }}>{yuvak.mobile_no}</td>
-                      <td style={{ padding: '0.85rem 1rem' }}>{yuvak.dob || 'N/A'}</td>
+                      <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontSize: '0.88rem' }}>{formatDob(yuvak.dob)}</td>
                       <td style={{ padding: '0.85rem 1rem' }}>{yuvak.location || 'Bochasan'}</td>
                       <td style={{ padding: '0.85rem 1rem' }}>
                         <span style={{ color: (yuvak.attendance_pct || 100) >= 75 ? '#22c55e' : '#ff9b42', fontWeight: 700 }}>
@@ -295,9 +296,14 @@ export default function MemberDirectory({
                         </span>
                       )}
                     </div>
-                    <div className="member-sub-info">
+                    <div className="member-sub-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', marginTop: '0.2rem' }}>
                       <span className="yuvak-id-highlight" style={{ fontSize: '0.7rem' }}>{yuvak.yuvak_id}</span>
                       <span>{yuvak.mobile_no}</span>
+                      {yuvak.dob && (
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          🎂 {formatDob(yuvak.dob)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

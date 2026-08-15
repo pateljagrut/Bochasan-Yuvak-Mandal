@@ -12,6 +12,7 @@ import {
 } from '../services/api';
 import CircularAttendanceTracker from './CircularAttendanceTracker';
 import MobileNav from './MobileNav';
+import { formatDob } from '../utils/formatDate';
 import { 
   User, 
   Calendar, 
@@ -52,7 +53,7 @@ function SabhaAttendanceTracker({ metrics, p }) {
               </h3>
             </div>
             <span className="yuvak-id-highlight" style={{ fontSize: '0.85rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: 'rgba(20, 184, 166, 0.15)', color: '#14b8a6' }}>
-              {p.yuvak_id || 'ROH3210'}
+              {p.yuvak_id || 'DHE2712'}
             </span>
           </div>
 
@@ -67,7 +68,7 @@ function SabhaAttendanceTracker({ metrics, p }) {
             </div>
             <div className="profile-detail-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>Date of Birth</span>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.dob || 'N/A'}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'monospace', fontSize: '0.9rem' }}>{formatDob(p.dob)}</span>
             </div>
             <div className="profile-detail-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>Mandal Location</span>
@@ -528,7 +529,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
               Yuvak Portal
             </span>
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              ID: {p.yuvak_id || 'ROH3210'}
+              ID: {p.yuvak_id || 'DHE2712'}
             </span>
             {isLiveConnected && (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#4ade80', fontWeight: 600, marginLeft: '0.5rem' }}>

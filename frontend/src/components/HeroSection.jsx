@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { UserPlus } from 'lucide-react';
 
 /**
  * Responsive Hero Banner with animated counters.
@@ -20,23 +21,8 @@ export default function HeroSection({
       className="hero-banner"
     >
       <div className="hero-content">
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ marginBottom: '0.5rem' }}>
           <span className="badge badge-admin">Bochasan Yuvak Mandal</span>
-          <span style={{ 
-            fontSize: '0.75rem', 
-            fontWeight: 600, 
-            color: '#4ade80', 
-            background: 'rgba(34, 197, 94, 0.15)', 
-            padding: '0.2rem 0.55rem', 
-            borderRadius: '12px',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem'
-          }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e' }}></span>
-            ⚡ Real-Time Admin Sync Active
-          </span>
         </div>
         
         <h1 style={{ 
@@ -58,8 +44,9 @@ export default function HeroSection({
         
         {onOpenCreateAdminModal && (
           <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button className="btn btn-primary" onClick={onOpenCreateAdminModal} style={{ padding: '0.65rem 1.25rem', fontSize: '0.85rem' }}>
-              + Create Karyakar Admin
+            <button className="btn btn-primary" onClick={onOpenCreateAdminModal}>
+              <UserPlus size={16} />
+              <span>Create Karyakar Admin</span>
             </button>
           </div>
         )}
@@ -81,7 +68,7 @@ export default function HeroSection({
         <div className="hero-stat-box">
           <motion.div 
             className="hero-stat-value"
-            style={{ color: '#14b8a6' }}
+            style={{ color: 'var(--text-orange)' }}
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.2 }}
@@ -92,7 +79,7 @@ export default function HeroSection({
         </div>
 
         <div className="hero-stat-box">
-          <div className="hero-stat-value hero-stat-value-location" style={{ color: '#22c55e' }}>
+          <div className="hero-stat-value hero-stat-value-location" style={{ color: 'var(--text-orange)' }}>
             {location}
           </div>
           <div className="hero-stat-label">Active Center</div>

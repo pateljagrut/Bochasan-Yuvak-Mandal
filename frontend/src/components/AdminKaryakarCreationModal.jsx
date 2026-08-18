@@ -58,7 +58,7 @@ export default function AdminKaryakarCreationModal({ onClose, onSuccess }) {
           background: 'var(--bg-modal)',
           borderRadius: '20px',
           padding: '2rem',
-          border: '1px solid rgba(20, 184, 166, 0.4)',
+          border: '1px solid rgba(255, 122, 24, 0.4)',
           boxShadow: 'var(--shadow-card)',
           margin: 'auto'
         }}
@@ -67,7 +67,7 @@ export default function AdminKaryakarCreationModal({ onClose, onSuccess }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <ShieldCheck size={24} color="#14b8a6" />
+              <ShieldCheck size={24} color="#ff7a18" />
               <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)' }}>Create Karyakar Admin</h3>
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>
@@ -154,7 +154,7 @@ export default function AdminKaryakarCreationModal({ onClose, onSuccess }) {
 
           <div className="form-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Calendar size={14} color="#14b8a6" /> Date of Birth
+              <Calendar size={14} color="#ff7a18" /> Date of Birth
             </label>
             <input
               type="date"

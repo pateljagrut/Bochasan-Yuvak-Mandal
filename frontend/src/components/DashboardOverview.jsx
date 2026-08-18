@@ -122,7 +122,7 @@ export default function DashboardOverview({
         {/* Workspace Quick Summary Card */}
         <div className="glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-            <Sparkles size={20} color="#14b8a6" />
+            <Sparkles size={20} color="#ff7a18" />
             <h3 style={{ fontSize: '1.15rem' }}>Quick Workspace Status</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

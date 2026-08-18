@@ -58,12 +58,12 @@
   /* Ambient Wallpapers & Gradients */
   --body-bg-pattern: 
     radial-gradient(circle at 5% 10%, rgba(255, 122, 24, 0.14) 0%, transparent 45%),
-    radial-gradient(circle at 95% 90%, rgba(20, 184, 166, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 95% 90%, rgba(255, 122, 24, 0.10) 0%, transparent 45%),
     linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   
   --header-bg-gradient: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(17, 24, 39, 0.95) 100%);
-  --hero-banner-bg: linear-gradient(135deg, rgba(255, 122, 24, 0.12) 0%, rgba(20, 184, 166, 0.08) 100%);
+  --hero-banner-bg: linear-gradient(135deg, rgba(255, 122, 24, 0.12) 0%, rgba(255, 122, 24, 0.05) 100%);
   --scrollbar-thumb: rgba(255, 255, 255, 0.15);
   --scrollbar-thumb-hover: rgba(255, 122, 24, 0.4);
 
@@ -74,6 +74,12 @@
   --radius-lg: 14px;
   --radius-md: 10px;
   --radius-sm: 6px;
+
+  /* Mobile Safe Area Insets for iOS Notch & Android System Bars */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
 }
 
 /* --------------------------------------------------------------------------
@@ -131,18 +137,18 @@
   /* Ambient Wallpapers & Gradients */
   --body-bg-pattern: 
     radial-gradient(circle at 5% 10%, rgba(255, 122, 24, 0.09) 0%, transparent 45%),
-    radial-gradient(circle at 95% 90%, rgba(13, 148, 136, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 95% 90%, rgba(255, 122, 24, 0.06) 0%, transparent 45%),
     linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
   
   --header-bg-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-  --hero-banner-bg: linear-gradient(135deg, rgba(255, 122, 24, 0.08) 0%, rgba(20, 184, 166, 0.06) 100%);
+  --hero-banner-bg: linear-gradient(135deg, rgba(255, 122, 24, 0.08) 0%, rgba(255, 122, 24, 0.04) 100%);
   --scrollbar-thumb: rgba(15, 23, 42, 0.2);
   --scrollbar-thumb-hover: rgba(255, 122, 24, 0.5);
 }
 
 /* --------------------------------------------------------------------------
-   Global Reset & Base Setup
+   Global Reset & Mobile-Optimized Setup
    -------------------------------------------------------------------------- */
 * {
   box-sizing: border-box;
@@ -150,11 +156,15 @@
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  height: 100%;
 }
 
 body {
@@ -164,12 +174,20 @@ body {
   font-weight: 400;
   line-height: 1.5;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   position: relative;
   background-image: var(--body-bg-pattern);
   background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
   background-attachment: fixed;
   transition: background-color 0.25s ease, color 0.25s ease;
+  touch-action: manipulation;
+}
+
+/* Mobile Touch Momentum Scroll Utility */
+.touch-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom Scrollbar */
@@ -239,82 +257,153 @@ p {
 
 /* --------------------------------------------------------------------------
    Button System
+/* --------------------------------------------------------------------------
+   Button System (BAPS Saffron & Teal Theme)
    -------------------------------------------------------------------------- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.7rem 1.25rem;
+  padding: 0.65rem 1.25rem;
   font-family: var(--font-inter);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   white-space: nowrap;
   user-select: none;
   outline: none;
-  min-height: 42px;
+  min-height: 40px;
 }
 
 .btn:active {
-  transform: scale(0.98) !important;
+  transform: scale(0.97) !important;
 }
 
-/* Primary Button (Orange Gradient) */
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Primary Button (BAPS Saffron Glowing Gradient) */
 .btn-primary {
-  background: linear-gradient(135deg, #ff7a18 0%, #ff5500 100%);
+  background: linear-gradient(135deg, #ff7a18 0%, #ea580c 100%);
   color: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(255, 122, 24, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 16px rgba(255, 122, 24, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: linear-gradient(135deg, #ff9b42 0%, #ff661a 100%);
-  box-shadow: 0 6px 24px rgba(255, 122, 24, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(255, 122, 24, 0.55), 0 0 16px rgba(255, 122, 24, 0.3);
+  transform: translateY(-1.5px);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
-/* Secondary Button */
+/* Secondary Button (Glassmorphic Themed Surface) */
 .btn-secondary {
   background: var(--bg-nav-tab);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background: var(--bg-nav-hover);
-  border-color: var(--border-hover);
-  transform: translateY(-1px);
+  border-color: rgba(255, 122, 24, 0.4);
+  color: var(--text-orange);
+  box-shadow: 0 4px 16px rgba(255, 122, 24, 0.15);
+  transform: translateY(-1.5px);
 }
 
 /* Teal Button */
 .btn-teal {
   background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
   color: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.32);
 }
 
-.btn-teal:hover {
+.btn-teal:hover:not(:disabled) {
   background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
-  box-shadow: 0 6px 24px rgba(20, 184, 166, 0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(20, 184, 166, 0.5), 0 0 14px rgba(20, 184, 166, 0.25);
+  transform: translateY(-1.5px);
 }
 
 /* Danger Button */
 .btn-danger {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.32);
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
-  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.5);
+  transform: translateY(-1.5px);
+}
+
+/* --------------------------------------------------------------------------
+   Content Switcher Segmented Tabs
+   -------------------------------------------------------------------------- */
+.content-switcher-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+  width: fit-content;
+}
+
+.content-switcher-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.15rem;
+  font-family: var(--font-inter);
+  font-size: 0.86rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  user-select: none;
+  outline: none;
+}
+
+.content-switcher-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-nav-hover);
+  border-color: var(--border-subtle);
+}
+
+.content-switcher-btn.active {
+  background: linear-gradient(135deg, rgba(255, 122, 24, 0.22) 0%, rgba(255, 122, 24, 0.08) 100%);
+  color: var(--text-orange);
+  border-color: rgba(255, 122, 24, 0.45);
+  box-shadow: 0 4px 14px rgba(255, 122, 24, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  font-weight: 700;
+}
+
+.content-switcher-btn:active {
+  transform: scale(0.97);
 }
 
 /* --------------------------------------------------------------------------
@@ -332,9 +421,9 @@ p {
 }
 
 .badge-yuvak {
-  background: rgba(20, 184, 166, 0.15);
-  color: var(--secondary);
-  border: 1px solid rgba(20, 184, 166, 0.3);
+  background: rgba(255, 122, 24, 0.12);
+  color: var(--text-orange);
+  border: 1px solid rgba(255, 122, 24, 0.3);
 }
 
 .badge-admin {
@@ -376,6 +465,16 @@ p {
   transition: all 0.2s ease;
 }
 
+/* iOS Safari Fix: Prevent auto-zoom when tapping inputs on iOS (<16px causes zoom) */
+@media screen and (max-width: 768px) {
+  input.form-control,
+  select.form-control,
+  textarea.form-control,
+  .form-control {
+    font-size: 16px !important;
+  }
+}
+
 .form-control:focus {
   outline: none;
   border-color: var(--primary);
@@ -391,10 +490,10 @@ p {
 .checkbox-custom {
   appearance: none;
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border: 2px solid var(--border-subtle);
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--bg-input);
   cursor: pointer;
   display: flex;
@@ -402,6 +501,8 @@ p {
   justify-content: center;
   position: relative;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .checkbox-custom:checked {
@@ -431,12 +532,19 @@ p {
   justify-content: center;
   z-index: 1000;
   padding: 1.25rem;
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
   animation: fadeIn 0.2s ease-out;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-container {
   width: 100%;
   max-width: 520px;
+  max-height: calc(100dvh - 2.5rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--bg-modal);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
@@ -445,6 +553,18 @@ p {
   position: relative;
   animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0.75rem;
+    align-items: flex-end;
+  }
+  .modal-container {
+    padding: 1.25rem 1rem;
+    border-radius: 20px 20px 14px 14px;
+    max-height: 88dvh;
+  }
 }
 
 @keyframes fadeIn {
@@ -492,4 +612,35 @@ p {
   -webkit-text-fill-color: initial !important;
   font-weight: normal !important;
   display: inline-block;
+}
+
+/* =========================================================================
+   Scroll Dynamics & Micro-Animations
+   ========================================================================= */
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2s ease-in-out infinite;
+}
+
+.floating-scroll-top-btn {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+}
+
+.floating-scroll-top-btn:hover {
+  border-color: #ff7a18 !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 122, 24, 0.5) !important;
+}
+
+.floating-scroll-top-btn:active {
+  transform: scale(0.92) !important;
 }

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, User, CalendarCheck, Megaphone, ShieldPlus, ArrowRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { formatDob } from '../utils/formatDate';
 
 /**
  * Global Search Modal triggered via Ctrl + K.
  */
 export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setActiveTab, onOpenCreateAdminModal }) {
+  const { role } = useAuth();
   const [query, setQuery] = useState('');
 
   // Handle ESC key press
@@ -132,8 +134,10 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
                 onMouseLeave={hoverOut}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <CalendarCheck size={18} color="#14b8a6" />
-                  <span style={{ color: 'var(--text-primary)' }}>Mark Sabha Attendance</span>
+                  <CalendarCheck size={18} color="#ff7a18" />
+                  <span style={{ color: 'var(--text-primary)' }}>
+                    {role === 'admin' ? 'Mark Sabha Attendance' : 'View Sabha Attendance'}
+                  </span>
                 </div>
                 <ArrowRight size={16} color="var(--text-muted)" />
               </div>
@@ -159,7 +163,7 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
                   onMouseLeave={hoverOut}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <ShieldPlus size={18} color="#22c55e" />
+                    <ShieldPlus size={18} color="#ff7a18" />
                     <span style={{ color: 'var(--text-primary)' }}>Create Karyakar Admin Account</span>
                   </div>
                   <ArrowRight size={16} color="var(--text-muted)" />

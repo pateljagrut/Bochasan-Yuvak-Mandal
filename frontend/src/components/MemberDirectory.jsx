@@ -101,11 +101,11 @@ export default function MemberDirectory({
         </div>
 
         {/* Action Controls: Role Filter, Search Input & Add Member Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', flex: '1 1 300px', justifyContent: 'flex-start' }}>
           {/* Role Filter Selector */}
           <select
             className="form-control"
-            style={{ height: '40px', fontSize: '0.85rem', width: '140px', padding: '0 0.75rem' }}
+            style={{ height: '40px', fontSize: '0.85rem', minWidth: '120px', flex: '1 1 auto', padding: '0 0.75rem' }}
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
           >
@@ -115,7 +115,7 @@ export default function MemberDirectory({
           </select>
 
           {/* Search Bar Input */}
-          <div style={{ position: 'relative', width: '240px', maxWidth: '100%' }}>
+          <div style={{ position: 'relative', flex: '2 1 180px', minWidth: '180px', maxWidth: '100%' }}>
             <input
               type="text"
               className="form-control"
@@ -153,7 +153,9 @@ export default function MemberDirectory({
               padding: '0.5rem 1.1rem',
               fontSize: '0.85rem',
               fontWeight: 600,
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              flex: '1 1 auto',
+              justifyContent: 'center'
             }}
             onClick={() => setShowAddModal(true)}
           >
@@ -219,9 +221,9 @@ export default function MemberDirectory({
                             borderRadius: '12px',
                             fontSize: '0.72rem',
                             fontWeight: 600,
-                            background: 'rgba(20, 184, 166, 0.15)',
-                            color: '#14b8a6',
-                            border: '1px solid rgba(20, 184, 166, 0.3)',
+                            background: 'rgba(255, 122, 24, 0.15)',
+                            color: '#ff9b42',
+                            border: '1px solid rgba(255, 122, 24, 0.3)',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '0.3rem'
@@ -284,7 +286,7 @@ export default function MemberDirectory({
             return (
               <div key={yuvak.yuvak_id} className="member-mobile-card">
                 <div className="member-mobile-left">
-                  <div className="member-avatar" style={{ background: isAdmin ? 'linear-gradient(135deg, #ff7a18 0%, #f59e0b 100%)' : undefined }}>
+                  <div className="member-avatar">
                     {(yuvak.full_name || 'M')[0]}
                   </div>
                   <div className="member-info">

@@ -43,7 +43,7 @@ export default function Logo({ size = 'md', showSubtitle = true, className = '' 
         />
       </div>
 
-      <div className="brand-text-wrapper hidden md:flex flex-col justify-center">
+      <div className="brand-text-wrapper">
         <span className="brand-title">
           Bochasan Yuvak Mandal
         </span>

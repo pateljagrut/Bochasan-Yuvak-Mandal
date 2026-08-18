@@ -40,7 +40,7 @@ export default function QuickActions({ setActiveTab, onOpenCreateAdminModal }) {
   return (
     <div style={{ marginBottom: '2rem' }}>
       <h3 style={{ fontSize: '1.15rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-        ⚡ Quick Operational Workspace
+        Quick Actions
       </h3>
 
       <div className="quick-actions-grid">

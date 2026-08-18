@@ -6,7 +6,7 @@ import Logo from '../components/Logo';
 import BapsHeroSlideshow from '../components/BapsHeroSlideshow';
 import BapsHomeSection from '../components/BapsHomeSection';
 import { getContentFeedsApi } from '../services/api';
-import { Eye, EyeOff, LogIn, Sparkles, UserCheck, Shield, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Sparkles, UserPlus } from 'lucide-react';
 
 export default function LoginPage({ onNavigateRegister }) {
   const { login, loading } = useAuth();
@@ -31,18 +31,6 @@ export default function LoginPage({ onNavigateRegister }) {
     } catch (err) {
       setError(err.message || 'Login failed. Please check credentials.');
     }
-  };
-
-  const handleQuickFillYuvak = () => {
-    setIdentifier('DHE2712');
-    setPassword('7096617464');
-    setError(null);
-  };
-
-  const handleQuickFillAdmin = () => {
-    setIdentifier('vidur.patel');
-    setPassword('Vidur@2026');
-    setError(null);
   };
 
   const scrollToLogin = () => {
@@ -97,31 +85,36 @@ export default function LoginPage({ onNavigateRegister }) {
       {/* =========================================================================
           MAIN PORTAL CONTENT: LOGIN CARD + BAPS HOME SECTIONS
           ========================================================================= */}
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '2.5rem 1.5rem 4rem', width: '100%' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: 'clamp(1.5rem, 4vw, 2.5rem) clamp(0.75rem, 3vw, 1.5rem) 4rem', width: '100%' }}>
         
         {/* Top Grid: Smart Login Card + Welcome Intro */}
         <div 
           id="login-form-section" 
           style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', 
             gap: '2rem', 
             alignItems: 'center', 
             marginBottom: '3.5rem',
             paddingTop: '1rem'
           }}
         >
-          {/* Left Column: Welcome & Portal Introduction */}
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          {/* Left Column: Welcome & Portal Introduction with Scroll Animation */}
+          <motion.div
+            initial={{ opacity: 0, x: -25, y: 20 }}
+            whileInView={{ opacity: 1, x: 0, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+          >
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
               <span className="badge badge-admin">Bochasan Yuvak Mandal</span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-orange)', fontWeight: 700 }}>
-                ● Official Attendance & Satsang Portal
+                Attendance & Satsang Portal
               </span>
             </div>
 
             <h1 style={{ 
-              fontSize: 'clamp(1.75rem, 4vw, 2.6rem)', 
+              fontSize: 'clamp(1.5rem, 4vw, 2.6rem)', 
               fontWeight: 800, 
               lineHeight: 1.2, 
               margin: '0 0 1rem 0',
@@ -130,47 +123,34 @@ export default function LoginPage({ onNavigateRegister }) {
               Welcome to <span style={{ color: 'var(--text-orange)' }}>Bochasan Yuvak Mandal</span> Portal
             </h1>
 
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, margin: '0 0 1.5rem 0', maxWidth: '560px' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6, margin: '0 0 1.5rem 0', maxWidth: '560px' }}>
               A dedicated digital portal for Saturday Shanivariya Sabha attendance marking, youth member profiles, spiritual niyama feeds, and mandal announcements.
             </p>
 
-            {/* Quick Demo Fill Pills */}
-            <div style={{ background: 'var(--bg-stat-box)', border: '1px solid var(--border-subtle)', borderRadius: '14px', padding: '1rem', maxWidth: '480px' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                ⚡ Fast 1-Click Demo Credentials
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                <Sparkles size={16} color="var(--primary)" />
+                <span>Weekly Sabha Attendance Tracking</span>
               </div>
-              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={handleQuickFillAdmin}
-                  className="btn btn-secondary"
-                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                >
-                  <Shield size={14} color="#ff7a18" /> Fill Admin (Vidur Patel)
-                </button>
-                <button
-                  type="button"
-                  onClick={handleQuickFillYuvak}
-                  className="btn btn-secondary"
-                  style={{ padding: '0.35rem 0.75rem', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                >
-                  <UserCheck size={14} color="#14b8a6" /> Fill Yuvak (DHE2712)
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                <span style={{ color: 'var(--text-orange)', fontWeight: 700 }}>✦</span>
+                <span>Real-Time Mandal Updates</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Column: Unified Smart Login Card */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
+            initial={{ opacity: 0, scale: 0.95, y: 25 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
             className="glass-card"
             style={{
               width: '100%',
               maxWidth: '460px',
               margin: '0 auto',
-              padding: '2.25rem 2rem',
+              padding: 'clamp(1.5rem, 4vw, 2.25rem) clamp(1.1rem, 3.5vw, 2rem)',
               borderRadius: '22px',
               border: '1px solid var(--primary-border)',
               boxShadow: 'var(--shadow-card), 0 0 30px var(--primary-glow)'

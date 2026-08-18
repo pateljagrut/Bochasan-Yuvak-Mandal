@@ -88,8 +88,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
       {/* Top Controls Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ flex: '1 1 260px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-            <span className="badge badge-admin">Primary Module</span>
+          <div style={{ marginBottom: '0.35rem' }}>
             <h3 style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
               Sabha Attendance Management
             </h3>
@@ -101,7 +100,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
 
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: 'auto' }}>
           <button type="button" className="btn btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', flex: '1 1 auto' }} onClick={handleSelectAll}>
-            <CheckSquare size={16} color="#14b8a6" /> Select All
+            <CheckSquare size={16} color="#ff7a18" /> Select All
           </button>
           <button type="button" className="btn btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', flex: '1 1 auto' }} onClick={handleClearAll}>
             <SquareX size={16} color="#ef4444" /> Clear All
@@ -223,7 +222,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                         </td>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <div className="member-avatar" style={{ width: '34px', height: '34px', fontSize: '0.85rem', background: isAdmin ? 'linear-gradient(135deg, #ff7a18 0%, #f59e0b 100%)' : undefined }}>
+                            <div className="member-avatar" style={{ width: '34px', height: '34px', fontSize: '0.85rem' }}>
                               {(yuvak.full_name || 'M')[0]}
                             </div>
                             <span style={{ fontWeight: 600 }}>{yuvak.full_name}</span>
@@ -243,7 +242,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                         <td>{yuvak.mobile_no}</td>
                         <td>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            <MapPin size={14} color="#14b8a6" />
+                            <MapPin size={14} color="#ff7a18" />
                             {yuvak.location || 'Bochasan'}
                           </span>
                         </td>
@@ -303,7 +302,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                         onChange={() => toggleYuvak(yuvak.yuvak_id)}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <div className="member-avatar" style={{ background: isAdmin ? 'linear-gradient(135deg, #ff7a18 0%, #f59e0b 100%)' : undefined }}>
+                      <div className="member-avatar">
                         {(yuvak.full_name || 'M')[0]}
                       </div>
                       <div className="member-info">
@@ -342,17 +341,20 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           alignItems: 'center',
           background: 'var(--bg-card)',
           backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           padding: '1rem 1.25rem',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-subtle)',
           boxShadow: 'var(--shadow-card)',
           flexWrap: 'wrap',
-          gap: '1rem'
+          gap: '1rem',
+          width: '100%',
+          boxSizing: 'border-box'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <UserCheck size={20} color="#ff7a18" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1 1 auto', minWidth: '220px' }}>
+            <UserCheck size={20} color="#ff7a18" style={{ flexShrink: 0 }} />
             <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              Summary: <strong style={{ color: '#ff9b42', fontSize: '1.05rem' }}>{presentCount}</strong> / {yuvaks.length} Members Present ({attendanceRate}%)
+              Summary: <strong style={{ color: '#ff9b42', fontSize: '1.05rem' }}>{presentCount}</strong> / {yuvaks.length} Present ({attendanceRate}%)
             </div>
           </div>
 
@@ -360,7 +362,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
             type="submit" 
             className="btn btn-primary" 
             disabled={saving}
-            style={{ minWidth: '180px' }}
+            style={{ flex: '1 1 auto', minWidth: '180px', width: '100%', maxWidth: '320px' }}
           >
             <Save size={18} />
             {saving ? 'Saving Session...' : 'Save Attendance Session'}

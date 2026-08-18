@@ -11,7 +11,9 @@ import {
   getEventPhotosApi,
   getEventsApi,
   getRealtimeWebSocketUrl,
-  getRealtimeSseUrl
+  getRealtimeSseUrl,
+  getAdminWebSocketUrl,
+  getAdminSseUrl
 } from '../services/api';
 
 // Modular Workspace Sub-Components
@@ -79,23 +81,23 @@ export default function KaryakarDashboard({
     console.log('[REALTIME EVENT]', evtType, evtData);
 
     if (evtType === 'ATTENDANCE_UPDATED') {
-      showNotify(`⚡ Real-time Update: Attendance recorded for Saturday ${evtData.sabha_date} by ${evtData.marked_by || 'an admin'}!`);
+      showNotify(`Live Update: Attendance recorded for Saturday ${evtData.sabha_date} by ${evtData.marked_by || 'an admin'}!`);
       loadData(false);
     } else if (evtType === 'MEMBER_UPDATED') {
-      showNotify(`⚡ Real-time Update: Profile for '${evtData.member_name}' updated by ${evtData.admin_name || 'an admin'}!`);
+      showNotify(`Live Update: Profile for '${evtData.member_name}' updated by ${evtData.admin_name || 'an admin'}!`);
       loadData(false);
     } else if (evtType === 'MEMBER_ADDED') {
-      showNotify(`⚡ Real-time Update: New member '${evtData.full_name}' (${evtData.yuvak_id}) registered!`);
+      showNotify(`Live Update: New member '${evtData.full_name}' (${evtData.yuvak_id}) registered!`);
       loadData(false);
     } else if (evtType === 'MEMBER_DELETED') {
-      showNotify(`⚡ Real-time Update: Member '${evtData.member_name}' removed by ${evtData.admin_name || 'an admin'}.`);
+      showNotify(`Live Update: Member '${evtData.member_name}' removed by ${evtData.admin_name || 'an admin'}.`);
       loadData(false);
     } else if (evtType === 'ADMIN_CREATED') {
-      showNotify(`⚡ Real-time Update: New Karyakar Admin '${evtData.admin_name}' (${evtData.yuvak_id}) created!`);
+      showNotify(`Live Update: New Karyakar Admin '${evtData.admin_name}' (${evtData.yuvak_id}) created!`);
       loadData(false);
     } else if (evtType === 'CONTENT_UPDATED') {
       const typeLabel = evtData?.type === 'photo' ? 'Photo Gallery' : 'Announcements/Niyamas';
-      showNotify(`⚡ Real-time Update: ${typeLabel} updated by Mandal Admin!`);
+      showNotify(`Live Update: ${typeLabel} updated by Mandal Admin!`);
       loadData(false);
     }
   };
@@ -191,8 +193,19 @@ export default function KaryakarDashboard({
     }, 5000);
 
     return () => {
-      if (eventSource) eventSource.close();
-      if (ws) ws.close();
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (ws) {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close(1000, 'Unmount');
+        } else if (ws.readyState === WebSocket.CONNECTING) {
+          ws.onopen = () => {
+            try { ws.close(1000, 'Unmount'); } catch (_) {}
+          };
+          ws.onerror = () => {};
+        }
+      }
       clearInterval(pollInterval);
     };
   }, [token, user]);
@@ -370,7 +383,7 @@ export default function KaryakarDashboard({
         </div>
       )}
 
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 clamp(0.75rem, 3vw, 1.5rem)' }}>
         {/* 2. Hero Header Section (Kept directly AFTER the Slideshow) */}
         <HeroSection 
           title="Karyakar Admin Dashboard"

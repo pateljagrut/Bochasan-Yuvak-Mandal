@@ -371,9 +371,9 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
         <div className="glass-card" style={{ padding: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
             <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Mandal Attendance Rate</span>
-            <TrendingUp size={18} color="#14b8a6" />
+            <TrendingUp size={18} color="#ff7a18" />
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#14b8a6' }}>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-orange)' }}>
             {avgAttendanceRate}%
           </div>
           <div style={{ fontSize: '0.75rem', color: '#22c55e', marginTop: '0.25rem' }}>
@@ -384,9 +384,9 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
         <div className="glass-card" style={{ padding: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
             <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Total Saturday Sabhas</span>
-            <Calendar size={18} color="#ff9b42" />
+            <Calendar size={18} color="#ff7a18" />
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#ff9b42' }}>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-orange)' }}>
             {totalSabhasCount}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -397,9 +397,9 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
         <div className="glass-card" style={{ padding: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
             <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Active Registered Yuvaks</span>
-            <Users size={18} color="#38bdf8" />
+            <Users size={18} color="#ff7a18" />
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#38bdf8' }}>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-orange)' }}>
             {yuvaks.length}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -410,9 +410,9 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
         <div className="glass-card" style={{ padding: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
             <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Peak Attended Sabha</span>
-            <Award size={18} color="#eab308" />
+            <Award size={18} color="#ff7a18" />
           </div>
-          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#eab308' }}>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-orange)' }}>
             {bestSabha ? `${bestSabha.rate}%` : '100%'}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -422,10 +422,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
       </div>
 
       {/* Row 1: Primary Date-Based Bar Graph & Upcoming Saturday Card */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.25rem' }}>
         
         {/* Main Bar Chart: Saturday Sabha Attendance by Date */}
-        <div className="glass-card" style={{ gridColumn: 'span 2 / span 2' }}>
+        <div className="glass-card" style={{ minWidth: 0, overflow: 'hidden' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -456,23 +456,23 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
               No Saturday Sabha attendance records found. Mark attendance in the Attendance tab to view charts.
             </div>
           ) : (
-            <div style={{ width: '100%', height: 280 }}>
+            <div style={{ width: '100%', height: 260, minWidth: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -25, bottom: 25 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                   <XAxis 
                     dataKey="displayDate" 
                     stroke="var(--text-muted)" 
-                    fontSize={11} 
+                    fontSize={10} 
                     tickLine={false}
                     interval={0}
-                    angle={-15}
+                    angle={-25}
                     textAnchor="end"
                   />
-                  <YAxis stroke="var(--text-muted)" fontSize={12} allowDecimals={false} />
+                  <YAxis stroke="var(--text-muted)" fontSize={11} allowDecimals={false} />
                   <Tooltip content={<CustomBarTooltip />} />
-                  <Bar dataKey="present" fill="#ff7a18" radius={[4, 4, 0, 0]} maxBarSize={45} />
-                  <Bar dataKey="absent" fill="rgba(239, 68, 68, 0.45)" radius={[4, 4, 0, 0]} maxBarSize={45} />
+                  <Bar dataKey="present" fill="#ff7a18" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                  <Bar dataKey="absent" fill="rgba(239, 68, 68, 0.45)" radius={[4, 4, 0, 0]} maxBarSize={36} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -495,7 +495,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                   onClick={handleOpenEditModal}
                   title="Edit Upcoming Sabha Schedule"
                 >
-                  <Edit3 size={13} color="#14b8a6" /> Edit
+                  <Edit3 size={13} color="#ff7a18" /> Edit
                 </button>
               )}
             </div>
@@ -506,7 +506,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.85rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--text-secondary)' }}>
-                <Calendar size={16} color="#14b8a6" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <Calendar size={16} color="#ff7a18" style={{ marginTop: '2px', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Scheduled Date:</strong>
                   <span>{sabhaSchedule.date}</span>
@@ -514,7 +514,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--text-secondary)' }}>
-                <Clock size={16} color="#22c55e" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <Clock size={16} color="#ff7a18" style={{ marginTop: '2px', flexShrink: 0 }} />
                 <div>
                   <strong style={{ color: 'var(--text-primary)', display: 'block' }}>Sabha Timing:</strong>
                   <span>{sabhaSchedule.timing}</span>
@@ -539,11 +539,11 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
       </div>
 
       {/* Row 2: Attendance Rate Trajectory (Area) & Engagement Distribution (Donut) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
         
         {/* Area Chart: Attendance % Trend */}
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div className="glass-card" style={{ minWidth: 0, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.4rem' }}>
             <div>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>📈 Attendance Percentage Trajectory</h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>Participation rate (%) across consecutive Saturday Sabhas</p>
@@ -554,9 +554,9 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
           {trendData.length === 0 ? (
             <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>No trend data recorded.</div>
           ) : (
-            <div style={{ width: '100%', height: 240 }}>
+            <div style={{ width: '100%', height: 240, minWidth: 0 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -25, bottom: 25 }}>
                   <defs>
                     <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.45} />
@@ -567,10 +567,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                   <XAxis 
                     dataKey="displayDate" 
                     stroke="var(--text-muted)" 
-                    fontSize={11} 
+                    fontSize={10} 
                     tickLine={false}
                     interval={0}
-                    angle={-15}
+                    angle={-25}
                     textAnchor="end"
                   />
                   <YAxis stroke="var(--text-muted)" fontSize={12} domain={[0, 100]} />

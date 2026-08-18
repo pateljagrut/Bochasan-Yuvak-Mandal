@@ -298,7 +298,7 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
               {/* Sample Presets Quick Click */}
               <div style={{ marginTop: '0.75rem' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.4rem' }}>
-                  ⚡ Or click a sample preset photo:
+                  Or select a sample preset photo:
                 </span>
                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                   {samplePresets.map((preset, idx) => (
@@ -869,12 +869,23 @@ export default function ContentManager({
           </div>
 
           {/* Category Filter Pills Bar */}
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+          <div 
+            className="touch-scroll"
+            style={{ 
+              display: 'flex', 
+              gap: '0.5rem', 
+              marginBottom: '1.5rem', 
+              overflowX: 'auto', 
+              WebkitOverflowScrolling: 'touch',
+              paddingBottom: '0.5rem',
+              width: '100%'
+            }}
+          >
             {['All', 'Utsav', 'Sabha', 'Cultural', 'Prasang'].map((cat) => (
               <button
                 key={cat}
                 className={selectedCategory === cat ? 'btn btn-primary' : 'btn btn-secondary'}
-                style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', height: '32px', borderRadius: '9999px' }}
+                style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', height: '32px', borderRadius: '9999px', flexShrink: 0 }}
                 onClick={() => setSelectedCategory(cat)}
               >
                 {cat}
@@ -898,7 +909,7 @@ export default function ContentManager({
             <div 
               style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 250px), 1fr))', 
                 gap: '1.25rem' 
               }}
             >

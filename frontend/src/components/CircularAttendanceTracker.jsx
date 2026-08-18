@@ -14,9 +14,9 @@ export default function CircularAttendanceTracker({ attended = 0, total = 0, per
       <div style={{ position: 'relative', width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg width="200" height="200" style={{ transform: 'rotate(-90deg)' }}>
           <defs>
-            <linearGradient id="orangeTealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="saffronOrangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#ff7a18" />
-              <stop offset="100%" stopColor="#14b8a6" />
+              <stop offset="100%" stopColor="#ff5500" />
             </linearGradient>
           </defs>
 
@@ -36,7 +36,7 @@ export default function CircularAttendanceTracker({ attended = 0, total = 0, per
             cy="100"
             r={radius}
             fill="none"
-            stroke="url(#orangeTealGrad)"
+            stroke="url(#saffronOrangeGrad)"
             strokeWidth="12"
             strokeLinecap="round"
             style={{
@@ -59,18 +59,18 @@ export default function CircularAttendanceTracker({ attended = 0, total = 0, per
       </div>
 
       {/* Metric Pills */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', width: '100%', marginTop: '1.25rem' }}>
-        <div style={{ background: 'var(--bg-stat-box)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-orange)' }}>{total}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Total Sabhas</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(0.35rem, 1.5vw, 0.75rem)', width: '100%', marginTop: '1.25rem' }}>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '0.65rem 0.35rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
+          <div style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', fontWeight: 700, color: 'var(--text-orange)' }}>{total}</div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Total Sabhas</div>
         </div>
-        <div style={{ background: 'var(--bg-stat-box)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#14b8a6' }}>{attended}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Attended</div>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '0.65rem 0.35rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
+          <div style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', fontWeight: 700, color: 'var(--text-orange)' }}>{attended}</div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Attended</div>
         </div>
-        <div style={{ background: 'var(--bg-stat-box)', padding: '0.75rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
-          <div style={{ fontSize: '1.3rem', fontWeight: 700, color: '#ef4444' }}>{total - attended}</div>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Absences</div>
+        <div style={{ background: 'var(--bg-stat-box)', padding: '0.65rem 0.35rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-subtle)', transition: 'background-color 0.25s' }}>
+          <div style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', fontWeight: 700, color: 'var(--text-orange)' }}>{total - attended}</div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Absences</div>
         </div>
       </div>
     </div>

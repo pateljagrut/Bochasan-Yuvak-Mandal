@@ -49,12 +49,12 @@ function SabhaAttendanceTracker({ metrics, p }) {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.85rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <User size={20} color="#14b8a6" />
+              <User size={20} color="#ff7a18" />
               <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
                 Member Profile
               </h3>
             </div>
-            <span className="yuvak-id-highlight" style={{ fontSize: '0.85rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: 'rgba(20, 184, 166, 0.15)', color: '#14b8a6' }}>
+            <span className="yuvak-id-highlight" style={{ fontSize: '0.85rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '8px', background: 'rgba(255, 122, 24, 0.15)', color: '#ff9b42' }}>
               {p.yuvak_id || 'DHE2712'}
             </span>
           </div>
@@ -78,7 +78,7 @@ function SabhaAttendanceTracker({ metrics, p }) {
             </div>
             <div className="profile-detail-item" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-subtle)' }}>
               <span style={{ color: 'var(--text-muted)' }}>Member Status</span>
-              <span style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.85rem' }}>● Active Yuvak</span>
+              <span style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.85rem' }}>Active Yuvak</span>
             </div>
           </div>
         </motion.div>
@@ -91,9 +91,12 @@ function SabhaAttendanceTracker({ metrics, p }) {
           className="glass-card"
           style={{ borderRadius: '20px', padding: '1.5rem' }}
         >
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--text-primary)' }}>
-            📊 Attendance Tracker
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.3rem' }}>
+            <BarChart3 size={20} color="#ff7a18" />
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+              Attendance Tracker
+            </h3>
+          </div>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
             Real-time circular progress of your Saturday Sabha participation rate.
           </p>
@@ -178,7 +181,7 @@ function YuvakAnalytics({ metrics }) {
     >
       <div className="glass-card" style={{ borderRadius: '20px', padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.85rem' }}>
-          <BarChart3 size={22} color="#14b8a6" />
+          <BarChart3 size={22} color="#ff7a18" />
           <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
             Personal Attendance Analytics & Consistency
           </h3>
@@ -187,7 +190,7 @@ function YuvakAnalytics({ metrics }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
           <div style={{ background: 'var(--bg-stat-box)', padding: '1.25rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
             <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Overall Rate</div>
-            <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#14b8a6', margin: '0.2rem 0' }}>{metrics.attendance_percentage}%</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-orange)', margin: '0.2rem 0' }}>{metrics.attendance_percentage}%</div>
             <div style={{ fontSize: '0.75rem', color: '#22c55e' }}>↑ Consistent Attendance</div>
           </div>
 
@@ -212,10 +215,10 @@ function YuvakAnalytics({ metrics }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.35rem' }}>
                 <span>Monthly Shanivariya Goal</span>
-                <span style={{ fontWeight: 700, color: '#14b8a6' }}>{metrics.attendance_percentage}% Achieved</span>
+                <span style={{ fontWeight: 700, color: 'var(--text-orange)' }}>{metrics.attendance_percentage}% Achieved</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--border-subtle)', borderRadius: '999px', overflow: 'hidden' }}>
-                <div style={{ width: `${metrics.attendance_percentage}%`, height: '100%', background: 'linear-gradient(90deg, #14b8a6, #22c55e)', borderRadius: '999px' }} />
+                <div style={{ width: `${metrics.attendance_percentage}%`, height: '100%', background: 'linear-gradient(90deg, #ff7a18, #ff9b42)', borderRadius: '999px' }} />
               </div>
             </div>
           </div>
@@ -381,15 +384,15 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
 
     if (evtType === 'CONTENT_UPDATED') {
       const typeLabel = evtData?.type === 'photo' ? 'Photo Gallery' : 'Announcements & Niyamas';
-      showNotify(`⚡ Real-time Update: ${typeLabel} updated by Mandal Admin!`);
+      showNotify(`Live Update: ${typeLabel} updated by Mandal Admin!`);
       loadYuvakData(false);
     } else if (evtType === 'ATTENDANCE_UPDATED') {
-      showNotify(`⚡ Real-time Update: Sabha attendance for ${evtData?.sabha_date || 'recent session'} updated!`);
+      showNotify(`Live Update: Sabha attendance for ${evtData?.sabha_date || 'recent session'} updated!`);
       loadYuvakData(false);
     } else if (evtType === 'MEMBER_UPDATED') {
       const currentYuvakId = profile?.yuvak_id || user?.yuvak_id;
       if (evtData?.yuvak_id === currentYuvakId) {
-        showNotify(`⚡ Real-time Update: Your member profile information has been updated!`);
+        showNotify(`Live Update: Your member profile information has been updated!`);
         loadYuvakData(false);
       }
     }
@@ -466,8 +469,19 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
     }, 6000);
 
     return () => {
-      if (eventSource) eventSource.close();
-      if (ws) ws.close();
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (ws) {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close(1000, 'Unmount');
+        } else if (ws.readyState === WebSocket.CONNECTING) {
+          ws.onopen = () => {
+            try { ws.close(1000, 'Unmount'); } catch (_) {}
+          };
+          ws.onerror = () => {};
+        }
+      }
       clearInterval(pollInterval);
     };
   }, [token, user, profile]);
@@ -506,7 +520,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
         </div>
       )}
 
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 clamp(0.75rem, 3vw, 1.5rem)' }}>
         {/* Real-time Notification Toast */}
         {notification && (
           <motion.div 
@@ -535,8 +549,8 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
           animate={{ opacity: 1, y: 0 }}
           className="hero-banner"
           style={{ 
-            background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(255, 122, 24, 0.1) 100%)', 
-            borderColor: 'rgba(20, 184, 166, 0.35)',
+            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 122, 24, 0.08) 100%)', 
+            borderColor: 'rgba(255, 122, 24, 0.35)',
             borderRadius: '20px',
             padding: '1.75rem 2rem',
             marginBottom: '2rem'
@@ -544,18 +558,12 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
         >
           <div className="hero-content">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.6rem' }}>
-              <span className="badge badge-yuvak" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 700 }}>
+              <span className="badge badge-admin" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', fontWeight: 700 }}>
                 Yuvak Portal
               </span>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                 ID: {p.yuvak_id || 'DHE2712'}
               </span>
-              {isLiveConnected && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#4ade80', fontWeight: 600, marginLeft: '0.5rem' }}>
-                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e', display: 'inline-block' }}></span>
-                  Live
-                </span>
-              )}
             </div>
 
             <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 2rem)', fontWeight: 800, margin: '0 0 0.4rem 0', letterSpacing: '-0.02em', color: 'var(--text-orange)', WebkitTextFillColor: 'var(--text-orange)' }}>
@@ -570,7 +578,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
           {/* Hero Stats */}
           <div className="hero-stats-grid" style={{ display: 'flex', gap: '1.25rem' }}>
             <div className="hero-stat-box" style={{ background: 'var(--bg-stat-box)', borderRadius: '16px', padding: '1rem 1.4rem', border: '1px solid var(--border-subtle)', minWidth: '130px', textAlign: 'center' }}>
-              <div className="hero-stat-value" style={{ color: '#14b8a6', fontSize: '1.75rem', fontWeight: 800 }}>
+              <div className="hero-stat-value" style={{ color: 'var(--text-orange)', fontSize: '1.75rem', fontWeight: 800 }}>
                 {metrics.attendance_percentage}%
               </div>
               <div className="hero-stat-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import ScrollManager from './components/ScrollManager';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -26,6 +27,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <ScrollManager />
         <MainAppContent />
       </AuthProvider>
     </ThemeProvider>

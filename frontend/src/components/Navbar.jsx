@@ -109,10 +109,10 @@ export default function Navbar({
 
               {/* Logout Button */}
               <button
-                className="btn btn-secondary p-2 rounded-lg transition-all shrink-0"
+                className="navbar-icon-btn logout-btn"
                 onClick={logout}
                 title="Logout"
-                style={{ width: '38px', height: '38px', minHeight: 'unset', padding: 0 }}
+                aria-label="Logout"
               >
                 <LogOut size={16} />
               </button>

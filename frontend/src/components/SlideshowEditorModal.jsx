@@ -144,10 +144,10 @@ export default function SlideshowEditorModal({
         style={{
           width: '100%',
           maxWidth: '820px',
-          maxHeight: '90vh',
+          maxHeight: '90dvh',
           overflowY: 'auto',
-          padding: '2rem',
-          borderRadius: '24px',
+          padding: 'clamp(1.25rem, 3.5vw, 2rem)',
+          borderRadius: '22px',
           border: '1.5px solid var(--primary-border)',
           boxShadow: 'var(--shadow-card)',
           margin: 'auto'

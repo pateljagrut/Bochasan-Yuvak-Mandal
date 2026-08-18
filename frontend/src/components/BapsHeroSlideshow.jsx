@@ -24,7 +24,7 @@ const DEFAULT_SLIDES = [
     badge_color: '#14b8a6',
     title: 'Shanivariya Yuvak Sabha',
     subtitle: 'Fostering Youth Leadership, Spiritual Sanskar, Samp, Suhradbhav & Ekta through weekly satsang assemblies',
-    cta_text: 'Mark Sabha Attendance',
+    cta_text: 'Explore Sabha Satsang',
     action_tab: 'attendance',
     is_active: true
   },
@@ -112,25 +112,34 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab, isAdmin: 
 
   // Touch Gesture Listeners (iOS Safari & Android Chrome)
   const handleTouchStart = (e) => {
+    if (!e.touches || !e.touches[0]) return;
     touchStartXRef.current = e.touches[0].clientX;
     touchStartYRef.current = e.touches[0].clientY;
-  };
-
-  const handleTouchMove = (e) => {
     touchEndXRef.current = e.touches[0].clientX;
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchMove = (e) => {
+    if (!e.touches || !e.touches[0]) return;
+    touchEndXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
     const deltaX = touchStartXRef.current - touchEndXRef.current;
-    if (touchEndXRef.current === 0) return;
-    const minSwipeDistance = 45;
-    if (deltaX > minSwipeDistance) {
-      nextSlide(); // Swiped left -> next
-    } else if (deltaX < -minSwipeDistance) {
-      prevSlide(); // Swiped right -> prev
+    const deltaY = touchStartYRef.current - (e.changedTouches?.[0]?.clientY || touchStartYRef.current);
+    const minSwipeDistance = 40;
+    if (Math.abs(deltaX) > minSwipeDistance) {
+      if (deltaX > 0) {
+        nextSlide(); // Swiped left -> next
+      } else {
+        prevSlide(); // Swiped right -> prev
+      }
+    } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+      // Tap toggle for mobile devices
+      setIsHovered((prev) => !prev);
     }
     touchStartXRef.current = 0;
     touchEndXRef.current = 0;
+    touchStartYRef.current = 0;
   };
 
   // Safe fallback if index exceeds array
@@ -154,25 +163,37 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab, isAdmin: 
   };
 
   return (
-    <div 
-      className="baps-slideshow-wrapper"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+    <div
       style={{
-        position: 'relative',
         width: '100%',
-        height: 'clamp(380px, 56vw, 560px)',
-        overflow: 'hidden',
-        background: '#070b14',
-        userSelect: 'none'
+        maxWidth: '1440px',
+        margin: '1.25rem auto 1.5rem auto',
+        padding: '0 clamp(0.75rem, 3.5vw, 1.75rem)'
       }}
-      aria-label="BAPS Photo Slideshow"
     >
-      {/* Background Slide Images with Ken Burns Zoom & Crossfade */}
-      <AnimatePresence initial={false} custom={direction}>
+      <div 
+        className="baps-slideshow-wrapper"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 'clamp(380px, 58vh, 620px)',
+          borderRadius: '24px',
+          overflow: 'hidden',
+          background: '#070b14',
+          boxShadow: '0 16px 45px -8px rgba(0, 0, 0, 0.55), 0 0 25px rgba(255, 122, 24, 0.15)',
+          border: '1px solid rgba(255, 122, 24, 0.3)',
+          userSelect: 'none',
+          WebkitUserSelect: 'none'
+        }}
+        aria-label="BAPS Photo Slideshow"
+      >
+            {/* Background Slide Images with Ken Burns Zoom & Crossfade */}
+            <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentSlide.id}
           custom={direction}
@@ -196,13 +217,13 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab, isAdmin: 
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              objectPosition: 'center'
+              objectPosition: 'center center'
             }}
           />
         </motion.div>
       </AnimatePresence>
 
-      {/* Multi-Layer Cinematic Gradient Overlay */}
+      {/* Multi-Layer Cinematic Gradient Overlay - Smoothly deepens on hover */}
       <div 
         style={{
           position: 'absolute',
@@ -210,11 +231,47 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab, isAdmin: 
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'linear-gradient(180deg, rgba(11, 17, 32, 0.45) 0%, rgba(11, 17, 32, 0.15) 40%, rgba(11, 17, 32, 0.85) 90%, rgba(11, 17, 32, 0.98) 100%), radial-gradient(circle at 20% 50%, rgba(255, 122, 24, 0.12) 0%, transparent 60%)',
+          background: 'linear-gradient(180deg, rgba(11, 17, 32, 0.2) 0%, rgba(11, 17, 32, 0.05) 50%, rgba(11, 17, 32, 0.75) 88%, rgba(11, 17, 32, 0.95) 100%), radial-gradient(circle at 20% 50%, rgba(255, 122, 24, 0.12) 0%, transparent 60%)',
           zIndex: 2,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          opacity: isHovered ? 1 : 0.35,
+          transition: 'opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       />
+
+      {/* Subtle Hint Pill shown ONLY when NOT hovered */}
+      <AnimatePresence>
+        {!isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 0.85, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: 'absolute',
+              bottom: '18px',
+              left: 'clamp(1rem, 4vw, 2.5rem)',
+              zIndex: 3,
+              pointerEvents: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.35rem 0.85rem',
+              borderRadius: '999px',
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              color: 'rgba(255, 255, 255, 0.85)',
+              fontSize: '0.78rem',
+              fontWeight: 500,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+            }}
+          >
+            <Sparkles size={13} color="var(--primary)" />
+            <span>Hover to view details</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Admin Floating "Edit Slideshow" Quick-Access Button */}
       {isAdmin && (
@@ -252,108 +309,109 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab, isAdmin: 
         </div>
       )}
 
-      {/* Slide Content Caption Overlay */}
-      <div 
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 3,
-          padding: 'clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 5vw, 3.5rem)',
-          maxWidth: '1440px',
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end'
-        }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
+      {/* Slide Content Caption Overlay - SHOWN ONLY ON HOVER */}
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div 
             key={currentSlide.id}
-            initial={{ opacity: 0, y: 22 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-            style={{ maxWidth: '850px' }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 3,
+              padding: 'clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 5vw, 3.5rem)',
+              maxWidth: '1440px',
+              margin: '0 auto',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              pointerEvents: 'auto'
+            }}
           >
-            {/* Category / Event Badge */}
-            <div 
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.3rem 0.85rem',
-                borderRadius: '999px',
-                background: 'rgba(15, 23, 42, 0.75)',
-                backdropFilter: 'blur(12px)',
-                border: `1px solid ${currentSlide.badge_color || '#ff7a18'}55`,
-                color: currentSlide.badge_color || '#ff7a18',
-                fontSize: 'clamp(0.72rem, 1.8vw, 0.82rem)',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: '0.65rem',
-                boxShadow: `0 4px 14px ${currentSlide.badge_color || '#ff7a18'}22`
-              }}
-            >
-              <Sparkles size={14} />
-              {currentSlide.badge || 'Bochasan Mandal'}
-            </div>
-
-            {/* Slide Heading */}
-            <h2 
-              style={{
-                fontFamily: 'var(--font-heading)',
-                fontSize: 'clamp(1.4rem, 4.2vw, 2.6rem)',
-                fontWeight: 800,
-                color: '#ffffff',
-                lineHeight: 1.2,
-                margin: '0 0 0.55rem 0',
-                textShadow: '0 3px 12px rgba(0,0,0,0.85)',
-                letterSpacing: '-0.01em'
-              }}
-            >
-              {currentSlide.title}
-            </h2>
-
-            {/* Slide Subtitle */}
-            <p 
-              style={{
-                color: 'rgba(255, 255, 255, 0.88)',
-                fontSize: 'clamp(0.85rem, 2vw, 1.05rem)',
-                lineHeight: 1.5,
-                margin: '0 0 1.25rem 0',
-                maxWidth: '720px',
-                textShadow: '0 2px 8px rgba(0,0,0,0.8)'
-              }}
-            >
-              {currentSlide.subtitle}
-            </p>
-
-            {/* CTA Button */}
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => handleAction(currentSlide.action_tab || 'attendance')}
-                className="btn btn-primary"
+            <div style={{ maxWidth: '850px' }}>
+              {/* Category / Event Badge */}
+              <div 
                 style={{
-                  padding: '0.65rem 1.4rem',
-                  fontSize: '0.9rem',
-                  fontWeight: 700,
-                  boxShadow: '0 6px 20px rgba(255, 122, 24, 0.45)',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.45rem'
+                  gap: '0.45rem',
+                  padding: '0.3rem 0.85rem',
+                  borderRadius: '999px',
+                  background: 'rgba(15, 23, 42, 0.75)',
+                  backdropFilter: 'blur(12px)',
+                  border: `1px solid ${currentSlide.badge_color || '#ff7a18'}55`,
+                  color: currentSlide.badge_color || '#ff7a18',
+                  fontSize: 'clamp(0.72rem, 1.8vw, 0.82rem)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  marginBottom: '0.65rem',
+                  boxShadow: `0 4px 14px ${currentSlide.badge_color || '#ff7a18'}22`
                 }}
               >
-                <span>{currentSlide.cta_text || 'Explore Portal'}</span>
-                <ChevronRight size={16} />
-              </button>
+                <Sparkles size={14} />
+                {currentSlide.badge || 'Bochasan Mandal'}
+              </div>
+
+              {/* Slide Heading */}
+              <h2 
+                style={{
+                  fontFamily: 'var(--font-heading)',
+                  fontSize: 'clamp(1.4rem, 4.2vw, 2.6rem)',
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  lineHeight: 1.2,
+                  margin: '0 0 0.55rem 0',
+                  textShadow: '0 3px 12px rgba(0,0,0,0.85)',
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                {currentSlide.title}
+              </h2>
+
+              {/* Slide Subtitle */}
+              <p 
+                style={{
+                  color: 'rgba(255, 255, 255, 0.88)',
+                  fontSize: 'clamp(0.85rem, 2vw, 1.05rem)',
+                  lineHeight: 1.5,
+                  margin: '0 0 1.25rem 0',
+                  maxWidth: '720px',
+                  textShadow: '0 2px 8px rgba(0,0,0,0.8)'
+                }}
+              >
+                {currentSlide.subtitle}
+              </p>
+
+              {/* CTA Button */}
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => handleAction(currentSlide.action_tab || 'attendance')}
+                  className="btn btn-primary"
+                  style={{
+                    padding: '0.65rem 1.4rem',
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    boxShadow: '0 6px 20px rgba(255, 122, 24, 0.45)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem'
+                  }}
+                >
+                  <span>{currentSlide.cta_text || 'Explore Portal'}</span>
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           </motion.div>
-        </AnimatePresence>
-      </div>
+        )}
+      </AnimatePresence>
 
       {/* Navigation Arrows (Prev / Next) */}
       {totalSlides > 1 && (
@@ -493,15 +551,16 @@ export default function BapsHeroSlideshow({ onCtaClick, onNavigateTab, isAdmin: 
         </div>
       </div>
 
-      {/* Admin Slideshow Editor Modal */}
-      {showEditorModal && (
-        <SlideshowEditorModal
-          isOpen={showEditorModal}
-          onClose={() => setShowEditorModal(false)}
-          initialSlides={slides}
-          onSlidesUpdated={handleSlidesUpdated}
-        />
-      )}
+        {/* Admin Slideshow Editor Modal */}
+        {showEditorModal && (
+          <SlideshowEditorModal
+            isOpen={showEditorModal}
+            onClose={() => setShowEditorModal(false)}
+            initialSlides={slides}
+            onSlidesUpdated={handleSlidesUpdated}
+          />
+        )}
+      </div>
     </div>
   );
 }

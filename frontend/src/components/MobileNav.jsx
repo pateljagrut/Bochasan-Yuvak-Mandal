@@ -28,15 +28,17 @@ export default function MobileNav({ activeTab, setActiveTab, onFabClick }) {
 
   return (
     <>
-      {/* Floating Action Button for Quick Attendance */}
-      <button 
-        className="mobile-fab-btn"
-        onClick={onFabClick || (() => setActiveTab('attendance'))}
-        title="Mark Attendance"
-        aria-label="Mark Attendance"
-      >
-        <CalendarCheck size={26} />
-      </button>
+      {/* Floating Action Button for Quick Attendance (Admin only) */}
+      {role === 'admin' && (
+        <button 
+          className="mobile-fab-btn"
+          onClick={onFabClick || (() => setActiveTab('attendance'))}
+          title="Mark Attendance"
+          aria-label="Mark Attendance"
+        >
+          <CalendarCheck size={26} />
+        </button>
+      )}
 
       {/* Fixed Bottom Glass Navigation */}
       <nav className="mobile-bottom-nav">
@@ -50,7 +52,7 @@ export default function MobileNav({ activeTab, setActiveTab, onFabClick }) {
               onClick={() => setActiveTab(item.id)}
             >
               <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
-              <span className="text-[11px] font-medium">{item.label}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: isActive ? 700 : 500, lineHeight: 1.1 }}>{item.label}</span>
             </button>
           );
         })}

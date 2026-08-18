@@ -173,7 +173,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
                 padding: '0.5rem',
                 borderRadius: '9px',
                 border: 'none',
-                background: memberRole === 'yuvak' ? 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)' : 'transparent',
+                background: memberRole === 'yuvak' ? 'linear-gradient(135deg, #ff7a18 0%, #ff5500 100%)' : 'transparent',
                 color: memberRole === 'yuvak' ? '#ffffff' : 'var(--text-muted)',
                 fontWeight: 600,
                 fontSize: '0.85rem',
@@ -191,7 +191,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
                 padding: '0.5rem',
                 borderRadius: '9px',
                 border: 'none',
-                background: memberRole === 'admin' ? 'linear-gradient(135deg, #ff7a18 0%, #f59e0b 100%)' : 'transparent',
+                background: memberRole === 'admin' ? 'linear-gradient(135deg, #ff7a18 0%, #ff5500 100%)' : 'transparent',
                 color: memberRole === 'admin' ? '#ffffff' : 'var(--text-muted)',
                 fontWeight: 600,
                 fontSize: '0.85rem',
@@ -208,7 +208,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                <User size={15} color={memberRole === 'admin' ? '#ff9b42' : '#14b8a6'} /> Full Name
+                <User size={15} color="#ff7a18" /> Full Name
               </label>
               <input
                 type="text"
@@ -226,7 +226,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
               <>
                 <div className="form-group" style={{ margin: 0 }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    <ShieldCheck size={15} color="#ff9b42" /> Admin Username (for Login)
+                    <ShieldCheck size={15} color="#ff7a18" /> Admin Username (for Login)
                   </label>
                   <input
                     type="text"
@@ -242,7 +242,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
 
                 <div className="form-group" style={{ margin: 0 }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    <Lock size={15} color="#ff9b42" /> Admin Password
+                    <Lock size={15} color="#ff7a18" /> Admin Password
                   </label>
                   <div style={{ position: 'relative' }}>
                     <input
@@ -278,7 +278,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
 
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                <Phone size={15} color={memberRole === 'admin' ? '#ff9b42' : '#14b8a6'} /> Mobile Number
+                <Phone size={15} color="#ff7a18" /> Mobile Number
               </label>
               <input
                 type="tel"
@@ -294,7 +294,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
 
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                <Calendar size={15} color={memberRole === 'admin' ? '#ff9b42' : '#14b8a6'} /> Date of Birth
+                <Calendar size={15} color="#ff7a18" /> Date of Birth
               </label>
               <input
                 type="date"
@@ -308,7 +308,7 @@ export default function AddMemberModal({ onClose, onSuccess }) {
 
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                <MapPin size={15} color={memberRole === 'admin' ? '#ff9b42' : '#14b8a6'} /> Mandal Location / Center
+                <MapPin size={15} color="#ff7a18" /> Mandal Location / Center
               </label>
               <select
                 name="location"

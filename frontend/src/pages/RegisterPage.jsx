@@ -39,11 +39,11 @@ export default function RegisterPage({ onNavigateLogin }) {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: '100dvh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1.5rem',
+      padding: 'clamp(1rem, 3vw, 1.5rem)',
       position: 'relative'
     }}>
       {/* Top Floating Theme Switcher */}
@@ -57,7 +57,7 @@ export default function RegisterPage({ onNavigateLogin }) {
         style={{ 
           width: '100%', 
           maxWidth: '480px', 
-          padding: '2.5rem 2rem',
+          padding: 'clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 3.5vw, 2rem)',
           border: '1px solid var(--primary-border)',
           boxShadow: 'var(--shadow-card), 0 0 30px var(--primary-glow)'
         }}
@@ -67,7 +67,7 @@ export default function RegisterPage({ onNavigateLogin }) {
             <Logo size="lg" showSubtitle={false} />
           </div>
           <h2 style={{ 
-            fontSize: '1.75rem', 
+            fontSize: 'clamp(1.35rem, 4vw, 1.75rem)', 
             marginBottom: '0.3rem', 
             background: 'linear-gradient(135deg, var(--text-primary) 30%, var(--text-orange) 100%)', 
             WebkitBackgroundClip: 'text', 

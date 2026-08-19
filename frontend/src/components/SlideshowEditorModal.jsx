@@ -18,16 +18,10 @@ import {
 import { updateAllSlideshowSlidesApi } from '../services/api';
 
 const PRESET_IMAGES = [
-  { label: 'Mandir Sunset', url: '/slides/bochasan_mandir_sunset.jpg' },
-  { label: 'Mandir Courtyard', url: '/slides/bochasan_mandir_courtyard.jpg' },
-  { label: 'Akshardham Yuvak Mandal', url: '/slides/bochasan_yuvak_akshardham.jpg' },
-  { label: 'Shikhar & Dhwaja', url: '/slides/bochasan_mandir_rooftop.jpg' },
-  { label: 'Sunlit Shikhars', url: '/slides/bochasan_mandir_shikhars.jpg' },
-  { label: 'Mandir Evening Glow', url: '/slides/bochasan_mandir_evening.jpg' },
-  { label: 'Classic Mandir', url: '/slides/slide1_mandir.jpg' },
-  { label: 'Sabha Assembly', url: '/slides/slide2_sabha.jpg' },
-  { label: 'Daily Darshan', url: '/slides/slide3_darshan.jpg' },
-  { label: 'Youth Seva', url: '/slides/slide4_seva.jpg' }
+  { label: 'Bochasan Mandir', url: '/slides/slide1_mandir.jpg' },
+  { label: 'Yuvak Sabha Hall', url: '/slides/slide2_sabha.jpg' },
+  { label: 'Akshar Purushottam Darshan', url: '/slides/slide3_darshan.jpg' },
+  { label: 'Youth Seva Relief', url: '/slides/slide4_seva.jpg' }
 ];
 
 const PRESET_COLORS = [

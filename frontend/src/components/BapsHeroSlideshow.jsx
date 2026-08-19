@@ -8,7 +8,7 @@ import SlideshowEditorModal from './SlideshowEditorModal';
 const DEFAULT_SLIDES = [
   {
     id: '1',
-    image: '/slides/slide1_mandir.jpg',
+    image: '/slides/bochasan_mandir_sunset.jpg',
     badge: 'Bochasan Tirthdham',
     badge_color: '#ff7a18',
     title: 'Bochasan Swaminarayan Akshar Mandir',
@@ -19,35 +19,57 @@ const DEFAULT_SLIDES = [
   },
   {
     id: '2',
-    image: '/slides/slide2_sabha.jpg',
-    badge: 'Saturday 8:30 PM',
-    badge_color: '#14b8a6',
-    title: 'Shanivariya Yuvak Sabha',
-    subtitle: 'Fostering Youth Leadership, Spiritual Sanskar, Samp, Suhradbhav & Ekta through weekly satsang assemblies',
-    cta_text: 'Explore Sabha Satsang',
-    action_tab: 'attendance',
-    is_active: true
-  },
-  {
-    id: '3',
-    image: '/slides/slide3_darshan.jpg',
-    badge: 'Daily Darshan',
+    image: '/slides/bochasan_mandir_courtyard.jpg',
+    badge: 'Pavitra Tirth',
     badge_color: '#eab308',
-    title: 'Shri Akshar Purushottam Maharaj Darshan',
-    subtitle: 'Divine Murti Darshan & Daily Satsang Upasana • Guided by the divine presence of Pragat Brahmaswarup Mahant Swami Maharaj',
-    cta_text: 'View Niyama & Feeds',
+    title: 'Shri Akshar Purushottam Mandir',
+    subtitle: 'Divine architectural marvel and sanctuary of spiritual peace, devotion, and supreme upasana in Bochasan',
+    cta_text: 'Daily Satsang Feeds',
     action_tab: 'content',
     is_active: true
   },
   {
-    id: '4',
-    image: '/slides/slide4_seva.jpg',
-    badge: 'Nishkam Seva',
-    badge_color: '#22c55e',
-    title: 'Youth Seva & Humanitarian Services',
-    subtitle: '“In the joy of others, lies our own. In the progress of others, rests our own.” — Brahmaswarup Pramukh Swami Maharaj',
+    id: '3',
+    image: '/slides/bochasan_yuvak_akshardham.jpg',
+    badge: 'Yuvak Mandal Yatra',
+    badge_color: '#14b8a6',
+    title: 'Bochasan Yuvak Mandal & Karyakar Pariwar',
+    subtitle: 'United in devotion, sanskar, and seva at Swaminarayan Akshardham Gandhinagar • Samp, Suhradbhav & Ekta',
     cta_text: 'Yuvak Directory',
     action_tab: 'yuvaks',
+    is_active: true
+  },
+  {
+    id: '4',
+    image: '/slides/bochasan_mandir_rooftop.jpg',
+    badge: 'Akshar Purushottam Darshan',
+    badge_color: '#c084fc',
+    title: 'Shikhar Darshan & Divine Dhwaja',
+    subtitle: 'Sacred kalash and fluttering BAPS flags radiating divine peace and spiritual bliss across Bochasan Tirth',
+    cta_text: 'Mark Sabha Attendance',
+    action_tab: 'attendance',
+    is_active: true
+  },
+  {
+    id: '5',
+    image: '/slides/bochasan_mandir_shikhars.jpg',
+    badge: 'Saturday 8:30 PM',
+    badge_color: '#22c55e',
+    title: 'Shanivariya Yuvak Sabha',
+    subtitle: 'Weekly youth satsang assembly for spiritual character, sanskar, leadership, and brotherhood in Bochasan',
+    cta_text: 'Sabha Attendance',
+    action_tab: 'attendance',
+    is_active: true
+  },
+  {
+    id: '6',
+    image: '/slides/bochasan_mandir_evening.jpg',
+    badge: 'Nishkam Seva',
+    badge_color: '#f43f5e',
+    title: 'Youth Seva & Humanitarian Services',
+    subtitle: '“In the joy of others, lies our own. In the progress of others, rests our own.” — Brahmaswarup Pramukh Swami Maharaj',
+    cta_text: 'Community Feeds',
+    action_tab: 'content',
     is_active: true
   }
 ];

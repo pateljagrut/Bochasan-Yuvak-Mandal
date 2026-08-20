@@ -95,22 +95,25 @@ export default function AdminKaryakarCreationModal({ onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Admin Username (for Login)</label>
+            <label htmlFor="admin-username">Admin Username (for Login)</label>
             <input
+              id="admin-username"
               type="text"
               name="username"
               className="form-control"
               placeholder="e.g. karyakar.bochasan"
               value={formData.username}
               onChange={handleChange}
+              autoComplete="username"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="admin-password">Password</label>
             <div style={{ position: 'relative' }}>
               <input
+                id="admin-password"
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 className="form-control"
@@ -118,6 +121,7 @@ export default function AdminKaryakarCreationModal({ onClose, onSuccess }) {
                 placeholder="Secure Admin Password"
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="new-password"
                 required
               />
               <button
@@ -133,6 +137,7 @@ export default function AdminKaryakarCreationModal({ onClose, onSuccess }) {
                   color: 'var(--text-muted)',
                   cursor: 'pointer'
                 }}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -140,53 +145,61 @@ export default function AdminKaryakarCreationModal({ onClose, onSuccess }) {
           </div>
 
           <div className="form-group">
-            <label>Full Name</label>
+            <label htmlFor="admin-fullname">Full Name</label>
             <input
+              id="admin-fullname"
               type="text"
               name="full_name"
               className="form-control"
               placeholder="e.g. Harshad Karyakar"
               value={formData.full_name}
               onChange={handleChange}
+              autoComplete="name"
               required
             />
           </div>
 
           <div className="form-group">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <label htmlFor="admin-dob" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Calendar size={14} color="#ff7a18" /> Date of Birth
             </label>
             <input
+              id="admin-dob"
               type="date"
               name="dob"
               className="form-control"
               value={formData.dob}
               onChange={handleChange}
+              autoComplete="bday"
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group">
-              <label>Mobile Number</label>
+              <label htmlFor="admin-mobile">Mobile Number</label>
               <input
+                id="admin-mobile"
                 type="tel"
                 name="mobile_no"
                 className="form-control"
                 placeholder="Mobile"
                 value={formData.mobile_no}
                 onChange={handleChange}
+                autoComplete="tel"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>Mandal Center</label>
+              <label htmlFor="admin-location">Mandal Center</label>
               <input
+                id="admin-location"
                 type="text"
                 name="location"
                 className="form-control"
                 value={formData.location}
                 onChange={handleChange}
+                autoComplete="address-level2"
                 required
               />
             </div>

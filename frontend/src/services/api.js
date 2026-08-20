@@ -38,6 +38,9 @@ async function request(endpoint, options = {}) {
     const data = await response.json();
     
     if (!response.ok) {
+      if (response.status === 401 && !endpoint.includes('/auth/login')) {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      }
       throw new Error(data.detail || data.message || 'API request failed');
     }
     
@@ -57,6 +60,10 @@ export async function loginApi(identifier, password) {
     method: 'POST',
     body: { identifier, password }
   });
+}
+
+export async function verifyTokenApi(token) {
+  return request('/auth/verify', { token });
 }
 
 export async function registerYuvakApi(yuvakData) {

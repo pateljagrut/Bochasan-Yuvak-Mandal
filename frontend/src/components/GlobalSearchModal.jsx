@@ -59,11 +59,14 @@ export default function GlobalSearchModal({ isOpen, onClose, yuvaks = [], setAct
           <div className="search-modal-input-wrapper">
             <Search size={20} color="#ff7a18" />
             <input
+              id="global-quick-search-input"
+              name="global_search"
               type="text"
               className="search-modal-input"
               placeholder="Search Yuvaks by Name, ID (DHE2712), or jump to tabs..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              aria-label="Global search across members and portal sections"
               autoFocus
             />
             <button 

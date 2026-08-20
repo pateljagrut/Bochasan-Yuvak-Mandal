@@ -112,10 +112,12 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
         {/* Sabha Meta Inputs & Search Filters */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="sabha-date-input" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               📅 Sabha Date
             </label>
             <input
+              id="sabha-date-input"
+              name="sabha_date"
               type="date"
               className="form-control"
               value={sabhaDate}
@@ -125,10 +127,12 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           </div>
 
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="sabha-title-input" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               📖 Sabha Title / Topic
             </label>
             <input
+              id="sabha-title-input"
+              name="sabha_title"
               type="text"
               className="form-control"
               placeholder="e.g. Saturday Yuvak Sabha - Niyama Orientation"
@@ -139,27 +143,32 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           </div>
 
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="sabha-member-search" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               🔍 Search Member
             </label>
             <div style={{ position: 'relative' }}>
               <input
+                id="sabha-member-search"
+                name="member_search"
                 type="text"
                 className="form-control"
                 style={{ paddingLeft: '2.4rem' }}
                 placeholder="Name, ID, or Phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search members by name, ID, or phone"
               />
               <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)' }} />
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+            <label htmlFor="sabha-center-filter" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               📍 Center Filter
             </label>
             <select
+              id="sabha-center-filter"
+              name="center_filter"
               className="form-control"
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
@@ -210,6 +219,9 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                         <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                           <input
                             type="checkbox"
+                            id={`att-check-${yuvak.yuvak_id}`}
+                            name={`attendance_${yuvak.yuvak_id}`}
+                            aria-label={`Mark attendance for ${yuvak.full_name}`}
                             className="checkbox-custom"
                             checked={isChecked}
                             onChange={() => toggleYuvak(yuvak.yuvak_id)}
@@ -297,6 +309,9 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                     <div className="member-mobile-left">
                       <input
                         type="checkbox"
+                        id={`att-check-mob-${yuvak.yuvak_id}`}
+                        name={`attendance_mob_${yuvak.yuvak_id}`}
+                        aria-label={`Mark attendance for ${yuvak.full_name}`}
                         className="checkbox-custom"
                         checked={isChecked}
                         onChange={() => toggleYuvak(yuvak.yuvak_id)}

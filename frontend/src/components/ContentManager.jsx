@@ -322,10 +322,11 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
             {/* Title */}
             <div className="form-group" style={{ margin: 0 }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+              <label htmlFor="event-title-input" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
                 Event Title / Headline
               </label>
               <input
+                id="event-title-input"
                 type="text"
                 name="title"
                 className="form-control"
@@ -339,10 +340,11 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
             {/* Date & Category */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+                <label htmlFor="event-date-input" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
                   Event Date
                 </label>
                 <input
+                  id="event-date-input"
                   type="date"
                   name="event_date"
                   className="form-control"
@@ -353,10 +355,11 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
               </div>
 
               <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+                <label htmlFor="event-category-select" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
                   Category Badge
                 </label>
                 <select
+                  id="event-category-select"
                   name="category"
                   className="form-control"
                   value={formData.category}
@@ -600,10 +603,11 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
 
             {/* Author */}
             <div className="form-group" style={{ margin: 0 }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+              <label htmlFor="event-author-input" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
                 Publishing Author / Media Team
               </label>
               <input
+                id="event-author-input"
                 type="text"
                 name="author"
                 className="form-control"
@@ -733,10 +737,11 @@ function EditFeedModal({ feed, onClose, onSaveSuccess }) {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+            <label htmlFor="announcement-title-input" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
               Title / Headline
             </label>
             <input
+              id="announcement-title-input"
               type="text"
               name="title"
               className="form-control"
@@ -747,10 +752,16 @@ function EditFeedModal({ feed, onClose, onSaveSuccess }) {
           </div>
 
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+            <label htmlFor="announcement-category-select" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
               Category
             </label>
-            <select name="category" className="form-control" value={formData.category} onChange={handleChange}>
+            <select 
+              id="announcement-category-select"
+              name="category" 
+              className="form-control" 
+              value={formData.category} 
+              onChange={handleChange}
+            >
               <option value="announcement">Announcement</option>
               <option value="niyama">Niyama / Vichar of the Week</option>
               <option value="schedule">Sabha Schedule</option>
@@ -758,12 +769,13 @@ function EditFeedModal({ feed, onClose, onSaveSuccess }) {
           </div>
 
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+            <label htmlFor="announcement-content-input" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
               Content Description
             </label>
             <textarea
+              id="announcement-content-input"
               name="content"
-              rows="4"
+              rows={4}
               className="form-control"
               value={formData.content}
               onChange={handleChange}
@@ -772,10 +784,11 @@ function EditFeedModal({ feed, onClose, onSaveSuccess }) {
           </div>
 
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+            <label htmlFor="announcement-author-input" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
               Publishing Author / Team
             </label>
             <input
+              id="announcement-author-input"
               type="text"
               name="author"
               className="form-control"

@@ -940,10 +940,12 @@ export default function SlideshowEditorModal({
                       {/* Title & Badge Row */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
                         <div>
-                          <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                          <label htmlFor={`slide-title-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                             Slide Heading Title
                           </label>
                           <input
+                            id={`slide-title-${slide.id}`}
+                            name={`slide_title_${slide.id}`}
                             type="text"
                             className="form-control"
                             value={slide.title || ''}
@@ -954,10 +956,12 @@ export default function SlideshowEditorModal({
                         </div>
 
                         <div>
-                          <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                          <label htmlFor={`slide-badge-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                             Badge Label (e.g. Saturday 8:30 PM)
                           </label>
                           <input
+                            id={`slide-badge-${slide.id}`}
+                            name={`slide_badge_${slide.id}`}
                             type="text"
                             className="form-control"
                             value={slide.badge || ''}
@@ -969,10 +973,12 @@ export default function SlideshowEditorModal({
 
                       {/* Subtitle */}
                       <div>
-                        <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                        <label htmlFor={`slide-subtitle-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                           Subtitle / Description
                         </label>
                         <textarea
+                          id={`slide-subtitle-${slide.id}`}
+                          name={`slide_subtitle_${slide.id}`}
                           rows={2}
                           className="form-control"
                           value={slide.subtitle || ''}
@@ -984,7 +990,7 @@ export default function SlideshowEditorModal({
                       {/* Badge Color Preset & CTA Button Settings */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                         <div>
-                          <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                          <label htmlFor={`slide-badge-color-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                             Badge Color Accent
                           </label>
                           <div style={{ display: 'flex', gap: '0.45rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -1006,20 +1012,25 @@ export default function SlideshowEditorModal({
                               />
                             ))}
                             <input
+                              id={`slide-badge-color-${slide.id}`}
+                              name={`slide_badge_color_${slide.id}`}
                               type="text"
                               className="form-control"
                               value={slide.badge_color || '#ff7a18'}
                               onChange={(e) => handleEditField(slide.id, 'badge_color', e.target.value)}
                               style={{ width: '84px', padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                              aria-label="Custom badge color hex"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                          <label htmlFor={`slide-cta-text-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                             CTA Button Text
                           </label>
                           <input
+                            id={`slide-cta-text-${slide.id}`}
+                            name={`slide_cta_text_${slide.id}`}
                             type="text"
                             className="form-control"
                             value={slide.cta_text || ''}
@@ -1029,10 +1040,12 @@ export default function SlideshowEditorModal({
                         </div>
 
                         <div>
-                          <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                          <label htmlFor={`slide-action-tab-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                             Action Target Tab
                           </label>
                           <select
+                            id={`slide-action-tab-${slide.id}`}
+                            name={`slide_action_tab_${slide.id}`}
                             className="form-control"
                             value={slide.action_tab || 'attendance'}
                             onChange={(e) => handleEditField(slide.id, 'action_tab', e.target.value)}
@@ -1047,10 +1060,12 @@ export default function SlideshowEditorModal({
                       {/* Photo Auto-Fit & Alignment Row */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', background: 'rgba(0,0,0,0.2)', padding: '0.75rem', borderRadius: '10px' }}>
                         <div>
-                          <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                          <label htmlFor={`slide-fit-mode-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                             Photo Auto-Fit Mode
                           </label>
                           <select
+                            id={`slide-fit-mode-${slide.id}`}
+                            name={`slide_fit_mode_${slide.id}`}
                             className="form-control"
                             value={slide.fit_mode || 'auto'}
                             onChange={(e) => handleEditField(slide.id, 'fit_mode', e.target.value)}
@@ -1062,10 +1077,12 @@ export default function SlideshowEditorModal({
                         </div>
 
                         <div>
-                          <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                          <label htmlFor={`slide-obj-pos-${slide.id}`} style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                             Focal Positioning
                           </label>
                           <select
+                            id={`slide-obj-pos-${slide.id}`}
+                            name={`slide_obj_pos_${slide.id}`}
                             className="form-control"
                             value={slide.object_position || 'center center'}
                             onChange={(e) => handleEditField(slide.id, 'object_position', e.target.value)}

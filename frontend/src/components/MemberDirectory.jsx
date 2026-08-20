@@ -104,10 +104,13 @@ export default function MemberDirectory({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', flex: '1 1 300px', justifyContent: 'flex-start' }}>
           {/* Role Filter Selector */}
           <select
+            id="member-role-filter"
+            name="role_filter"
             className="form-control"
             style={{ height: '40px', fontSize: '0.85rem', minWidth: '120px', flex: '1 1 auto', padding: '0 0.75rem' }}
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
+            aria-label="Filter members by role"
           >
             <option value="all">All Roles</option>
             <option value="yuvak">Yuvaks Only</option>
@@ -117,6 +120,8 @@ export default function MemberDirectory({
           {/* Search Bar Input */}
           <div style={{ position: 'relative', flex: '2 1 180px', minWidth: '180px', maxWidth: '100%' }}>
             <input
+              id="member-search-input"
+              name="search"
               type="text"
               className="form-control"
               style={{ 
@@ -128,6 +133,7 @@ export default function MemberDirectory({
               placeholder="Search Name, ID, Location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search members by name, ID, or location"
             />
             <Search 
               size={16} 

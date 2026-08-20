@@ -56,8 +56,9 @@ export default function ContentUploadModal({ onClose, onPublish, publishing }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Title / Headline</label>
+            <label htmlFor="upload-content-title">Title / Headline</label>
             <input
+              id="upload-content-title"
               type="text"
               name="title"
               className="form-control"
@@ -69,8 +70,14 @@ export default function ContentUploadModal({ onClose, onPublish, publishing }) {
           </div>
 
           <div className="form-group">
-            <label>Category</label>
-            <select name="category" className="form-control" value={formData.category} onChange={handleChange}>
+            <label htmlFor="upload-content-category">Category</label>
+            <select 
+              id="upload-content-category"
+              name="category" 
+              className="form-control" 
+              value={formData.category} 
+              onChange={handleChange}
+            >
               <option value="announcement">Announcement</option>
               <option value="niyama">Niyama / Vichar of the Week</option>
               <option value="schedule">Sabha Schedule</option>
@@ -78,8 +85,9 @@ export default function ContentUploadModal({ onClose, onPublish, publishing }) {
           </div>
 
           <div className="form-group">
-            <label>Content Description</label>
+            <label htmlFor="upload-content-body">Content Description</label>
             <textarea
+              id="upload-content-body"
               name="content"
               rows="4"
               className="form-control"
@@ -91,8 +99,9 @@ export default function ContentUploadModal({ onClose, onPublish, publishing }) {
           </div>
 
           <div className="form-group">
-            <label>Publishing Author / Team</label>
+            <label htmlFor="upload-content-author">Publishing Author / Team</label>
             <input
+              id="upload-content-author"
               type="text"
               name="author"
               className="form-control"

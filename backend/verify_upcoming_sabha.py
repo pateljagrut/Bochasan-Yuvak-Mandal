@@ -19,7 +19,7 @@ async def main():
     print("[3] Updating schedule as Admin...")
     admin_user = {"username": "vidur.patel", "role": "admin", "full_name": "Patel Vidur"}
     update_req = UpcomingSabhaScheduleRequest(
-        title="Upcoming Shanivariya Sabha - Yuva Chintan",
+        title="Upcoming Saturday Sabha - Yuva Chintan",
         timing="8:30 PM IST",
         venue="Mahant Hall 1st floor",
         description="Inspiring youth session, video presentation, and Mahaprasad.",
@@ -35,7 +35,7 @@ async def main():
     print("Latest title:", latest["schedule"]["title"])
     print("Latest timing:", latest["schedule"]["timing"])
     print("Latest venue:", latest["schedule"]["venue"])
-    assert latest["schedule"]["title"] == "Upcoming Shanivariya Sabha - Yuva Chintan"
+    assert latest["schedule"]["title"] == "Upcoming Saturday Sabha - Yuva Chintan"
     assert latest["schedule"]["timing"] == "8:30 PM IST"
     assert latest["schedule"]["venue"] == "Mahant Hall 1st floor"
 

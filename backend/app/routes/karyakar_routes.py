@@ -340,7 +340,7 @@ async def remove_event_photo(photo_id: str, current_user: dict = Depends(get_cur
 @router.get("/upcoming-sabha")
 async def get_sabha_schedule_admin(current_user: dict = Depends(get_current_user)):
     """
-    Returns the currently configured upcoming Shanivariya Sabha schedule & details.
+    Returns the currently configured upcoming Saturday Sabha schedule & details.
     """
     schedule = get_upcoming_sabha_schedule()
     return {"success": True, "schedule": schedule}
@@ -348,7 +348,7 @@ async def get_sabha_schedule_admin(current_user: dict = Depends(get_current_user
 @router.put("/upcoming-sabha")
 async def update_sabha_schedule_admin(payload: UpcomingSabhaScheduleRequest, current_user: dict = Depends(get_current_user)):
     """
-    Updates the upcoming Shanivariya Sabha schedule (title, date, timing, venue, agenda, target).
+    Updates the upcoming Saturday Sabha schedule (title, date, timing, venue, agenda, target).
     Broadcasts real-time sync event to all connected dashboards.
     """
     update_data = {k: v for k, v in payload.model_dump().items() if v is not None}
@@ -367,7 +367,7 @@ async def update_sabha_schedule_admin(payload: UpcomingSabhaScheduleRequest, cur
 
     return {
         "success": True,
-        "message": "Upcoming Shanivariya Sabha schedule updated successfully!",
+        "message": "Upcoming Saturday Sabha schedule updated successfully!",
         "schedule": saved_schedule
     }
 

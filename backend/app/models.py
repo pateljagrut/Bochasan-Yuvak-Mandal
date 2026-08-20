@@ -85,7 +85,7 @@ class AttendanceMarkRequest(BaseModel):
     Schema for Karyakars to mark sabha attendance for a specific date.
     """
     sabha_date: str = Field(description="Sabha date in YYYY-MM-DD format", examples=["2026-08-02"])
-    sabha_title: Optional[str] = Field(default="Shanivariya Yuvak Sabha", description="Title or theme of the Sabha")
+    sabha_title: Optional[str] = Field(default="Saturday Yuvak Sabha", description="Title or theme of the Sabha")
     present_yuvak_ids: List[str] = Field(default_factory=list, description="List of Yuvak IDs present in this Sabha")
 
 class ContentPostRequest(BaseModel):
@@ -134,16 +134,18 @@ class SlideshowSlide(BaseModel):
     """
     Schema for a single slide in the BAPS Hero Photo Slideshow.
     """
-    id: str = Field(description="Unique slide ID", examples=["slide_1"])
-    image: str = Field(description="Image URL or public path", examples=["/slides/slide1_mandir.jpg"])
-    badge: str = Field(default="Bochasan Mandal", description="Category badge", examples=["Bochasan Tirthdham"])
+    id: str = Field(default="", description="Unique slide ID", examples=["slide_1"])
+    image: str = Field(default="/slides/slide1_mandir.jpg", description="Image URL or public path", examples=["/slides/slide1_mandir.jpg"])
+    badge: Optional[str] = Field(default="Bochasan Mandal", description="Category badge", examples=["Bochasan Tirthdham"])
     badge_color: Optional[str] = Field(default="#ff7a18", description="Badge accent color", examples=["#ff7a18"])
-    title: str = Field(description="Slide heading title", examples=["Bochasan Swaminarayan Akshar Mandir"])
-    subtitle: str = Field(description="Slide description", examples=["The Sacred Foundation of Akshar Purushottam Satsang"])
+    title: Optional[str] = Field(default="Bochasan Swaminarayan Akshar Mandir", description="Slide heading title", examples=["Bochasan Swaminarayan Akshar Mandir"])
+    subtitle: Optional[str] = Field(default="The Sacred Foundation of Akshar Purushottam Satsang", description="Slide description", examples=["The Sacred Foundation of Akshar Purushottam Satsang"])
     cta_text: Optional[str] = Field(default="Explore Portal", description="Button call to action text", examples=["Explore Mandal Portal"])
     action_tab: Optional[str] = Field(default="attendance", description="Target workspace tab", examples=["attendance"])
     order: Optional[int] = Field(default=1, description="Sort display order")
     is_active: Optional[bool] = Field(default=True, description="Whether slide is displayed")
+    fit_mode: Optional[str] = Field(default="auto", description="Image fit: auto, cover, contain")
+    object_position: Optional[str] = Field(default="center center", description="Focal positioning: center center, top center, bottom center")
 
 class SlideshowUpdateRequest(BaseModel):
     """
@@ -153,9 +155,9 @@ class SlideshowUpdateRequest(BaseModel):
 
 class UpcomingSabhaScheduleRequest(BaseModel):
     """
-    Schema for configuring Upcoming Shanivariya Sabha schedule & details.
+    Schema for configuring Upcoming Saturday Sabha schedule & details.
     """
-    title: Optional[str] = Field(default="Upcoming Shanivariya Sabha", examples=["Upcoming Shanivariya Sabha"])
+    title: Optional[str] = Field(default="Upcoming Saturday Sabha", examples=["Upcoming Saturday Sabha"])
     date_str: Optional[str] = Field(default=None, examples=["Saturday, Aug 22, 2026"])
     timing: Optional[str] = Field(default="8:30 PM IST", examples=["8:30 PM IST"])
     venue: Optional[str] = Field(default="Mahant Hall 1st floor", examples=["Mahant Hall 1st floor"])

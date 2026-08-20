@@ -60,7 +60,7 @@ export default function DashboardOverview({
               icon={Award} 
               title="Today's Sabha Status" 
               value="Ready" 
-              description="Saturday Shanivariya Session" 
+              description="Saturday Session" 
               trend="100% Target"
               trendType="up"
               delay={0.15}

@@ -51,19 +51,23 @@ DEFAULT_SLIDESHOW_SLIDES: List[dict] = [
         "cta_text": "Explore Mandal Portal",
         "action_tab": "dashboard",
         "order": 1,
-        "is_active": True
+        "is_active": True,
+        "fit_mode": "auto",
+        "object_position": "center center"
     },
     {
         "id": "2",
         "image": "/slides/slide2_sabha.jpg",
         "badge": "Saturday 8:30 PM",
         "badge_color": "#14b8a6",
-        "title": "Shanivariya Yuvak Sabha",
+        "title": "Saturday Yuvak Sabha",
         "subtitle": "Fostering Youth Leadership, Spiritual Sanskar, Samp, Suhradbhav & Ekta through weekly satsang assemblies",
         "cta_text": "Mark Sabha Attendance",
         "action_tab": "attendance",
         "order": 2,
-        "is_active": True
+        "is_active": True,
+        "fit_mode": "auto",
+        "object_position": "center center"
     },
     {
         "id": "3",
@@ -75,7 +79,9 @@ DEFAULT_SLIDESHOW_SLIDES: List[dict] = [
         "cta_text": "View Niyama & Feeds",
         "action_tab": "content",
         "order": 3,
-        "is_active": True
+        "is_active": True,
+        "fit_mode": "auto",
+        "object_position": "center center"
     },
     {
         "id": "4",
@@ -87,7 +93,9 @@ DEFAULT_SLIDESHOW_SLIDES: List[dict] = [
         "cta_text": "Yuvak Directory",
         "action_tab": "yuvaks",
         "order": 4,
-        "is_active": True
+        "is_active": True,
+        "fit_mode": "auto",
+        "object_position": "center center"
     }
 ]
 
@@ -462,7 +470,7 @@ def get_upcoming_sabha_schedule() -> dict:
     """Retrieves the upcoming Sabha schedule from MongoDB or default configuration."""
     default_schedule: dict = {
         "id": "upcoming_sabha_active",
-        "title": "Upcoming Shanivariya Sabha",
+        "title": "Upcoming Saturday Sabha",
         "date_str": None,
         "timing": "8:30 PM IST",
         "venue": "Mahant Hall 1st floor",

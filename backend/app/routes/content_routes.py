@@ -43,7 +43,7 @@ def get_public_events():
 @router.get("/upcoming-sabha")
 def get_public_upcoming_sabha():
     """
-    Returns the currently configured upcoming Shanivariya Sabha schedule & details.
+    Returns the currently configured upcoming Saturday Sabha schedule & details.
     """
     schedule = get_upcoming_sabha_schedule()
     return {"success": True, "schedule": schedule}

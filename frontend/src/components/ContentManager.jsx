@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -33,10 +33,106 @@ import {
 import SlideshowEditorModal from './SlideshowEditorModal';
 
 /**
+ * Helper to compress and automatically center-crop any image file into a true 16:9 widescreen ratio (e.g. 1920x1080).
+ * Handles wide landscape, panoramic, or group photos seamlessly so they display in pristine 16:9 cinematic quality.
+ */
+function processImageFile(file, maxWidth = 1920, maxHeight = 1080, quality = 0.86) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      reject(new Error('No photo file selected.'));
+      return;
+    }
+
+    const isImage = (file.type && file.type.startsWith('image/')) || /\.(jpe?g|png|webp|gif|bmp|svg|avif)$/i.test(file.name || '');
+    if (!isImage) {
+      reject(new Error('Please select a valid image file (JPG, PNG, WEBP, etc.)'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read image file.'));
+    reader.onload = (e) => {
+      const rawDataUrl = e.target.result;
+      const img = new Image();
+      img.onerror = () => {
+        resolve({
+          dataUrl: rawDataUrl,
+          name: (file.name || 'event_photo').replace(/\.[^/.]+$/, ''),
+          size: file.size || Math.round(rawDataUrl.length * 0.75),
+          width: maxWidth,
+          height: maxHeight
+        });
+      };
+
+      img.onload = () => {
+        const origW = img.naturalWidth || img.width;
+        const origH = img.naturalHeight || img.height;
+        const targetRatio = 16 / 9; // 1.7778 Widescreen Ratio
+        const origRatio = origW / origH;
+
+        let srcX = 0;
+        let srcY = 0;
+        let srcW = origW;
+        let srcH = origH;
+
+        if (origRatio > targetRatio) {
+          // Photo is wider than 16:9 -> center crop horizontal edges
+          srcW = Math.round(origH * targetRatio);
+          srcH = origH;
+          srcX = Math.round((origW - srcW) / 2);
+          srcY = 0;
+        } else if (origRatio < targetRatio) {
+          // Photo is taller than 16:9 -> center crop vertical edges
+          srcW = origW;
+          srcH = Math.round(origW / targetRatio);
+          srcX = 0;
+          srcY = Math.round((origH - srcH) / 2);
+        }
+
+        // Cap final output resolution (1920x1080 max)
+        const finalW = Math.min(srcW, maxWidth);
+        const finalH = Math.round(finalW / targetRatio);
+
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = finalW;
+          canvas.height = finalH;
+          const ctx = canvas.getContext('2d');
+          
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+
+          ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, finalW, finalH);
+
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve({
+            dataUrl,
+            name: (file.name || 'event_photo').replace(/\.[^/.]+$/, ''),
+            size: Math.round(dataUrl.length * 0.75),
+            width: finalW,
+            height: finalH
+          });
+        } catch {
+          resolve({
+            dataUrl: rawDataUrl,
+            name: (file.name || 'event_photo').replace(/\.[^/.]+$/, ''),
+            size: file.size || Math.round(rawDataUrl.length * 0.75),
+            width: maxWidth,
+            height: maxHeight
+          });
+        }
+      };
+      img.src = rawDataUrl;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
  * PhotoModal Component
  * 
  * Interactive modal portaled into document.body allowing Karyakar Admins
- * to upload new or edit existing Utsav & Prasang event photos.
+ * to upload new or edit existing Utsav & Prasang event photos with Drag & Drop.
  */
 function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
   const { token } = useAuth();
@@ -49,36 +145,37 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
     image_url: initialPhoto?.image_url || '',
     author: initialPhoto?.author || 'Bochasan Media Team'
   });
-  const [filePreview, setFilePreview] = useState(null);
+  const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'presets' | 'url'
+  const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Sample HD preset images for quick testing
   const samplePresets = [
     { label: 'Hindola Utsav', url: 'https://images.unsplash.com/photo-1609766857041-ed402ea8069a?q=80&w=800&auto=format&fit=crop' },
-    { label: 'Shanivariya Sabha', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=800&auto=format&fit=crop' },
+    { label: 'Saturday Sabha', url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=800&auto=format&fit=crop' },
     { label: 'Kirtan Evening', url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800&auto=format&fit=crop' },
-    { label: 'Smruti Prasang', url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=800&auto=format&fit=crop' }
+    { label: 'Smruti Prasang', url: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?q=80&w=800&auto=format&fit=crop' },
+    { label: 'Bochasan Mandir', url: '/slides/slide1_mandir.jpg' },
+    { label: 'Darshan Murti', url: '/slides/slide3_darshan.jpg' }
   ];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle local file selection & conversion to Base64 preview
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image file size must be less than 5MB.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFilePreview(reader.result);
-        setFormData({ ...formData, image_url: reader.result });
-      };
-      reader.readAsDataURL(file);
+  const handleProcessFile = async (file) => {
+    if (!file) return;
+    setError(null);
+    try {
+      const res = await processImageFile(file);
+      setFormData(prev => ({
+        ...prev,
+        image_url: res.dataUrl,
+        title: prev.title || res.name.replace(/[-_]/g, ' ')
+      }));
+    } catch (err) {
+      setError(err.message || 'Failed to process image file.');
     }
   };
 
@@ -122,6 +219,24 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
       <div 
         className="modal-overlay"
         onClick={onClose}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.target === e.currentTarget) setIsDragging(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(false);
+          if (e.dataTransfer?.files?.[0]) {
+            handleProcessFile(e.dataTransfer.files[0]);
+          }
+        }}
       >
         <motion.div 
           initial={{ opacity: 0, scale: 0.94, y: 20 }}
@@ -130,16 +245,17 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
           transition={{ duration: 0.25 }}
           className="modal-container"
           style={{
-            maxWidth: '540px',
+            maxWidth: '580px',
             width: '100%',
-            maxHeight: '90vh',
+            maxHeight: '92vh',
             overflowY: 'auto',
             background: 'var(--bg-modal)',
-            borderRadius: '20px',
+            borderRadius: '22px',
             padding: '2rem',
-            border: '1px solid rgba(255, 122, 24, 0.4)',
-            boxShadow: 'var(--shadow-card)',
-            margin: 'auto'
+            border: isDragging ? '2px dashed #ff7a18' : '1px solid rgba(255, 122, 24, 0.4)',
+            boxShadow: isDragging ? '0 0 35px rgba(255,122,24,0.45)' : 'var(--shadow-card)',
+            margin: 'auto',
+            position: 'relative'
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -147,8 +263,8 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{
-                width: '42px',
-                height: '42px',
+                width: '44px',
+                height: '44px',
                 borderRadius: '12px',
                 background: 'rgba(255, 122, 24, 0.15)',
                 border: '1px solid rgba(255, 122, 24, 0.35)',
@@ -157,14 +273,14 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
                 justifyContent: 'center',
                 color: '#ff9b42'
               }}>
-                <ImageIcon size={22} />
+                <ImageIcon size={24} />
               </div>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
                   {isEditing ? 'Edit Event Photo' : 'Upload Event Photo'}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
-                  {isEditing ? 'Update photo details in gallery.' : 'Publish Utsav & Prasang photos to Yuvak Gallery.'}
+                  {isEditing ? 'Update photo details in gallery.' : 'Drag & drop photos or select from device & presets.'}
                 </p>
               </div>
             </div>
@@ -194,13 +310,17 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
               borderRadius: '10px',
               marginBottom: '1rem',
               fontSize: '0.85rem',
-              fontWeight: 500
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
-              ⚠️ {error}
+              <AlertCircle size={16} /> {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            {/* Title */}
             <div className="form-group" style={{ margin: 0 }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
                 Event Title / Headline
@@ -216,6 +336,7 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
               />
             </div>
 
+            {/* Date & Category */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="form-group" style={{ margin: 0 }}>
                 <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
@@ -249,92 +370,251 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
               </div>
             </div>
 
-            {/* Photo URL or Local File Upload */}
-            <div className="form-group" style={{ margin: 0 }}>
-              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
-                Image File Upload or Direct URL
-              </label>
+            {/* Photo Selection Tabs & Dropzone */}
+            <div style={{ background: 'rgba(15, 23, 42, 0.45)', padding: '1rem', borderRadius: '14px', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <ImageIcon size={16} color="#ff7a18" /> Event Photo Source
+                </label>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                <input
-                  type="url"
-                  name="image_url"
-                  className="form-control"
-                  placeholder="Paste HD Image URL (https://...)"
-                  value={filePreview ? '[Uploaded File Loaded]' : formData.image_url}
-                  onChange={(e) => {
-                    setFilePreview(null);
-                    handleChange(e);
+                <div style={{ display: 'flex', gap: '0.3rem', background: 'rgba(0,0,0,0.3)', padding: '3px', borderRadius: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('upload')}
+                    style={{
+                      background: activeTab === 'upload' ? 'rgba(255,122,24,0.25)' : 'none',
+                      border: activeTab === 'upload' ? '1px solid #ff7a18' : 'none',
+                      color: activeTab === 'upload' ? '#ffffff' : 'var(--text-muted)',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '6px',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}
+                  >
+                    <UploadCloud size={13} /> Upload / Drop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('presets')}
+                    style={{
+                      background: activeTab === 'presets' ? 'rgba(255,122,24,0.25)' : 'none',
+                      border: activeTab === 'presets' ? '1px solid #ff7a18' : 'none',
+                      color: activeTab === 'presets' ? '#ffffff' : 'var(--text-muted)',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '6px',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}
+                  >
+                    <Sparkles size={13} /> Presets
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('url')}
+                    style={{
+                      background: activeTab === 'url' ? 'rgba(255,122,24,0.25)' : 'none',
+                      border: activeTab === 'url' ? '1px solid #ff7a18' : 'none',
+                      color: activeTab === 'url' ? '#ffffff' : 'var(--text-muted)',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '6px',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}
+                  >
+                    Direct URL
+                  </button>
+                </div>
+              </div>
+
+              {/* TAB 1: Drag & Drop / Device Upload */}
+              {activeTab === 'upload' && (
+                <label
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.currentTarget.style.borderColor = '#ff7a18';
+                    e.currentTarget.style.background = 'rgba(255,122,24,0.12)';
                   }}
-                />
-
-                {/* Drag and Drop File Input Box */}
-                <label style={{
-                  border: '2px dashed var(--border-subtle)',
-                  borderRadius: '12px',
-                  padding: '1.25rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  background: 'rgba(15, 23, 42, 0.4)',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}>
-                  <UploadCloud size={24} color="#ff9b42" />
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    Or click to browse photo file from device
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.currentTarget.style.borderColor = 'var(--primary-border)';
+                    e.currentTarget.style.background = 'rgba(15, 23, 42, 0.4)';
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.currentTarget.style.borderColor = 'var(--primary-border)';
+                    e.currentTarget.style.background = 'rgba(15, 23, 42, 0.4)';
+                    if (e.dataTransfer?.files?.[0]) {
+                      handleProcessFile(e.dataTransfer.files[0]);
+                    }
+                  }}
+                  style={{
+                    border: '2px dashed var(--primary-border)',
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    background: 'rgba(15, 23, 42, 0.4)',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.4rem'
+                  }}
+                >
+                  <UploadCloud size={28} color="#ff9b42" />
+                  <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    Drag & drop event photo here, or click to browse
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Supports JPG, PNG, WEBP • Full HD compression included
                   </span>
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={handleFileChange}
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        handleProcessFile(e.target.files[0]);
+                        e.target.value = '';
+                      }
+                    }}
                     style={{ display: 'none' }}
                   />
                 </label>
-              </div>
+              )}
 
-              {/* Sample Presets Quick Click */}
-              <div style={{ marginTop: '0.75rem' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.4rem' }}>
-                  Or select a sample preset photo:
-                </span>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+              {/* TAB 2: Sample Presets */}
+              {activeTab === 'presets' && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.5rem' }}>
                   {samplePresets.map((preset, idx) => (
                     <button
                       key={idx}
                       type="button"
-                      className="btn btn-secondary"
-                      style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: '28px' }}
                       onClick={() => {
-                        setFilePreview(null);
                         setFormData({ ...formData, image_url: preset.url, title: formData.title || preset.label });
                       }}
+                      style={{
+                        background: formData.image_url === preset.url ? 'rgba(255,122,24,0.2)' : 'rgba(15, 23, 42, 0.6)',
+                        border: formData.image_url === preset.url ? '1.5px solid #ff7a18' : '1px solid var(--border-subtle)',
+                        borderRadius: '8px',
+                        padding: '0.4rem',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.25rem'
+                      }}
                     >
-                      + {preset.label}
+                      <img src={preset.url} alt={preset.label} style={{ width: '100%', height: '56px', objectFit: 'cover', borderRadius: '4px' }} />
+                      <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {preset.label}
+                      </span>
                     </button>
                   ))}
                 </div>
-              </div>
+              )}
+
+              {/* TAB 3: Direct URL */}
+              {activeTab === 'url' && (
+                <input
+                  type="url"
+                  name="image_url"
+                  className="form-control"
+                  placeholder="Paste direct HD image URL (https://...)"
+                  value={formData.image_url.startsWith('data:') ? '[Uploaded File Loaded]' : formData.image_url}
+                  onChange={(e) => handleChange(e)}
+                  style={{ fontSize: '0.85rem' }}
+                />
+              )}
+
+              {/* Image Preview Box (16:9 Widescreen Aspect Ratio) */}
+              {formData.image_url && (
+                <div style={{
+                  marginTop: '0.75rem',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  aspectRatio: '16 / 9',
+                  maxHeight: '260px',
+                  margin: '0.75rem auto 0 auto',
+                  border: '1px solid var(--primary-border)',
+                  position: 'relative',
+                  background: '#000',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)'
+                }}>
+                  <img
+                    src={formData.image_url}
+                    alt="Preview"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 40%, rgba(0,0,0,0.85) 100%)',
+                    pointerEvents: 'none'
+                  }} />
+                  <span className="badge badge-admin" style={{ position: 'absolute', top: '8px', left: '8px', fontSize: '0.7rem', zIndex: 2 }}>
+                    16:9 HD Preview: {formData.category}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image_url: '' })}
+                    style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      background: 'rgba(0,0,0,0.75)',
+                      border: 'none',
+                      color: '#ffffff',
+                      borderRadius: '50%',
+                      width: '26px',
+                      height: '26px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      zIndex: 2
+                    }}
+                    title="Remove Photo"
+                  >
+                    <X size={14} />
+                  </button>
+                  {formData.title && (
+                    <div style={{ position: 'absolute', bottom: '8px', left: '8px', right: '8px', color: '#fff', fontSize: '0.8rem', fontWeight: 700, zIndex: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {formData.title}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Image Preview Box */}
-            {(formData.image_url || filePreview) && (
-              <div style={{ borderRadius: '12px', overflow: 'hidden', height: '160px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
-                <img
-                  src={formData.image_url}
-                  alt="Preview"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <span className="badge badge-admin" style={{ position: 'absolute', top: '8px', left: '8px', fontSize: '0.7rem' }}>
-                  Preview: {formData.category}
-                </span>
-              </div>
-            )}
+            {/* Author */}
+            <div className="form-group" style={{ margin: 0 }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.35rem', display: 'block' }}>
+                Publishing Author / Media Team
+              </label>
+              <input
+                type="text"
+                name="author"
+                className="form-control"
+                value={formData.author}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
             {/* Submit Action */}
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -347,7 +627,7 @@ function PhotoModal({ initialPhoto = null, onClose, onSaveSuccess }) {
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                style={{ flex: 1, padding: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 700 }}
                 disabled={loading}
               >
                 {loading ? <Loader2 size={18} className="animate-spin" /> : (isEditing ? <Save size={18} /> : <Sparkles size={18} />)}
@@ -568,10 +848,51 @@ export default function ContentManager({
   const [deletingPhotoId, setDeletingPhotoId] = useState(null);
   const [deletingFeedId, setDeletingFeedId] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [isGalleryDragging, setIsGalleryDragging] = useState(false);
+  const [batchUploading, setBatchUploading] = useState(false);
+  const [viewingPhoto, setViewingPhoto] = useState(null);
+
+  const galleryFileInputRef = useRef(null);
 
   const showNotify = (msg, type = 'success') => {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 4000);
+  };
+
+  // Batch upload multiple photos dropped on gallery view
+  const handleBatchPhotoUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (validFiles.length === 0) {
+      showNotify('⚠️ Please select valid image files (JPG, PNG, WEBP).', 'error');
+      return;
+    }
+
+    setBatchUploading(true);
+    let successCount = 0;
+    try {
+      for (const file of validFiles) {
+        const compressed = await processImageFile(file);
+        const photoPayload = {
+          title: compressed.name.replace(/[-_]/g, ' ') || 'Event Photo',
+          event_date: new Date().toISOString().split('T')[0],
+          category: selectedCategory !== 'All' ? selectedCategory : 'Utsav',
+          image_url: compressed.dataUrl,
+          author: 'Bochasan Media Team'
+        };
+        const res = await postEventPhotoApi(photoPayload, token);
+        if (res && res.success) {
+          successCount++;
+        }
+      }
+      showNotify(`✅ Successfully uploaded ${successCount} photo(s) to Gallery!`);
+      loadPhotos();
+      if (onRefreshContent) onRefreshContent();
+    } catch (err) {
+      showNotify(`❌ Error uploading photos: ${err.message}`, 'error');
+    } finally {
+      setBatchUploading(false);
+    }
   };
 
   // Sync photos when parent passes updated props
@@ -868,6 +1189,72 @@ export default function ContentManager({
             </button>
           </div>
 
+          {/* Quick Multi-Photo Drag & Drop Zone */}
+          <div
+            onClick={() => galleryFileInputRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsGalleryDragging(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (e.target === e.currentTarget) setIsGalleryDragging(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsGalleryDragging(false);
+              if (e.dataTransfer?.files) {
+                handleBatchPhotoUpload(e.dataTransfer.files);
+              }
+            }}
+            style={{
+              border: isGalleryDragging ? '2px dashed #ff7a18' : '2px dashed var(--primary-border)',
+              background: isGalleryDragging ? 'rgba(255, 122, 24, 0.15)' : 'rgba(255, 122, 24, 0.05)',
+              borderRadius: '16px',
+              padding: '1.25rem',
+              marginBottom: '1.5rem',
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.4rem',
+              boxShadow: isGalleryDragging ? '0 0 25px rgba(255,122,24,0.35)' : 'none'
+            }}
+          >
+            <input
+              ref={galleryFileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                if (e.target.files) {
+                  handleBatchPhotoUpload(e.target.files);
+                  e.target.value = '';
+                }
+              }}
+            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              {batchUploading ? (
+                <Loader2 size={24} className="animate-spin" color="#ff7a18" />
+              ) : (
+                <UploadCloud size={24} color="#ff7a18" />
+              )}
+              <span style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                {batchUploading ? 'Optimizing & Uploading Photos to Gallery...' : '📸 Drag & Drop Event Photos here to upload instantly'}
+              </span>
+            </div>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              Supports single or multiple HD photos (JPG, PNG, WEBP) • Automatic Full HD optimization
+            </span>
+          </div>
+
           {/* Category Filter Pills Bar */}
           <div 
             className="touch-scroll"
@@ -906,122 +1293,126 @@ export default function ContentManager({
               <p style={{ fontSize: '0.85rem', margin: 0 }}>Click "+ Upload Event Photos" above to add photos to the gallery.</p>
             </div>
           ) : (
-            <div 
-              style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 250px), 1fr))', 
-                gap: '1.25rem' 
-              }}
-            >
+            <div className="photo-gallery-grid-9-16">
               {filteredPhotos.map((photo) => (
                 <motion.div
                   key={photo.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.25 }}
-                  style={{
-                    background: 'rgba(15, 23, 42, 0.7)',
-                    borderRadius: '16px',
-                    border: '1px solid var(--border-subtle)',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    boxShadow: '0 8px 24px -4px rgba(0, 0, 0, 0.5)',
-                    transition: 'transform 0.25s ease, border-color 0.25s ease'
-                  }}
-                  className="photo-card-item"
+                  className="photo-story-card"
+                  onClick={() => setViewingPhoto(photo)}
+                  style={{ cursor: 'pointer' }}
                 >
-                  {/* Image Container with Zoom Hover Effect */}
-                  <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
-                    <img
-                      src={photo.image_url}
-                      alt={photo.title}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.35s ease'
+                  {/* Full-Bleed 9:16 Image */}
+                  <img
+                    src={photo.image_url}
+                    alt={photo.title}
+                    loading="lazy"
+                  />
+
+                  {/* Gradient Overlay */}
+                  <div className="photo-story-overlay" />
+                  
+                  {/* Category Badge Top Left */}
+                  <span 
+                    className="badge badge-admin" 
+                    style={{ 
+                      position: 'absolute', 
+                      top: '10px', 
+                      left: '10px', 
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      zIndex: 3,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.6)'
+                    }}
+                  >
+                    {photo.category || 'Event'}
+                  </span>
+
+                  {/* Top Right Action Buttons: Edit & Delete */}
+                  <div 
+                    style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '0.35rem', zIndex: 3 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => {
+                        setEditingPhoto(photo);
+                        setShowPhotoModal(true);
                       }}
-                    />
-                    
-                    {/* Category Badge Top Left */}
-                    <span 
-                      className="badge badge-admin" 
-                      style={{ 
-                        position: 'absolute', 
-                        top: '10px', 
-                        left: '10px', 
-                        fontSize: '0.7rem',
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '50%',
+                        background: 'rgba(15, 23, 42, 0.85)',
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(59, 130, 246, 0.5)',
+                        color: '#60a5fa',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
                       }}
+                      title="Edit Photo"
                     >
-                      {photo.category || 'Event'}
-                    </span>
+                      <Edit3 size={13} />
+                    </button>
 
-                    {/* Top Right Action Buttons: Edit & Delete */}
-                    <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '0.4rem' }}>
-                      <button
-                        onClick={() => {
-                          setEditingPhoto(photo);
-                          setShowPhotoModal(true);
-                        }}
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          background: 'rgba(15, 23, 42, 0.85)',
-                          border: '1px solid rgba(59, 130, 246, 0.5)',
-                          color: '#60a5fa',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
-                        }}
-                        title="Edit Photo"
-                      >
-                        <Edit3 size={14} />
-                      </button>
-
-                      <button
-                        onClick={() => handleDeletePhoto(photo.id, photo.title)}
-                        disabled={deletingPhotoId === photo.id}
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          background: 'rgba(15, 23, 42, 0.85)',
-                          border: '1px solid rgba(239, 68, 68, 0.5)',
-                          color: '#f87171',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
-                        }}
-                        title="Delete Photo"
-                      >
-                        {deletingPhotoId === photo.id ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          <Trash2 size={14} />
-                        )}
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleDeletePhoto(photo.id, photo.title)}
+                      disabled={deletingPhotoId === photo.id}
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '50%',
+                        background: 'rgba(15, 23, 42, 0.85)',
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(239, 68, 68, 0.5)',
+                        color: '#f87171',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                      }}
+                      title="Delete Photo"
+                    >
+                      {deletingPhotoId === photo.id ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={13} />
+                      )}
+                    </button>
                   </div>
 
-                  {/* Photo Card Body Info */}
-                  <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem', lineHeight: 1.3 }}>
+                  {/* Bottom Story Content Info */}
+                  <div className="photo-story-content">
+                    <h4 style={{ 
+                      fontSize: '0.92rem', 
+                      fontWeight: 800, 
+                      color: '#ffffff', 
+                      margin: 0, 
+                      lineHeight: 1.3,
+                      textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}>
                       {photo.title}
                     </h4>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 'auto' }}>
-                      <Calendar size={14} color="#ff9b42" />
-                      <span>{photo.event_date || 'Recent Event'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', color: 'rgba(255,255,255,0.8)', marginTop: '0.2rem' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <Calendar size={12} color="#ff9b42" />
+                        {photo.event_date || 'Recent Event'}
+                      </span>
+                      <span style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.6)' }}>
+                        16:9 HD
+                      </span>
                     </div>
                   </div>
                 </motion.div>
@@ -1029,6 +1420,99 @@ export default function ContentManager({
             </div>
           )}
         </motion.div>
+      )}
+
+      {/* Full-Screen 16:9 Widescreen Lightbox Modal */}
+      {viewingPhoto && (
+        <div 
+          className="modal-overlay"
+          onClick={() => setViewingPhoto(null)}
+          style={{ zIndex: 1100, background: 'rgba(0, 0, 0, 0.88)', backdropFilter: 'blur(16px)', padding: '1rem' }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '860px',
+              aspectRatio: '16 / 9',
+              maxHeight: '85vh',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(255,122,24,0.3)',
+              border: '1.5px solid rgba(255, 122, 24, 0.5)',
+              background: '#000000',
+              margin: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end'
+            }}
+          >
+            <img 
+              src={viewingPhoto.image_url} 
+              alt={viewingPhoto.title}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
+
+            {/* Top Close Button & Badge */}
+            <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 5 }}>
+              <span className="badge badge-admin" style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', fontWeight: 700, boxShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
+                {viewingPhoto.category || 'Event'} • 16:9 HD
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setViewingPhoto(null)}
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Bottom Info Overlay */}
+            <div style={{
+              position: 'relative',
+              zIndex: 3,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 60%, transparent 100%)',
+              padding: '1.75rem 1.5rem 1.25rem 1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.35rem'
+            }}>
+              <h3 style={{ color: '#ffffff', fontSize: '1.25rem', fontWeight: 800, margin: 0, lineHeight: 1.3, textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}>
+                {viewingPhoto.title}
+              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)', fontSize: '0.82rem', marginTop: '0.2rem' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Calendar size={14} color="#ff9b42" />
+                  {viewingPhoto.event_date || 'Recent Event'}
+                </span>
+                <span>By: {viewingPhoto.author || 'Bochasan Media Team'}</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       )}
 
       {/* MODULE 3: BAPS Hero Slideshow Manager */}

@@ -39,13 +39,13 @@ function getNextSaturdayTarget() {
 const DEFAULT_NEWS_ITEMS = [
   {
     id: 1,
-    title: 'Shanivariya Yuvak Sabha: "Samp, Suhradbhav & Ekta"',
+    title: 'Saturday Yuvak Sabha: "Samp, Suhradbhav & Ekta"',
     category: 'Youth Sabha',
     date: 'Saturday, Aug 22, 2026',
     author: 'Bochasan Yuvak Mandal',
     badgeColor: '#ff7a18',
     summary: 'Weekly youth assembly focusing on spiritual discourses, leadership development, interactive group discussions, and traditional Mahaprasad.',
-    details: 'Jai Swaminarayan! All Yuvaks are cordially invited to join this week\'s Shanivariya Yuvak Sabha at Bochasan Mandir. Key highlights include discourse on "Samp Ane Ekta" from Vachanamrut Gadhada I-68, inspirational video presentation, and leadership guidance for upcoming mandir celebrations.'
+    details: 'Jai Swaminarayan! All Yuvaks are cordially invited to join this week\'s Saturday Yuvak Sabha at Bochasan Mandir. Key highlights include discourse on "Samp Ane Ekta" from Vachanamrut Gadhada I-68, inspirational video presentation, and leadership guidance for upcoming mandir celebrations.'
   },
   {
     id: 2,
@@ -296,7 +296,7 @@ export default function BapsHomeSection({
       </div>
 
       {/* =========================================================================
-          SECTION 2: UPCOMING SHANIVARIYA SABHA & LIVE COUNTDOWN
+          SECTION 2: UPCOMING SATURDAY SABHA & LIVE COUNTDOWN
           ========================================================================= */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
@@ -318,7 +318,7 @@ export default function BapsHomeSection({
           {/* Left Column: Sabha Details */}
           <div>
             <h3 style={{ fontSize: 'clamp(1.35rem, 3.5vw, 1.9rem)', fontWeight: 800, margin: '0 0 0.6rem 0', color: 'var(--text-orange)' }}>
-              Shanivariya Yuvak Sabha • Bochasan
+              Saturday Yuvak Sabha • Bochasan
             </h3>
 
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.55, margin: '0 0 1.25rem 0' }}>

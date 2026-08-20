@@ -72,7 +72,7 @@ function getDefaultSaturdayInfo() {
   });
 
   return {
-    title: 'Upcoming Shanivariya Sabha',
+    title: 'Upcoming Saturday Sabha',
     date: formattedDate,
     iso: nextSat.toISOString().split('T')[0],
     timing: '8:30 PM IST',
@@ -103,7 +103,7 @@ function CustomBarTooltip({ active, payload, label }) {
           <Calendar size={13} /> {data.displayDate}
         </div>
         <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-          {data.title || 'Shanivariya Yuvak Sabha'}
+          {data.title || 'Saturday Yuvak Sabha'}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
@@ -195,7 +195,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
 
   const handleOpenEditModal = () => {
     setEditFormData({
-      title: sabhaSchedule.title || 'Upcoming Shanivariya Sabha',
+      title: sabhaSchedule.title || 'Upcoming Saturday Sabha',
       date_str: sabhaSchedule.date || defaultSchedule.date,
       timing: sabhaSchedule.timing || '8:30 PM IST',
       venue: sabhaSchedule.venue || 'Mahant Hall 1st floor',
@@ -261,7 +261,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
       return {
         date: session.sabha_date,
         displayDate,
-        title: session.sabha_title || `Shanivariya Sabha #${index + 1}`,
+        title: session.sabha_title || `Saturday Sabha #${index + 1}`,
         present: presentCount,
         absent: absentCount,
         total: totalForSession,
@@ -390,7 +390,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
             {totalSabhasCount}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-            Shanivariya Sessions Recorded
+            Saturday Sessions Recorded
           </div>
         </div>
 
@@ -485,7 +485,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Sparkles size={20} color="#ff7a18" />
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>{sabhaSchedule.title || 'Upcoming Shanivariya Sabha'}</h3>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>{sabhaSchedule.title || 'Upcoming Saturday Sabha'}</h3>
               </div>
               {isAdmin && (
                 <button
@@ -638,7 +638,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>📜 Saturday Sabha History Log</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>All recorded Shanivariya Sabha sessions with headcounts and attendance rates</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>All recorded Saturday Sabha sessions with headcounts and attendance rates</p>
           </div>
           <span className="badge badge-admin">{sessions.length} Recorded Sessions</span>
         </div>
@@ -672,7 +672,7 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                         {displayDate}
                       </td>
                       <td style={{ color: 'var(--text-primary)' }}>
-                        {session.sabha_title || 'Shanivariya Yuvak Sabha'}
+                        {session.sabha_title || 'Saturday Yuvak Sabha'}
                       </td>
                       <td>
                         <strong>{presentCount}</strong> / {total} Yuvaks

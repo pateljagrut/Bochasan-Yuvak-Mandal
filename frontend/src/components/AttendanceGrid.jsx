@@ -14,7 +14,7 @@ function getClosestSaturdayIso() {
 
 export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving = false }) {
   const [sabhaDate, setSabhaDate] = useState(getClosestSaturdayIso());
-  const [sabhaTitle, setSabhaTitle] = useState('Shanivariya Yuvak Sabha');
+  const [sabhaTitle, setSabhaTitle] = useState('Saturday Yuvak Sabha');
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [presentMap, setPresentMap] = useState({});
@@ -131,7 +131,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
             <input
               type="text"
               className="form-control"
-              placeholder="e.g. Shanivariya Yuvak Sabha - Niyama Orientation"
+              placeholder="e.g. Saturday Yuvak Sabha - Niyama Orientation"
               value={sabhaTitle}
               onChange={(e) => setSabhaTitle(e.target.value)}
               required

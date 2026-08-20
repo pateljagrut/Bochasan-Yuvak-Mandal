@@ -27,7 +27,8 @@ import {
   BarChart3,
   Sparkles,
   ShieldCheck,
-  Zap
+  Zap,
+  X
 } from 'lucide-react';
 
 /* =========================================================================================
@@ -140,7 +141,7 @@ function SabhaAttendanceTracker({ metrics, p }) {
                 {metrics.attendance_history.map((record, idx) => (
                   <tr key={idx}>
                     <td style={{ fontWeight: 600, padding: '0.85rem 1rem', color: 'var(--text-primary)' }}>{record.sabha_date} (Sat)</td>
-                    <td style={{ padding: '0.85rem 1rem', color: 'var(--text-secondary)' }}>{record.sabha_title || 'Shanivariya Yuvak Sabha'}</td>
+                    <td style={{ padding: '0.85rem 1rem', color: 'var(--text-secondary)' }}>{record.sabha_title || 'Saturday Yuvak Sabha'}</td>
                     <td style={{ textAlign: 'right', padding: '0.85rem 1rem' }}>
                       <span style={{
                         padding: '0.25rem 0.75rem',
@@ -214,7 +215,7 @@ function YuvakAnalytics({ metrics }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.35rem' }}>
-                <span>Monthly Shanivariya Goal</span>
+                <span>Monthly Saturday Goal</span>
                 <span style={{ fontWeight: 700, color: 'var(--text-orange)' }}>{metrics.attendance_percentage}% Achieved</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--border-subtle)', borderRadius: '999px', overflow: 'hidden' }}>
@@ -233,6 +234,8 @@ function YuvakAnalytics({ metrics }) {
  * Renders mandal announcements, Niyama updates, and Utsav photo gallery.
  * ========================================================================================= */
 function SatsangContentFeed({ feeds, photos }) {
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }} 
@@ -275,52 +278,179 @@ function SatsangContentFeed({ feeds, photos }) {
         )}
       </div>
 
-      {/* Utsav Photo Gallery */}
+      {/* Utsav & Prasang 16:9 Photo Gallery (BAPS Widescreen Style) */}
       <div className="glass-card" style={{ borderRadius: '20px', padding: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.85rem' }}>
-          <ImageIcon size={20} color="#ff7a18" />
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            Utsav & Prasang Photo Gallery
-          </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <ImageIcon size={20} color="#ff7a18" />
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+              Utsav & Prasang Photo Gallery
+            </h3>
+          </div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+            16:9 HD Gallery • {photos.length} Photos
+          </span>
         </div>
 
         {photos.length === 0 ? (
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>No event photos available in gallery.</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.25rem' }}>
+          <div className="photo-gallery-grid-16-9">
             {photos.map((photo, idx) => (
-              <div key={idx} style={{
-                background: 'var(--bg-stat-box)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '14px',
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                boxShadow: 'var(--shadow-sm)'
-              }}>
-                <div style={{ height: '140px', overflow: 'hidden', position: 'relative' }}>
-                  <img 
-                    src={photo.image_url} 
-                    alt={photo.title} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  />
-                  <span className="badge badge-admin" style={{ position: 'absolute', top: '8px', left: '8px', fontSize: '0.65rem' }}>
-                    {photo.category || 'Event'}
-                  </span>
-                </div>
-                <div style={{ padding: '0.85rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <h5 style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.3rem 0', lineHeight: 1.3 }}>
+              <motion.div
+                key={photo.id || idx}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.25 }}
+                className="photo-banner-card"
+                onClick={() => setSelectedPhoto(photo)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Full Bleed 16:9 Widescreen Image */}
+                <img 
+                  src={photo.image_url} 
+                  alt={photo.title} 
+                  loading="lazy"
+                />
+
+                {/* Cinematic Gradient Overlay */}
+                <div className="photo-story-overlay" />
+
+                {/* Category Badge Top Left */}
+                <span 
+                  className="badge badge-admin" 
+                  style={{ 
+                    position: 'absolute', 
+                    top: '10px', 
+                    left: '10px', 
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    zIndex: 3,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.6)'
+                  }}
+                >
+                  {photo.category || 'Event'}
+                </span>
+
+                {/* Bottom Story Title & Date Info */}
+                <div className="photo-story-content">
+                  <h5 style={{ 
+                    fontSize: '0.92rem', 
+                    fontWeight: 800, 
+                    color: '#ffffff', 
+                    margin: 0, 
+                    lineHeight: 1.3,
+                    textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
                     {photo.title}
                   </h5>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 'auto' }}>
+                  <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.15rem' }}>
+                    <Calendar size={12} color="#ff9b42" />
                     {photo.event_date || 'Recent Event'}
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Full-Screen 16:9 Widescreen Lightbox Viewer for Yuvaks */}
+      {selectedPhoto && (
+        <div 
+          className="modal-overlay"
+          onClick={() => setSelectedPhoto(null)}
+          style={{ zIndex: 1100, background: 'rgba(0, 0, 0, 0.88)', backdropFilter: 'blur(16px)', padding: '1rem' }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '860px',
+              aspectRatio: '16 / 9',
+              maxHeight: '85vh',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(255,122,24,0.3)',
+              border: '1.5px solid rgba(255, 122, 24, 0.5)',
+              background: '#000000',
+              margin: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end'
+            }}
+          >
+            <img 
+              src={selectedPhoto.image_url} 
+              alt={selectedPhoto.title}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
+
+            {/* Top Close Button & Badge */}
+            <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 5 }}>
+              <span className="badge badge-admin" style={{ padding: '0.35rem 0.85rem', fontSize: '0.75rem', fontWeight: 700, boxShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
+                {selectedPhoto.category || 'Event'} • 16:9 HD
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setSelectedPhoto(null)}
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Bottom Info Overlay */}
+            <div style={{
+              position: 'relative',
+              zIndex: 3,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 60%, transparent 100%)',
+              padding: '1.75rem 1.5rem 1.25rem 1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.35rem'
+            }}>
+              <h3 style={{ color: '#ffffff', fontSize: '1.25rem', fontWeight: 800, margin: 0, lineHeight: 1.3, textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}>
+                {selectedPhoto.title}
+              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'rgba(255,255,255,0.85)', fontSize: '0.82rem', marginTop: '0.2rem' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Calendar size={14} color="#ff9b42" />
+                  {selectedPhoto.event_date || 'Recent Event'}
+                </span>
+                <span>By: {selectedPhoto.author || 'Bochasan Media Team'}</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }

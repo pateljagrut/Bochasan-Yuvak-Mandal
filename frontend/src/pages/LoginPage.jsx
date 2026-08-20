@@ -89,44 +89,32 @@ export default function LoginPage({ onNavigateRegister }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: '1rem' }}>
-            <label 
-              htmlFor="login-identifier" 
-              style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}
-            >
+            <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
               Yuvak ID / Mobile No / Username
             </label>
             <input
-              id="login-identifier"
-              name="identifier"
               type="text"
               className="form-control"
               placeholder="e.g. DHE2712, 7096617464, or vidur.patel"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              autoComplete="username"
               required
               autoFocus
             />
           </div>
 
           <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-            <label 
-              htmlFor="login-password" 
-              style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}
-            >
+            <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
               Password
             </label>
             <div style={{ position: 'relative' }}>
               <input
-                id="login-password"
-                name="password"
                 type={showPassword ? 'text' : 'password'}
                 className="form-control"
                 style={{ paddingRight: '2.5rem' }}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
                 required
               />
               <button

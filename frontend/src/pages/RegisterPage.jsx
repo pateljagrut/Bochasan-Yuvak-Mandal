@@ -98,24 +98,21 @@ export default function RegisterPage({ onNavigateLogin }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="register-fullname">Full Name</label>
+            <label>Full Name</label>
             <input
-              id="register-fullname"
               type="text"
               name="full_name"
               className="form-control"
               placeholder="e.g. Rohan Patel"
               value={formData.full_name}
               onChange={handleChange}
-              autoComplete="name"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-mobile">10-Digit Mobile Number</label>
+            <label>10-Digit Mobile Number</label>
             <input
-              id="register-mobile"
               type="tel"
               name="mobile_no"
               className="form-control"
@@ -124,7 +121,6 @@ export default function RegisterPage({ onNavigateLogin }) {
               onChange={handleChange}
               maxLength="10"
               pattern="[0-9]{10}"
-              autoComplete="tel"
               required
             />
             <span style={{ fontSize: '0.7rem', color: 'var(--text-orange)', marginTop: '0.25rem', display: 'block' }}>
@@ -133,15 +129,13 @@ export default function RegisterPage({ onNavigateLogin }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-dob">Date of Birth</label>
+            <label>Date of Birth</label>
             <input
-              id="register-dob"
               type="date"
               name="dob"
               className="form-control"
               value={formData.dob}
               onChange={handleChange}
-              autoComplete="bday"
               required
             />
             <span style={{ fontSize: '0.7rem', color: 'var(--text-orange)', marginTop: '0.25rem', display: 'block' }}>
@@ -150,16 +144,14 @@ export default function RegisterPage({ onNavigateLogin }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="register-location">Mandal Center / Location</label>
+            <label>Mandal Center / Location</label>
             <input
-              id="register-location"
               type="text"
               name="location"
               className="form-control"
               placeholder="e.g. Bochasan"
               value={formData.location}
               onChange={handleChange}
-              autoComplete="address-level2"
               required
             />
           </div>

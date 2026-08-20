@@ -61,57 +61,49 @@ export default function ProfileEditorModal({ yuvak, onClose, onSave, saving }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="edit-profile-fullname">Full Name</label>
+            <label>Full Name</label>
             <input
-              id="edit-profile-fullname"
               type="text"
               name="full_name"
               className="form-control"
               value={formData.full_name}
               onChange={handleChange}
-              autoComplete="name"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="edit-profile-mobile">Mobile Number</label>
+            <label>Mobile Number</label>
             <input
-              id="edit-profile-mobile"
               type="tel"
               name="mobile_no"
               className="form-control"
               value={formData.mobile_no}
               onChange={handleChange}
-              autoComplete="tel"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="edit-profile-dob">Date of Birth</label>
+            <label>Date of Birth</label>
             <input
-              id="edit-profile-dob"
               type="date"
               name="dob"
               className="form-control"
               value={formData.dob}
               onChange={handleChange}
-              autoComplete="bday"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="edit-profile-location">Mandal Location</label>
+            <label>Mandal Location</label>
             <input
-              id="edit-profile-location"
               type="text"
               name="location"
               className="form-control"
               value={formData.location}
               onChange={handleChange}
-              autoComplete="address-level2"
               required
             />
           </div>

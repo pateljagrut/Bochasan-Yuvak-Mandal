@@ -6,12 +6,12 @@ and Unified Smart Login query routing based on MongoDB user roles.
 """
 
 import re
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status
 from datetime import datetime
 
 from app.models import YuvakRegisterRequest, YuvakRegisterResponse, LoginRequest, LoginResponse
 from app.db import find_user_by_identifier, insert_user
-from app.auth import verify_password, create_access_token, get_current_user
+from app.auth import verify_password, create_access_token
 from app.websocket_manager import ws_manager
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -34,7 +34,7 @@ def generate_yuvak_id(full_name: str, dob: str = "", mobile_no: str = "") -> str
     # Extract DDMM from DOB
     suffix = ""
     if dob:
-        dob_str = dob.strip()
+        dob_str = str(dob).strip()
         # Check YYYY-MM-DD or YYYY/MM/DD
         match_ymd = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})", dob_str)
         if match_ymd:
@@ -150,7 +150,7 @@ def smart_login(payload: LoginRequest):
 
     # Validate password match
     stored_password = user.get("password")
-    if not isinstance(stored_password, str) or not verify_password(password, stored_password):
+    if not verify_password(password, stored_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials: Incorrect password."
@@ -182,22 +182,3 @@ def smart_login(payload: LoginRequest):
         role=user_role,
         user=user_data
     )
-
-@router.get("/verify")
-def verify_token(current_user: dict = Depends(get_current_user)):
-    """
-    Verifies that the caller's JWT token is valid and active.
-    Returns the sanitized user document and role.
-    """
-    user_data = current_user.copy()
-    user_data.pop("password", None)
-    if "_id" in user_data:
-        user_data["_id"] = str(user_data["_id"])
-        
-    return {
-        "success": True,
-        "valid": True,
-        "role": current_user.get("role", "yuvak"),
-        "user": user_data
-    }
-

@@ -746,12 +746,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
 
               <form onSubmit={handleSaveSchedule} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <label htmlFor="sched-title" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                     Sabha Title / Heading
                   </label>
                   <input
-                    id="sched-title"
-                    name="title"
                     type="text"
                     className="form-control"
                     value={editFormData.title}
@@ -762,12 +760,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label htmlFor="sched-date-str" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                       📅 Scheduled Date String
                     </label>
                     <input
-                      id="sched-date-str"
-                      name="date_str"
                       type="text"
                       className="form-control"
                       value={editFormData.date_str}
@@ -778,12 +774,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                   </div>
 
                   <div>
-                    <label htmlFor="sched-timing" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                       ⏰ Sabha Timing
                     </label>
                     <input
-                      id="sched-timing"
-                      name="timing"
                       type="text"
                       className="form-control"
                       value={editFormData.timing}
@@ -795,12 +789,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                 </div>
 
                 <div>
-                  <label htmlFor="sched-venue" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                     📍 Sabha Venue
                   </label>
                   <input
-                    id="sched-venue"
-                    name="venue"
                     type="text"
                     className="form-control"
                     value={editFormData.venue}
@@ -811,12 +803,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                 </div>
 
                 <div>
-                  <label htmlFor="sched-description" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                     📝 Agenda / Description
                   </label>
                   <textarea
-                    id="sched-description"
-                    name="description"
                     rows={3}
                     className="form-control"
                     value={editFormData.description}
@@ -827,12 +817,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
-                    <label htmlFor="sched-target" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                       Target Label
                     </label>
                     <input
-                      id="sched-target"
-                      name="target_attendance"
                       type="text"
                       className="form-control"
                       value={editFormData.target_attendance}
@@ -840,12 +828,10 @@ export default function AnalyticsSection({ yuvaks = [], sessions = [], onRefresh
                     />
                   </div>
                   <div>
-                    <label htmlFor="sched-status-badge" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                    <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                       Status Badge
                     </label>
                     <input
-                      id="sched-status-badge"
-                      name="status_badge"
                       type="text"
                       className="form-control"
                       value={editFormData.status_badge}

@@ -284,87 +284,54 @@ export default function MemberDirectory({
           {displayedMembers.map((yuvak) => {
             const isAdmin = yuvak.role === 'admin';
             return (
-              <div 
-                key={yuvak.yuvak_id} 
-                className="member-mobile-card"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.65rem',
-                  padding: '0.85rem 0.95rem'
-                }}
-              >
-                {/* Top Row: Avatar + Name + Admin Badge + Edit/Delete Buttons */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', width: '100%' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0, flex: '1 1 auto' }}>
-                    <div className="member-avatar" style={{ width: '36px', height: '36px', fontSize: '0.9rem', flexShrink: 0 }}>
-                      {(yuvak.full_name || 'M')[0]}
-                    </div>
-                    <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
-                        <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)', wordBreak: 'break-word', lineHeight: 1.25 }}>
-                          {yuvak.full_name}
-                        </h4>
-                        {isAdmin && (
-                          <span style={{ fontSize: '0.6rem', padding: '0.08rem 0.35rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.25)', color: '#ff9b42', fontWeight: 800, whiteSpace: 'nowrap', border: '1px solid rgba(255, 122, 24, 0.4)' }}>
-                            ADMIN
-                          </span>
-                        )}
-                      </div>
-                    </div>
+              <div key={yuvak.yuvak_id} className="member-mobile-card">
+                <div className="member-mobile-left" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                  <div className="member-avatar">
+                    {(yuvak.full_name || 'M')[0]}
                   </div>
-
-                  {/* Top Right Actions */}
-                  <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0 }}>
-                    <button
-                      className="btn btn-secondary"
-                      style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', height: '32px' }}
-                      onClick={() => setEditingYuvak(yuvak)}
-                      title="Edit Member"
-                    >
-                      <Edit size={13} />
-                    </button>
-                    <button
-                      className="btn btn-secondary"
-                      style={{ 
-                        padding: '0.35rem 0.6rem', 
-                        fontSize: '0.75rem', 
-                        color: '#f87171',
-                        borderColor: 'rgba(239, 68, 68, 0.3)',
-                        height: '32px'
-                      }}
-                      onClick={() => setDeletingYuvak(yuvak)}
-                      title="Delete Member"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                  <div className="member-info" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.92rem', wordBreak: 'break-word' }}>{yuvak.full_name}</h4>
+                      {isAdmin && (
+                        <span style={{ fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          ADMIN
+                        </span>
+                      )}
+                    </div>
+                    <div className="member-sub-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                      <span className="yuvak-id-highlight" style={{ fontSize: '0.72rem' }}>{yuvak.yuvak_id}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{yuvak.mobile_no}</span>
+                      {yuvak.dob && (
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          🎂 {formatDob(yuvak.dob)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Bottom Meta Row: ID badge + Mobile + Location + DOB */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.45rem', 
-                  flexWrap: 'wrap', 
-                  paddingTop: '0.45rem', 
-                  borderTop: '1px solid var(--border-subtle)',
-                  fontSize: '0.75rem'
-                }}>
-                  <span className="yuvak-id-highlight" style={{ fontSize: '0.72rem', padding: '0.15rem 0.45rem' }}>
-                    {yuvak.yuvak_id}
-                  </span>
-                  <span style={{ color: 'var(--text-muted)' }}>
-                    📞 {yuvak.mobile_no}
-                  </span>
-                  <span style={{ color: 'var(--text-muted)' }}>
-                    📍 {yuvak.location || 'Bochasan'}
-                  </span>
-                  {yuvak.dob && (
-                    <span style={{ color: 'var(--text-muted)', marginLeft: 'auto' }}>
-                      🎂 {formatDob(yuvak.dob)}
-                    </span>
-                  )}
+                <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, marginLeft: '0.4rem' }}>
+                  <button
+                    className="btn btn-secondary"
+                    style={{ padding: '0.4rem 0.65rem', fontSize: '0.75rem' }}
+                    onClick={() => setEditingYuvak(yuvak)}
+                    title="Edit Member"
+                  >
+                    <Edit size={14} />
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    style={{ 
+                      padding: '0.4rem 0.65rem', 
+                      fontSize: '0.75rem',
+                      color: '#f87171',
+                      borderColor: 'rgba(239, 68, 68, 0.3)'
+                    }}
+                    onClick={() => setDeletingYuvak(yuvak)}
+                    title="Delete Member"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </div>
             );

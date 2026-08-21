@@ -86,21 +86,23 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
       style={{ border: '1px solid rgba(255, 122, 24, 0.3)', boxShadow: '0 16px 40px -4px rgba(0,0,0,0.5)' }}
     >
       {/* Top Controls Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.85rem' }}>
-        <div style={{ flex: '1 1 240px', minWidth: 0 }}>
-          <h3 style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', fontWeight: 700, margin: '0 0 0.25rem 0', color: 'var(--text-primary)' }}>
-            Sabha Attendance Management
-          </h3>
-          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ flex: '1 1 260px' }}>
+          <div style={{ marginBottom: '0.35rem' }}>
+            <h3 style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+              Sabha Attendance Management
+            </h3>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.45 }}>
             Mark presence for registered Yuvaks using interactive checkboxes & track attendance rates.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', width: 'auto', flexWrap: 'wrap', flex: '1 1 200px', justifyContent: 'flex-start' }}>
-          <button type="button" className="btn btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', flex: '1 1 100px', justifyContent: 'center' }} onClick={handleSelectAll}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: 'auto' }}>
+          <button type="button" className="btn btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', flex: '1 1 auto' }} onClick={handleSelectAll}>
             <CheckSquare size={16} color="#ff7a18" /> Select All
           </button>
-          <button type="button" className="btn btn-secondary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', flex: '1 1 100px', justifyContent: 'center' }} onClick={handleClearAll}>
+          <button type="button" className="btn btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', flex: '1 1 auto' }} onClick={handleClearAll}>
             <SquareX size={16} color="#ef4444" /> Clear All
           </button>
         </div>
@@ -110,18 +112,17 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
         {/* Sabha Meta Inputs & Search Filters */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', 
-          gap: '0.75rem', 
-          marginBottom: '1.25rem' 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))', 
+          gap: '0.85rem', 
+          marginBottom: '1.5rem' 
         }}>
           <div>
-            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               📅 Sabha Date
             </label>
             <input
               type="date"
               className="form-control"
-              style={{ fontSize: '0.85rem', padding: '0.45rem 0.65rem', height: '38px' }}
               value={sabhaDate}
               onChange={(e) => setSabhaDate(e.target.value)}
               required
@@ -129,13 +130,12 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           </div>
 
           <div>
-            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               📖 Sabha Title / Topic
             </label>
             <input
               type="text"
               className="form-control"
-              style={{ fontSize: '0.85rem', padding: '0.45rem 0.65rem', height: '38px' }}
               placeholder="e.g. Saturday Yuvak Sabha"
               value={sabhaTitle}
               onChange={(e) => setSabhaTitle(e.target.value)}
@@ -144,29 +144,28 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           </div>
 
           <div>
-            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               🔍 Search Member
             </label>
             <div style={{ position: 'relative' }}>
               <input
                 type="text"
                 className="form-control"
-                style={{ paddingLeft: '2.2rem', paddingRight: '0.65rem', fontSize: '0.85rem', height: '38px' }}
-                placeholder="Name, ID, Phone..."
+                style={{ paddingLeft: '2.4rem' }}
+                placeholder="Name, ID, or Phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Search size={15} color="var(--text-muted)" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)' }} />
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.3rem' }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               📍 Center Filter
             </label>
             <select
               className="form-control"
-              style={{ fontSize: '0.85rem', padding: '0.45rem 0.65rem', height: '38px' }}
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
             >
@@ -279,12 +278,12 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           </div>
         </div>
 
-        {/* Mobile View: High-Density Structured Member Cards (Zero horizontal collision) */}
-        <div className="mobile-cards-view" style={{ marginBottom: '1.25rem' }}>
+        {/* Mobile View: Member Cards Grid */}
+        <div className="mobile-cards-view" style={{ marginBottom: '1.5rem' }}>
           <div className="mobile-cards-grid">
             {filteredYuvaks.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                No members found matching filters.
+                No members found.
               </div>
             ) : (
               filteredYuvaks.map((yuvak) => {
@@ -293,84 +292,45 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                 return (
                   <div
                     key={yuvak.yuvak_id}
-                    className={`member-mobile-card ${isChecked ? 'checked' : ''}`}
+                    className="member-mobile-card"
                     onClick={() => toggleYuvak(yuvak.yuvak_id)}
                     style={{
-                      border: isChecked ? '1.5px solid var(--primary)' : '1px solid var(--border-subtle)',
-                      background: isChecked ? 'rgba(255, 122, 24, 0.12)' : 'var(--bg-card)',
-                      padding: '0.85rem 0.95rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.65rem'
+                      border: isChecked ? '1.5px solid rgba(255, 122, 24, 0.5)' : '1px solid var(--border-subtle)',
+                      background: isChecked ? 'rgba(255, 122, 24, 0.12)' : 'var(--bg-card)'
                     }}
                   >
-                    {/* Top Row: Checkbox + Avatar + Name + Attendance Rate Pill */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', width: '100%' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0, flex: '1 1 auto' }}>
-                        <input
-                          type="checkbox"
-                          className="checkbox-custom"
-                          checked={isChecked}
-                          onChange={() => toggleYuvak(yuvak.yuvak_id)}
-                          onClick={(e) => e.stopPropagation()}
-                          style={{ width: '22px', height: '22px', flexShrink: 0 }}
-                        />
-                        <div className="member-avatar" style={{ width: '36px', height: '36px', fontSize: '0.9rem', flexShrink: 0 }}>
-                          {(yuvak.full_name || 'M')[0]}
-                        </div>
-                        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
-                            <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)', wordBreak: 'break-word', lineHeight: 1.25 }}>
-                              {yuvak.full_name}
-                            </h4>
-                            {isAdmin && (
-                              <span style={{ fontSize: '0.6rem', padding: '0.08rem 0.35rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.25)', color: '#ff9b42', fontWeight: 800, whiteSpace: 'nowrap', border: '1px solid rgba(255, 122, 24, 0.4)' }}>
-                                ADMIN
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                    <div className="member-mobile-left" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                      <input
+                        type="checkbox"
+                        className="checkbox-custom"
+                        checked={isChecked}
+                        onChange={() => toggleYuvak(yuvak.yuvak_id)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <div className="member-avatar">
+                        {(yuvak.full_name || 'M')[0]}
                       </div>
-
-                      {/* Top Right Attendance Rate Indicator */}
-                      <div style={{ 
-                        flexShrink: 0, 
-                        textAlign: 'right',
-                        background: (yuvak.attendance_pct || 100) >= 75 ? 'rgba(34, 197, 94, 0.12)' : 'rgba(255, 122, 24, 0.12)',
-                        border: `1px solid ${(yuvak.attendance_pct || 100) >= 75 ? 'rgba(34, 197, 94, 0.3)' : 'rgba(255, 122, 24, 0.3)'}`,
-                        borderRadius: '8px',
-                        padding: '0.2rem 0.5rem'
-                      }}>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 800, color: (yuvak.attendance_pct || 100) >= 75 ? '#22c55e' : '#ff9b42', lineHeight: 1.1 }}>
-                          {yuvak.attendance_pct || 100}%
+                      <div className="member-info" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <h4 style={{ margin: 0, fontSize: '0.92rem', wordBreak: 'break-word' }}>{yuvak.full_name}</h4>
+                          {isAdmin && (
+                            <span style={{ fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                              ADMIN
+                            </span>
+                          )}
                         </div>
-                        <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: 1 }}>Attended</div>
+                        <div className="member-sub-info" style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <span className="yuvak-id-highlight" style={{ fontSize: '0.72rem' }}>{yuvak.yuvak_id}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{yuvak.location || 'Bochasan'}</span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Bottom Meta Row: Member ID pill + Location + Phone */}
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '0.5rem', 
-                      flexWrap: 'wrap', 
-                      paddingTop: '0.45rem', 
-                      borderTop: '1px solid var(--border-subtle)',
-                      fontSize: '0.75rem',
-                      color: 'var(--text-secondary)'
-                    }}>
-                      <span className="yuvak-id-highlight" style={{ fontSize: '0.72rem', padding: '0.15rem 0.45rem' }}>
-                        {yuvak.yuvak_id}
-                      </span>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
-                        <MapPin size={12} color="#ff7a18" />
-                        {yuvak.location || 'Bochasan'}
-                      </span>
-                      {yuvak.mobile_no && (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>
-                          📞 {yuvak.mobile_no}
-                        </span>
-                      )}
+                    <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '0.5rem' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: (yuvak.attendance_pct || 100) >= 75 ? '#22c55e' : '#ff9b42' }}>
+                        {yuvak.attendance_pct || 100}%
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Attended</div>
                     </div>
                   </div>
                 );
@@ -387,20 +347,20 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           background: 'var(--bg-card)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
-          padding: '0.85rem 1rem',
+          padding: '1rem 1.25rem',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-subtle)',
           boxShadow: 'var(--shadow-card)',
           flexWrap: 'wrap',
-          gap: '0.75rem',
+          gap: '1rem',
           width: '100%',
           boxSizing: 'border-box',
           marginBottom: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: '1 1 180px' }}>
-            <UserCheck size={18} color="#ff7a18" style={{ flexShrink: 0 }} />
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Summary: <strong style={{ color: '#ff9b42', fontSize: '1rem' }}>{presentCount}</strong> / {yuvaks.length} Present ({attendanceRate}%)
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1 1 200px' }}>
+            <UserCheck size={20} color="#ff7a18" style={{ flexShrink: 0 }} />
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              Summary: <strong style={{ color: '#ff9b42', fontSize: '1.05rem' }}>{presentCount}</strong> / {yuvaks.length} Present ({attendanceRate}%)
             </div>
           </div>
 
@@ -408,9 +368,9 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
             type="submit" 
             className="btn btn-primary attendance-submit-btn" 
             disabled={saving}
-            style={{ flex: '1 1 180px', minWidth: '160px', height: '42px' }}
+            style={{ flex: '1 1 200px', minWidth: '180px' }}
           >
-            <Save size={16} />
+            <Save size={18} />
             {saving ? 'Saving Session...' : 'Save Attendance Session'}
           </button>
         </div>

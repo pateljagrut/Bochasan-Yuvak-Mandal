@@ -974,84 +974,21 @@
   }
 }
 
-/* Small Smartphone Screen Adjustments (< 380px, e.g. Mobile S 320px, iPhone SE) */
+/* Small Smartphone Screen Adjustments (< 380px, e.g. iPhone SE) */
 @media (max-width: 380px) {
-  .app-header {
-    padding: 0.35rem 0.5rem !important;
-  }
-  .header-container {
-    gap: 0.3rem !important;
-  }
-  .logo-badge-container {
-    width: 28px !important;
-    height: 28px !important;
-  }
-  .brand-logo-container {
-    gap: 0.35rem !important;
-  }
-  .brand-title {
-    font-size: 12.5px !important;
-    max-width: 130px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-  .user-nav-actions {
-    gap: 0.2rem !important;
-  }
-  .theme-toggle-btn, 
-  .navbar-icon-btn {
-    width: 28px !important;
-    height: 28px !important;
-    border-radius: 8px !important;
-  }
-  .avatar-circle {
-    width: 26px !important;
-    height: 26px !important;
-    font-size: 0.7rem !important;
-  }
-  .dashboard-layout {
-    padding: 0 0.4rem !important;
-    margin-top: 0.4rem !important;
-    margin-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
-  }
-  .glass-card {
-    padding: 0.75rem 0.65rem !important;
-    border-radius: 14px !important;
-  }
-  .hero-banner {
-    padding: 0.85rem 0.65rem !important;
-    gap: 0.65rem !important;
-  }
-  .hero-stat-box {
-    padding: 0.4rem 0.15rem !important;
-  }
   .hero-stat-value {
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
   }
   .hero-stat-label {
-    font-size: 0.55rem !important;
-  }
-  .member-mobile-card {
-    padding: 0.75rem 0.75rem !important;
-    gap: 0.5rem !important;
+    font-size: 0.58rem !important;
   }
   .btn {
-    padding: 0.45rem 0.75rem !important;
-    font-size: 0.78rem !important;
-  }
-  .mobile-bottom-nav {
-    padding: 0.25rem 0.15rem calc(0.35rem + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 0.55rem 0.9rem !important;
+    font-size: 0.82rem !important;
   }
   .mobile-nav-item {
-    min-width: 0 !important;
-    flex: 1 1 0 !important;
-    padding: 0.2rem 0.1rem !important;
-    font-size: 0.6rem !important;
-    gap: 0.1rem !important;
-  }
-  .mobile-nav-item span {
-    font-size: 0.58rem !important;
+    min-width: 48px !important;
+    font-size: 0.65rem !important;
   }
 }
 

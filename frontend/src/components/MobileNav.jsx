@@ -28,15 +28,15 @@ export default function MobileNav({ activeTab, setActiveTab, onFabClick }) {
 
   return (
     <>
-      {/* Floating Action Button for Quick Attendance (Admin only) */}
-      {role === 'admin' && (
+      {/* Floating Action Button for Quick Attendance (Admin only, hidden on attendance tab to prevent button overlap) */}
+      {role === 'admin' && activeTab !== 'attendance' && (
         <button 
           className="mobile-fab-btn"
           onClick={onFabClick || (() => setActiveTab('attendance'))}
           title="Mark Attendance"
           aria-label="Mark Attendance"
         >
-          <CalendarCheck size={26} />
+          <CalendarCheck size={24} />
         </button>
       )}
 

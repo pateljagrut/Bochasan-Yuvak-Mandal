@@ -168,17 +168,17 @@ export default function MemberDirectory({
       {/* Desktop Table View */}
       <div className="desktop-table-view" style={{ marginTop: '1rem' }}>
         <div className="table-responsive">
-          <table className="custom-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0' }}>
+          <table className="custom-table" style={{ width: '100%', minWidth: '780px', borderCollapse: 'separate', borderSpacing: '0' }}>
             <thead>
               <tr>
-                <th style={{ padding: '0.85rem 1rem' }}>Member ID</th>
-                <th style={{ padding: '0.85rem 1rem' }}>Full Name</th>
-                <th style={{ padding: '0.85rem 1rem' }}>Role</th>
-                <th style={{ padding: '0.85rem 1rem' }}>Mobile Number</th>
-                <th style={{ padding: '0.85rem 1rem' }}>Date of Birth</th>
-                <th style={{ padding: '0.85rem 1rem' }}>Location</th>
-                <th style={{ padding: '0.85rem 1rem' }}>Attendance Rate</th>
-                <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>Member ID</th>
+                <th style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>Full Name</th>
+                <th style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>Role</th>
+                <th style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>Mobile Number</th>
+                <th style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>Date of Birth</th>
+                <th style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>Location</th>
+                <th style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>Attendance Rate</th>
+                <th style={{ padding: '0.85rem 1rem', textAlign: 'right', whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -193,13 +193,13 @@ export default function MemberDirectory({
                   const isAdmin = yuvak.role === 'admin';
                   return (
                     <tr key={yuvak.yuvak_id}>
-                      <td style={{ padding: '0.85rem 1rem' }}>
+                      <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
                         <span className="yuvak-id-highlight" style={{ background: isAdmin ? 'rgba(255, 122, 24, 0.15)' : undefined, color: isAdmin ? '#ff9b42' : undefined }}>
                           {yuvak.yuvak_id}
                         </span>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', fontWeight: 600 }}>{yuvak.full_name}</td>
-                      <td style={{ padding: '0.85rem 1rem' }}>
+                      <td style={{ padding: '0.85rem 1rem', fontWeight: 600, whiteSpace: 'nowrap' }}>{yuvak.full_name}</td>
+                      <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
                         {isAdmin ? (
                           <span style={{
                             padding: '0.25rem 0.6rem',
@@ -232,15 +232,15 @@ export default function MemberDirectory({
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: '0.85rem 1rem' }}>{yuvak.mobile_no}</td>
-                      <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontSize: '0.88rem' }}>{formatDob(yuvak.dob)}</td>
-                      <td style={{ padding: '0.85rem 1rem' }}>{yuvak.location || 'Bochasan'}</td>
-                      <td style={{ padding: '0.85rem 1rem' }}>
+                      <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>{yuvak.mobile_no}</td>
+                      <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontSize: '0.88rem', whiteSpace: 'nowrap' }}>{formatDob(yuvak.dob)}</td>
+                      <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>{yuvak.location || 'Bochasan'}</td>
+                      <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
                         <span style={{ color: (yuvak.attendance_pct || 100) >= 75 ? '#22c55e' : '#ff9b42', fontWeight: 700 }}>
                           {yuvak.attendance_pct || 100}%
                         </span>
                       </td>
-                      <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                      <td style={{ padding: '0.85rem 1rem', textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <div style={{ display: 'inline-flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
                           {/* Edit Button */}
                           <button
@@ -285,22 +285,22 @@ export default function MemberDirectory({
             const isAdmin = yuvak.role === 'admin';
             return (
               <div key={yuvak.yuvak_id} className="member-mobile-card">
-                <div className="member-mobile-left">
+                <div className="member-mobile-left" style={{ minWidth: 0, flex: '1 1 auto' }}>
                   <div className="member-avatar">
                     {(yuvak.full_name || 'M')[0]}
                   </div>
-                  <div className="member-info">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <h4 style={{ margin: 0 }}>{yuvak.full_name}</h4>
+                  <div className="member-info" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.92rem', wordBreak: 'break-word' }}>{yuvak.full_name}</h4>
                       {isAdmin && (
-                        <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700 }}>
+                        <span style={{ fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700, whiteSpace: 'nowrap' }}>
                           ADMIN
                         </span>
                       )}
                     </div>
-                    <div className="member-sub-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', marginTop: '0.2rem' }}>
-                      <span className="yuvak-id-highlight" style={{ fontSize: '0.7rem' }}>{yuvak.yuvak_id}</span>
-                      <span>{yuvak.mobile_no}</span>
+                    <div className="member-sub-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                      <span className="yuvak-id-highlight" style={{ fontSize: '0.72rem' }}>{yuvak.yuvak_id}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{yuvak.mobile_no}</span>
                       {yuvak.dob && (
                         <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                           🎂 {formatDob(yuvak.dob)}
@@ -310,23 +310,25 @@ export default function MemberDirectory({
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, marginLeft: '0.4rem' }}>
                   <button
                     className="btn btn-secondary"
-                    style={{ padding: '0.4rem 0.7rem', fontSize: '0.75rem' }}
+                    style={{ padding: '0.4rem 0.65rem', fontSize: '0.75rem' }}
                     onClick={() => setEditingYuvak(yuvak)}
+                    title="Edit Member"
                   >
                     <Edit size={14} />
                   </button>
                   <button
                     className="btn btn-secondary"
                     style={{ 
-                      padding: '0.4rem 0.7rem', 
+                      padding: '0.4rem 0.65rem', 
                       fontSize: '0.75rem',
                       color: '#f87171',
                       borderColor: 'rgba(239, 68, 68, 0.3)'
                     }}
                     onClick={() => setDeletingYuvak(yuvak)}
+                    title="Delete Member"
                   >
                     <Trash2 size={14} />
                   </button>

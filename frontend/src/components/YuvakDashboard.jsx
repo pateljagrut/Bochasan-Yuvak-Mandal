@@ -641,7 +641,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
   };
 
   return (
-    <div className="dashboard-layout" style={{ maxWidth: '1440px', margin: '0 auto 5rem', padding: '0 0' }}>
+    <div className="dashboard-layout">
       
       {/* 1. BAPS Hero Photo Slideshow (Directly at the Top when on Home / Dashboard) */}
       {activeTab === 'dashboard' && (
@@ -650,7 +650,7 @@ export default function YuvakDashboard({ activeTab: propActiveTab, setActiveTab:
         </div>
       )}
 
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 clamp(0.75rem, 3vw, 1.5rem)' }}>
+      <div>
         {/* Real-time Notification Toast */}
         {notification && (
           <motion.div 

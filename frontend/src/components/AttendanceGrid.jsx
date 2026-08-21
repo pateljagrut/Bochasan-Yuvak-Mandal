@@ -110,7 +110,12 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
 
       <form onSubmit={handleSubmit}>
         {/* Sabha Meta Inputs & Search Filters */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))', 
+          gap: '0.85rem', 
+          marginBottom: '1.5rem' 
+        }}>
           <div>
             <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
               📅 Sabha Date
@@ -131,7 +136,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
             <input
               type="text"
               className="form-control"
-              placeholder="e.g. Saturday Yuvak Sabha - Niyama Orientation"
+              placeholder="e.g. Saturday Yuvak Sabha"
               value={sabhaTitle}
               onChange={(e) => setSabhaTitle(e.target.value)}
               required
@@ -174,17 +179,17 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
 
         {/* Desktop View: Modern Data Table */}
         <div className="desktop-table-view">
-          <div className="table-responsive" style={{ maxHeight: '420px', overflowY: 'auto', marginBottom: '1.5rem' }}>
-            <table className="custom-table">
+          <div className="table-responsive" style={{ maxHeight: '440px', overflowY: 'auto', marginBottom: '1.5rem' }}>
+            <table className="custom-table" style={{ minWidth: '700px' }}>
               <thead>
                 <tr>
-                  <th style={{ width: '60px', textAlign: 'center' }}>Mark</th>
-                  <th>Member ID</th>
-                  <th>Member Name</th>
-                  <th>Role</th>
-                  <th>Mobile Number</th>
-                  <th>Location</th>
-                  <th>Attendance %</th>
+                  <th style={{ width: '60px', textAlign: 'center', whiteSpace: 'nowrap' }}>Mark</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Member ID</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Member Name</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Role</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Mobile Number</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Location</th>
+                  <th style={{ whiteSpace: 'nowrap' }}>Attendance %</th>
                 </tr>
               </thead>
               <tbody>
@@ -215,12 +220,12 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                             onChange={() => toggleYuvak(yuvak.yuvak_id)}
                           />
                         </td>
-                        <td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
                           <span className="yuvak-id-highlight" style={{ background: isAdmin ? 'rgba(255, 122, 24, 0.15)' : undefined, color: isAdmin ? '#ff9b42' : undefined }}>
                             {yuvak.yuvak_id}
                           </span>
                         </td>
-                        <td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <div className="member-avatar" style={{ width: '34px', height: '34px', fontSize: '0.85rem' }}>
                               {(yuvak.full_name || 'M')[0]}
@@ -228,25 +233,25 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                             <span style={{ fontWeight: 600 }}>{yuvak.full_name}</span>
                           </div>
                         </td>
-                        <td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
                           {isAdmin ? (
-                            <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '10px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700 }}>
+                            <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '10px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                               👑 Admin
                             </span>
                           ) : (
-                            <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '10px', background: 'rgba(20, 184, 166, 0.15)', color: '#14b8a6', fontWeight: 600 }}>
+                            <span style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '10px', background: 'rgba(20, 184, 166, 0.15)', color: '#14b8a6', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                               👤 Yuvak
                             </span>
                           )}
                         </td>
-                        <td>{yuvak.mobile_no}</td>
-                        <td>
+                        <td style={{ whiteSpace: 'nowrap' }}>{yuvak.mobile_no}</td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                             <MapPin size={14} color="#ff7a18" />
                             {yuvak.location || 'Bochasan'}
                           </span>
                         </td>
-                        <td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <span style={{ 
                               color: (yuvak.attendance_pct || 100) >= 75 ? '#22c55e' : '#ff9b42', 
@@ -255,7 +260,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                             }}>
                               {yuvak.attendance_pct || 100}%
                             </span>
-                            <div style={{ flex: 1, maxWidth: '60px', height: '6px', background: 'var(--border-hover)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ flex: 1, minWidth: '40px', maxWidth: '60px', height: '6px', background: 'var(--border-hover)', borderRadius: '3px', overflow: 'hidden' }}>
                               <div style={{ 
                                 width: `${yuvak.attendance_pct || 100}%`, 
                                 height: '100%', 
@@ -290,11 +295,11 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                     className="member-mobile-card"
                     onClick={() => toggleYuvak(yuvak.yuvak_id)}
                     style={{
-                      border: isChecked ? '1px solid rgba(255, 122, 24, 0.4)' : '1px solid var(--border-subtle)',
+                      border: isChecked ? '1.5px solid rgba(255, 122, 24, 0.5)' : '1px solid var(--border-subtle)',
                       background: isChecked ? 'rgba(255, 122, 24, 0.12)' : 'var(--bg-card)'
                     }}
                   >
-                    <div className="member-mobile-left">
+                    <div className="member-mobile-left" style={{ minWidth: 0, flex: '1 1 auto' }}>
                       <input
                         type="checkbox"
                         className="checkbox-custom"
@@ -305,27 +310,27 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
                       <div className="member-avatar">
                         {(yuvak.full_name || 'M')[0]}
                       </div>
-                      <div className="member-info">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          <h4 style={{ margin: 0 }}>{yuvak.full_name}</h4>
+                      <div className="member-info" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <h4 style={{ margin: 0, fontSize: '0.92rem', wordBreak: 'break-word' }}>{yuvak.full_name}</h4>
                           {isAdmin && (
-                            <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700 }}>
+                            <span style={{ fontSize: '0.62rem', padding: '0.1rem 0.35rem', borderRadius: '6px', background: 'rgba(255, 122, 24, 0.2)', color: '#ff9b42', fontWeight: 700, whiteSpace: 'nowrap' }}>
                               ADMIN
                             </span>
                           )}
                         </div>
-                        <div className="member-sub-info">
-                          <span className="yuvak-id-highlight" style={{ fontSize: '0.7rem' }}>{yuvak.yuvak_id}</span>
-                          <span>{yuvak.location || 'Bochasan'}</span>
+                        <div className="member-sub-info" style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <span className="yuvak-id-highlight" style={{ fontSize: '0.72rem' }}>{yuvak.yuvak_id}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{yuvak.location || 'Bochasan'}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: (yuvak.attendance_pct || 100) >= 75 ? '#22c55e' : '#ff9b42' }}>
+                    <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '0.5rem' }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: (yuvak.attendance_pct || 100) >= 75 ? '#22c55e' : '#ff9b42' }}>
                         {yuvak.attendance_pct || 100}%
                       </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Attended</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>Attended</div>
                     </div>
                   </div>
                 );
@@ -335,7 +340,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
         </div>
 
         {/* Sticky Action Footer */}
-        <div style={{
+        <div className="attendance-footer-bar" style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -349,9 +354,10 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           flexWrap: 'wrap',
           gap: '1rem',
           width: '100%',
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          marginBottom: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1 1 auto', minWidth: '220px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: '1 1 200px' }}>
             <UserCheck size={20} color="#ff7a18" style={{ flexShrink: 0 }} />
             <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
               Summary: <strong style={{ color: '#ff9b42', fontSize: '1.05rem' }}>{presentCount}</strong> / {yuvaks.length} Present ({attendanceRate}%)
@@ -360,9 +366,9 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
 
           <button 
             type="submit" 
-            className="btn btn-primary" 
+            className="btn btn-primary attendance-submit-btn" 
             disabled={saving}
-            style={{ flex: '1 1 auto', minWidth: '180px', width: '100%', maxWidth: '320px' }}
+            style={{ flex: '1 1 200px', minWidth: '180px' }}
           >
             <Save size={18} />
             {saving ? 'Saving Session...' : 'Save Attendance Session'}

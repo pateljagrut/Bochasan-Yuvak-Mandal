@@ -6,7 +6,7 @@ Role-Based Access Control (RBAC) route dependencies.
 Exhaustively documented for educational clarity.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -25,11 +25,13 @@ def hash_password(plain_password: str) -> str:
     """
     return f"hashed_{plain_password}"
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool:
     """
     Verifies plain text password against stored hash/password string.
     Supports both direct match and hashed match for initial seeded user convenience.
     """
+    if not hashed_password:
+        return False
     if hashed_password == plain_password:
         return True
     if hashed_password == f"hashed_{plain_password}":
@@ -42,7 +44,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     user identifier, full name, and assigned role ('yuvak' or 'admin').
     """
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -64,8 +66,8 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     try:
         # Decode signed JWT payload using system SECRET_KEY
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        identifier: str = payload.get("sub")
-        if identifier is None:
+        identifier = payload.get("sub")
+        if not identifier or not isinstance(identifier, str):
             raise credentials_exception
     except JWTError:
         raise credentials_exception

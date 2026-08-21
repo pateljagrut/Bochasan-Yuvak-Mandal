@@ -34,7 +34,7 @@ def generate_yuvak_id(full_name: str, dob: str = "", mobile_no: str = "") -> str
     # Extract DDMM from DOB
     suffix = ""
     if dob:
-        dob_str = str(dob).strip()
+        dob_str = dob.strip()
         # Check YYYY-MM-DD or YYYY/MM/DD
         match_ymd = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})", dob_str)
         if match_ymd:
@@ -150,7 +150,7 @@ def smart_login(payload: LoginRequest):
 
     # Validate password match
     stored_password = user.get("password")
-    if not verify_password(password, stored_password):
+    if not isinstance(stored_password, str) or not verify_password(password, stored_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials: Incorrect password."

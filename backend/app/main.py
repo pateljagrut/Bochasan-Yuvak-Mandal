@@ -68,8 +68,8 @@ def health_check():
 # CORS
 # -----------------------------
 origins = [
+    "https://bochasan-yuvak-mandal-attendence.netlify.app",
     "https://starlit-sprite-8c8bb0.netlify.app",
-    "https://starlit-sprite-8c8bb0.netlify.app/",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",

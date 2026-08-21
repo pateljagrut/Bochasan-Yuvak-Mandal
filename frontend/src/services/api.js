@@ -6,9 +6,25 @@ import axios from 'axios';
  * Heavily documented for fresher developer readability.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api` 
-  : 'https://bochasan-yuvak-mandal.onrender.com/api';
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+const PROD_BACKEND_HTTP = 'https://bochasan-yuvak-mandal.onrender.com';
+const PROD_BACKEND_WS = 'wss://bochasan-yuvak-mandal.onrender.com';
+
+function resolveBaseApiUrl() {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    // If running on deployed production (not localhost) but envUrl points to localhost/127.0.0.1, ignore it and use Render
+    if (!isLocalhost && (envUrl.includes('127.0.0.1') || envUrl.includes('localhost'))) {
+      return `${PROD_BACKEND_HTTP}/api`;
+    }
+    return `${envUrl.replace(/\/+$/, '')}/api`;
+  }
+  return isLocalhost ? 'http://127.0.0.1:8000/api' : `${PROD_BACKEND_HTTP}/api`;
+}
+
+export const API_BASE_URL = resolveBaseApiUrl();
 
 
 /**
@@ -249,14 +265,20 @@ export async function deleteSlideshowSlideApi(slideId, token) {
  * Supports all users (Admins & Yuvaks).
  */
 export function getRealtimeWebSocketUrl() {
-  if (import.meta.env.VITE_WS_URL) {
-    return `${import.meta.env.VITE_WS_URL}/api/ws`;
+  const envWsUrl = import.meta.env.VITE_WS_URL;
+  if (envWsUrl) {
+    if (!isLocalhost && (envWsUrl.includes('127.0.0.1') || envWsUrl.includes('localhost'))) {
+      return `${PROD_BACKEND_WS}/api/ws`;
+    }
+    return `${envWsUrl.replace(/\/+$/, '')}/api/ws`;
   }
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? '127.0.0.1:8000' 
-    : window.location.host;
-  return `${protocol}//${host}/api/ws`;
+
+  if (isLocalhost) {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${protocol}//127.0.0.1:8000/api/ws`;
+  }
+
+  return `${PROD_BACKEND_WS}/api/ws`;
 }
 
 export function getAdminWebSocketUrl() {
@@ -267,10 +289,7 @@ export function getAdminWebSocketUrl() {
  * Returns the Server-Sent Events (SSE) stream URL for all clients.
  */
 export function getRealtimeSseUrl() {
-  const baseUrl = import.meta.env.VITE_API_URL 
-    ? `${import.meta.env.VITE_API_URL}/api`
-    : 'http://127.0.0.1:8000/api';
-  return `${baseUrl}/events/stream`;
+  return `${API_BASE_URL}/events/stream`;
 }
 
 export function getAdminSseUrl() {

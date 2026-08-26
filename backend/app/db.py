@@ -37,7 +37,8 @@ in_memory_store: Dict[str, Any] = {
     "content": [],
     "photos": [],
     "sabha_schedule": {},
-    "slideshow": []
+    "slideshow": [],
+    "sms_logs": []
 }
 
 DEFAULT_SLIDESHOW_SLIDES: List[dict] = [
@@ -559,6 +560,42 @@ def delete_slideshow_slide(slide_id: str) -> bool:
     current_slides = in_memory_store.get("slideshow", [])
     in_memory_store["slideshow"] = [s for s in current_slides if s.get("id") != slide_id]
     return True
+
+
+# ==========================================
+# SMS Notification Logs Storage
+# ==========================================
+
+def save_sms_log(log_dict: dict) -> dict:
+    """
+    Saves an SMS delivery log entry to MongoDB or in-memory fallback.
+    """
+    if is_mongo_connected and db is not None:
+        try:
+            db.sms_logs.insert_one(dict(log_dict))
+        except Exception as e:
+            logger.warning(f"Failed to persist SMS log in MongoDB: {e}")
+    
+    current_logs = in_memory_store.get("sms_logs", [])
+    current_logs.insert(0, dict(log_dict))
+    in_memory_store["sms_logs"] = current_logs[:100]  # keep latest 100
+    return log_dict
+
+def get_sms_logs(limit: int = 50) -> List[dict]:
+    """
+    Retrieves recent SMS broadcast delivery logs.
+    """
+    if is_mongo_connected and db is not None:
+        try:
+            logs = list(db.sms_logs.find({}, {"_id": 0}).sort("sent_at", pymongo.DESCENDING).limit(limit))
+            if logs:
+                return logs
+        except Exception as e:
+            logger.warning(f"Failed to fetch SMS logs from MongoDB: {e}")
+            
+    logs = in_memory_store.get("sms_logs", [])
+    return logs[:limit]
+
 
 
 

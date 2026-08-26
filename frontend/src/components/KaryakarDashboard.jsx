@@ -38,7 +38,8 @@ export default function KaryakarDashboard({
   activeTab: propsActiveTab, 
   setActiveTab: propsSetActiveTab, 
   onOpenCreateAdminModal, 
-  onOpenSearch 
+  onOpenSearch,
+  onOpenSmsModal
 }) {
   const { token, user } = useAuth();
   
@@ -95,12 +96,16 @@ export default function KaryakarDashboard({
     } else if (evtType === 'ADMIN_CREATED') {
       showNotify(`Live Update: New Karyakar Admin '${evtData.admin_name}' (${evtData.yuvak_id}) created!`);
       loadData(false);
+    } else if (evtType === 'SMS_BROADCAST_SENT') {
+      showNotify(`Live Update: SMS broadcast sent to ${evtData.recipient_count || 0} members by ${evtData.sent_by || 'Admin'}!`);
+      loadData(false);
     } else if (evtType === 'CONTENT_UPDATED') {
       const typeLabel = evtData?.type === 'photo' ? 'Photo Gallery' : 'Announcements/Niyamas';
       showNotify(`Live Update: ${typeLabel} updated by Mandal Admin!`);
       loadData(false);
     }
   };
+
 
   const loadData = async (showSpinner = true) => {
     try {
@@ -314,6 +319,7 @@ export default function KaryakarDashboard({
             feeds={feeds}
             setActiveTab={handleTabChange}
             onOpenCreateAdminModal={onOpenCreateAdminModal}
+            onOpenSmsModal={onOpenSmsModal}
           />
         );
 
@@ -336,8 +342,10 @@ export default function KaryakarDashboard({
             onRefreshData={loadData}
             onNotify={showNotify}
             onDeleteYuvakSuccess={handleDeleteMember}
+            onOpenSmsModal={onOpenSmsModal}
           />
         );
+
 
       case 'analytics':
         return (

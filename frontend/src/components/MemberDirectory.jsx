@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Edit, UserPlus, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { Search, Edit, UserPlus, Trash2, AlertTriangle, Loader2, MessageSquare } from 'lucide-react';
 import AddMemberModal from './AddMemberModal';
 import { deleteYuvakMemberApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,7 @@ import { formatDob } from '../utils/formatDate';
  * 
  * Displays the complete Yuvak profile directory with real-time search filtering,
  * responsive table layout for desktop, card views for mobile screens,
- * "+ Add Member" registration action, and "Delete Member" functionality.
+ * "+ Add Member" registration action, "Delete Member" and "Send SMS" functionality.
  */
 export default function MemberDirectory({
   filteredYuvaks = [],
@@ -21,8 +21,10 @@ export default function MemberDirectory({
   setEditingYuvak,
   onRefreshData,
   onNotify,
-  onDeleteYuvakSuccess
+  onDeleteYuvakSuccess,
+  onOpenSmsModal
 }) {
+
   const { token } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
   const [deletingYuvak, setDeletingYuvak] = useState(null);
@@ -242,6 +244,24 @@ export default function MemberDirectory({
                       </td>
                       <td style={{ padding: '0.85rem 1rem', textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <div style={{ display: 'inline-flex', gap: '0.4rem', justifyContent: 'flex-end' }}>
+                          {/* Send SMS Button */}
+                          {onOpenSmsModal && yuvak.mobile_no && (
+                            <button
+                              className="btn btn-secondary"
+                              style={{ 
+                                padding: '0.35rem 0.65rem', 
+                                fontSize: '0.8rem',
+                                color: '#ff9b42',
+                                borderColor: 'rgba(255, 122, 24, 0.35)',
+                                background: 'rgba(255, 122, 24, 0.08)'
+                              }}
+                              onClick={() => onOpenSmsModal(yuvak)}
+                              title={`Send SMS to ${yuvak.full_name}`}
+                            >
+                              <MessageSquare size={14} /> SMS
+                            </button>
+                          )}
+
                           {/* Edit Button */}
                           <button
                             className="btn btn-secondary"
@@ -311,6 +331,21 @@ export default function MemberDirectory({
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0, marginLeft: '0.4rem' }}>
+                  {onOpenSmsModal && yuvak.mobile_no && (
+                    <button
+                      className="btn btn-secondary"
+                      style={{ 
+                        padding: '0.4rem 0.65rem', 
+                        fontSize: '0.75rem',
+                        color: '#ff9b42',
+                        borderColor: 'rgba(255, 122, 24, 0.35)'
+                      }}
+                      onClick={() => onOpenSmsModal(yuvak)}
+                      title="Send SMS"
+                    >
+                      <MessageSquare size={14} />
+                    </button>
+                  )}
                   <button
                     className="btn btn-secondary"
                     style={{ padding: '0.4rem 0.65rem', fontSize: '0.75rem' }}
@@ -338,6 +373,7 @@ export default function MemberDirectory({
           })}
         </div>
       </div>
+
 
       {/* Add Member Registration Modal */}
       {showAddModal && (

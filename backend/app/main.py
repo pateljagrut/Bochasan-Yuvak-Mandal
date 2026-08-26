@@ -16,7 +16,9 @@ from app.routes.yuvak_routes import router as yuvak_router
 from app.routes.karyakar_routes import router as karyakar_router
 from app.routes.admin_routes import router as admin_router
 from app.routes.content_routes import router as content_router
+from app.routes.sms_routes import router as sms_router
 from app.websocket_manager import ws_manager
+
 
 
 # -----------------------------
@@ -98,6 +100,8 @@ app.include_router(yuvak_router)
 app.include_router(karyakar_router)
 app.include_router(admin_router)
 app.include_router(content_router)
+app.include_router(sms_router)
+
 
 
 # -----------------------------

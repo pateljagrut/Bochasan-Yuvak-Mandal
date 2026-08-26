@@ -259,6 +259,27 @@ export async function deleteSlideshowSlideApi(slideId, token) {
   });
 }
 
+// ==========================================
+// Karyakar Admin SMS Notification APIs
+// ==========================================
+
+export async function sendSmsBroadcastApi(smsData, token) {
+  return request('/karyakar/sms/send', {
+    method: 'POST',
+    token,
+    body: smsData
+  });
+}
+
+export async function getSmsHistoryApi(token) {
+  return request('/karyakar/sms/history', { token });
+}
+
+export async function getSmsTemplatesApi(token) {
+  return request('/karyakar/sms/templates', { token });
+}
+
+
 
 /**
  * Returns the WebSocket URL for real-time cross-user event broadcasting.

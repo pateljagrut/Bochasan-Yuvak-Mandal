@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ThemeToggle } from '../context/ThemeContext';
 import Logo from './Logo';
+import NotificationDrawer from './NotificationDrawer';
 import { 
   Search, 
   LogOut, 
@@ -9,19 +10,93 @@ import {
   CalendarCheck, 
   Users, 
   BarChart3, 
-  MessageSquareText 
+  MessageSquareText,
+  Bell,
+  MessageSquare
 } from 'lucide-react';
+import { getRealtimeSseUrl, getRealtimeWebSocketUrl } from '../services/api';
 
 /**
- * Modern Header Navigation Bar with Light and Night mode support.
+ * Modern Header Navigation Bar with Light and Night mode support,
+ * Top-Bar Notification Bell Drawer & Admin-only SMS Broadcast Center.
  */
 export default function Navbar({ 
   activeTab = 'dashboard', 
   setActiveTab = () => {}, 
   onOpenCreateAdminModal,
-  onOpenSearch = () => {}
+  onOpenSearch = () => {},
+  onOpenSmsModal = () => {},
+  feeds = []
 }) {
   const { user, role, logout } = useAuth();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Sync unread notification count from localStorage and live events
+  useEffect(() => {
+    const updateCountFromStorage = () => {
+      try {
+        const stored = localStorage.getItem('bym_notifications');
+        if (stored) {
+          const list = JSON.parse(stored);
+          const count = (list || []).filter(n => !n.isRead).length;
+          setUnreadCount(count);
+        } else if (feeds && feeds.length > 0) {
+          setUnreadCount(Math.min(feeds.length, 3));
+        }
+      } catch (_) {}
+    };
+
+    updateCountFromStorage();
+    window.addEventListener('storage', updateCountFromStorage);
+
+    // Live stream listeners to increment unread count immediately
+    let eventSource = null;
+    let ws = null;
+
+    try {
+      eventSource = new EventSource(getRealtimeSseUrl());
+      eventSource.onmessage = (e) => {
+        try {
+          const parsed = JSON.parse(e.data);
+          if (parsed && parsed.event && parsed.event !== 'CONNECTED') {
+            setUnreadCount(prev => prev + 1);
+          }
+        } catch (_) {}
+      };
+    } catch (_) {}
+
+    try {
+      ws = new WebSocket(getRealtimeWebSocketUrl());
+      ws.onmessage = (e) => {
+        try {
+          const parsed = JSON.parse(e.data);
+          if (parsed && parsed.event) {
+            setUnreadCount(prev => prev + 1);
+          }
+        } catch (_) {}
+      };
+    } catch (_) {}
+
+    return () => {
+      window.removeEventListener('storage', updateCountFromStorage);
+      if (eventSource) eventSource.close();
+      if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+    };
+  }, [feeds]);
+
+  // When notification drawer opens, unread count can be updated after user marks read
+  useEffect(() => {
+    if (!showNotifications) {
+      try {
+        const stored = localStorage.getItem('bym_notifications');
+        if (stored) {
+          const list = JSON.parse(stored);
+          setUnreadCount((list || []).filter(n => !n.isRead).length);
+        }
+      } catch (_) {}
+    }
+  }, [showNotifications]);
 
   const adminNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -83,6 +158,46 @@ export default function Navbar({
             <span className="whitespace-nowrap">Search</span>
             <span className="search-kbd">⌘K</span>
           </button>
+
+          {/* Admin-Only SMS Broadcast Trigger Button */}
+          {role === 'admin' && (
+            <button
+              className="sms-header-trigger-btn hidden md:inline-flex"
+              onClick={onOpenSmsModal}
+              title="SMS Broadcast Center (Admin Only)"
+            >
+              <MessageSquare size={14} color="#ff7a18" />
+              <span>SMS Broadcast</span>
+            </button>
+          )}
+
+          {/* Top-Bar Notification Bell & Interactive Drawer */}
+          <div className="relative">
+            <button 
+              className={`navbar-icon-btn notif-bell-btn ${showNotifications ? 'active' : ''}`}
+              onClick={() => setShowNotifications(prev => !prev)}
+              title="Notifications & Alerts"
+              aria-label="Notifications"
+            >
+              <Bell size={16} />
+              {unreadCount > 0 && (
+                <span className="notification-badge-dot" title={`${unreadCount} unread`}>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Bell Dropdown Drawer */}
+            <NotificationDrawer
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
+              onNavigateTab={(tab) => {
+                setActiveTab(tab);
+                setShowNotifications(false);
+              }}
+              feeds={feeds}
+            />
+          </div>
 
           {/* Theme Toggle Button (Light / Night) */}
           <ThemeToggle />

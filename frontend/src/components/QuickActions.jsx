@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CalendarCheck, Users, Megaphone, ShieldPlus, ArrowRight } from 'lucide-react';
+import { CalendarCheck, Users, Megaphone, ShieldPlus, ArrowRight, MessageSquare } from 'lucide-react';
 
 /**
  * Quick Action Cards for core administrative tasks.
  */
-export default function QuickActions({ setActiveTab, onOpenCreateAdminModal }) {
+export default function QuickActions({ setActiveTab, onOpenCreateAdminModal, onOpenSmsModal }) {
   const actions = [
     {
       id: 'attendance',
@@ -20,6 +20,13 @@ export default function QuickActions({ setActiveTab, onOpenCreateAdminModal }) {
       description: 'Search & edit member profiles, contact info, and metrics.',
       icon: Users,
       onClick: () => setActiveTab('yuvaks')
+    },
+    {
+      id: 'sms-broadcast',
+      title: 'SMS Broadcast Center',
+      description: 'Send instant Sabha reminders & Utsav alerts to members.',
+      icon: MessageSquare,
+      onClick: onOpenSmsModal || (() => {})
     },
     {
       id: 'content',

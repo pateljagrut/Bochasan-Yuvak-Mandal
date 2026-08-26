@@ -5,6 +5,7 @@ import YuvakDashboard from '../components/YuvakDashboard';
 import KaryakarDashboard from '../components/KaryakarDashboard';
 import AdminKaryakarCreationModal from '../components/AdminKaryakarCreationModal';
 import GlobalSearchModal from '../components/GlobalSearchModal';
+import SmsBroadcastModal from '../components/SmsBroadcastModal';
 import { getAllYuvaksApi, getContentFeedsApi } from '../services/api';
 
 export default function DashboardPage() {
@@ -12,11 +13,13 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showSmsModal, setShowSmsModal] = useState(false);
+  const [preselectedSmsYuvak, setPreselectedSmsYuvak] = useState(null);
   const [adminSuccessMsg, setAdminSuccessMsg] = useState(null);
   const [yuvaksList, setYuvaksList] = useState([]);
   const [feedsList, setFeedsList] = useState([]);
 
-  // Fetch yuvaks & feeds for global search and notification drawer for all users
+  // Fetch yuvaks & feeds for global search, SMS broadcast, and notification drawer
   useEffect(() => {
     if (!token) return;
 
@@ -54,6 +57,11 @@ export default function DashboardPage() {
     setTimeout(() => setAdminSuccessMsg(null), 5000);
   };
 
+  const handleOpenSmsModal = (yuvak = null) => {
+    setPreselectedSmsYuvak(yuvak);
+    setShowSmsModal(true);
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar 
@@ -61,6 +69,8 @@ export default function DashboardPage() {
         setActiveTab={setActiveTab}
         onOpenCreateAdminModal={() => setShowAdminModal(true)} 
         onOpenSearch={() => setShowSearchModal(true)}
+        onOpenSmsModal={() => handleOpenSmsModal(null)}
+        feeds={feedsList}
       />
 
       {adminSuccessMsg && (
@@ -86,6 +96,7 @@ export default function DashboardPage() {
           setActiveTab={setActiveTab}
           onOpenCreateAdminModal={() => setShowAdminModal(true)} 
           onOpenSearch={() => setShowSearchModal(true)}
+          onOpenSmsModal={handleOpenSmsModal}
         />
       ) : (
         <YuvakDashboard 
@@ -99,6 +110,20 @@ export default function DashboardPage() {
         <AdminKaryakarCreationModal
           onClose={() => setShowAdminModal(false)}
           onSuccess={handleAdminSuccess}
+        />
+      )}
+
+      {/* Admin-Only SMS Broadcast Center Modal */}
+      {showSmsModal && role === 'admin' && (
+        <SmsBroadcastModal
+          isOpen={showSmsModal}
+          onClose={() => {
+            setShowSmsModal(false);
+            setPreselectedSmsYuvak(null);
+          }}
+          yuvaks={yuvaksList}
+          preselectedYuvak={preselectedSmsYuvak}
+          onNotify={handleAdminSuccess}
         />
       )}
 

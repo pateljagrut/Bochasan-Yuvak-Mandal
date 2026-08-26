@@ -18,8 +18,10 @@ export default function DashboardOverview({
   user,
   feeds = [],
   setActiveTab,
-  onOpenCreateAdminModal
+  onOpenCreateAdminModal,
+  onOpenSmsModal
 }) {
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -80,7 +82,9 @@ export default function DashboardOverview({
       <QuickActions 
         setActiveTab={setActiveTab} 
         onOpenCreateAdminModal={onOpenCreateAdminModal} 
+        onOpenSmsModal={onOpenSmsModal}
       />
+
 
       {/* Recent Feed & Activity Highlights Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>

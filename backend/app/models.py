@@ -167,3 +167,33 @@ class UpcomingSabhaScheduleRequest(BaseModel):
     )
     target_attendance: Optional[str] = Field(default="100% Attendance", examples=["100% Attendance"])
     status_badge: Optional[str] = Field(default="● Saturday Scheduled", examples=["● Saturday Scheduled"])
+
+# ==========================================
+# SMS Notification Models
+# ==========================================
+
+class SendSmsRequest(BaseModel):
+    """
+    Schema for sending SMS broadcasts or targeted messages.
+    """
+    message: str = Field(description="SMS message content to broadcast", examples=["Jai Swaminarayan! Reminder for Saturday Sabha at 8:30 PM."])
+    recipient_mode: str = Field(default="all", description="Mode: 'all', 'selected', or 'custom'", examples=["all"])
+    yuvak_ids: Optional[List[str]] = Field(default_factory=list, description="Specific Yuvak IDs to send to when recipient_mode='selected'")
+    custom_numbers: Optional[List[str]] = Field(default_factory=list, description="Manual phone numbers when recipient_mode='custom'")
+    template_type: Optional[str] = Field(default="custom", description="Template category: 'sabha_reminder', 'utsav', 'absence', 'custom'")
+
+class SmsLogEntry(BaseModel):
+    """
+    Schema for SMS broadcast delivery records.
+    """
+    id: str
+    sent_by: str
+    sent_at: str
+    message: str
+    template_type: str
+    recipient_count: int
+    recipients: List[str]
+    provider: str
+    status: str
+    delivery_report: Optional[Dict[str, Any]] = None
+

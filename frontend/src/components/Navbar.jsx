@@ -225,7 +225,7 @@ export default function Navbar({
               {/* Logout Button */}
               <button
                 className="navbar-icon-btn logout-btn"
-                onClick={logout}
+                onClick={() => logout()}
                 title="Logout"
                 aria-label="Logout"
               >

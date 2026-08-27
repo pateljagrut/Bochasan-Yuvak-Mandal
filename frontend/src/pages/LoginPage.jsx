@@ -14,8 +14,14 @@ export default function LoginPage({ onNavigateRegister }) {
   const [notice, setNotice] = useState(() => {
     if (typeof window !== 'undefined' && window.sessionStorage) {
       const msg = sessionStorage.getItem('Bochasan_session_expired_notice');
-      if (msg) {
-        sessionStorage.removeItem('Bochasan_session_expired_notice');
+      sessionStorage.removeItem('Bochasan_session_expired_notice');
+      if (
+        msg &&
+        typeof msg === 'string' &&
+        msg.trim().length > 0 &&
+        msg !== '[object Object]' &&
+        !msg.startsWith('[object')
+      ) {
         return msg;
       }
     }
@@ -80,7 +86,7 @@ export default function LoginPage({ onNavigateRegister }) {
           </p>
         </div>
 
-        {notice && (
+        {notice && typeof notice === 'string' && notice !== '[object Object]' && !notice.startsWith('[object') && (
           <div
             style={{
               background: 'rgba(245, 158, 11, 0.12)',

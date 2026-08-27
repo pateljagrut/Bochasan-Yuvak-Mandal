@@ -51,8 +51,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('Bochasan_user');
     localStorage.removeItem('Bochasan_last_active');
     
-    if (reasonMsg && typeof window !== 'undefined' && window.sessionStorage) {
-      sessionStorage.setItem('Bochasan_session_expired_notice', reasonMsg);
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      if (
+        typeof reasonMsg === 'string' &&
+        reasonMsg.trim().length > 0 &&
+        reasonMsg !== '[object Object]' &&
+        !reasonMsg.startsWith('[object')
+      ) {
+        sessionStorage.setItem('Bochasan_session_expired_notice', reasonMsg);
+      } else {
+        sessionStorage.removeItem('Bochasan_session_expired_notice');
+      }
     }
   };
 

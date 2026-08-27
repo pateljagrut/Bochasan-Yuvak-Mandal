@@ -57,6 +57,9 @@ export default function MobileNav({ activeTab, setActiveTab, onFabClick, onOpenS
                   else if (onOpenSmsModal) onOpenSmsModal();
                 } else {
                   setActiveTab(item.id);
+                  if (item.id === 'dashboard') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
                 }
               }}
             >

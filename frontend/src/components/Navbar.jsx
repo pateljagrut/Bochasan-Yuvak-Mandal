@@ -115,6 +115,14 @@ export default function Navbar({
 
   const currentNavItems = role === 'admin' ? adminNavItems : yuvakNavItems;
 
+  const handleLogoClick = () => {
+    setActiveTab('dashboard');
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <header className="app-header">
       <div className="header-container">
@@ -122,7 +130,17 @@ export default function Navbar({
         {/* Left: Brand Logo */}
         <div 
           className="cursor-pointer shrink-0" 
-          onClick={() => setActiveTab(role === 'admin' ? 'dashboard' : 'attendance')}
+          onClick={handleLogoClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleLogoClick();
+            }
+          }}
+          title="Go to Top of Dashboard"
+          aria-label="Go to Top of Dashboard"
         >
           <Logo size="md" />
         </div>
@@ -136,7 +154,12 @@ export default function Navbar({
               <button
                 key={item.id}
                 className={`nav-tab-btn ${isActive ? 'active' : ''}`}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  if (item.id === 'dashboard') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
               >
                 <Icon size={15} />
                 <span>{item.label}</span>

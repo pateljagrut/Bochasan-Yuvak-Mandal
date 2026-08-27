@@ -36,8 +36,8 @@ DB_NAME = os.getenv("DB_NAME", "Bochasan_yuvak_mandal")
 SECRET_KEY = os.getenv("SECRET_KEY", "Bochasan_yuvak_mandal_super_secret_key_2026_jai_swaminarayan")
 ALGORITHM = "HS256"
 
-# Token lifespan: Tokens expire after 24 hours (1440 minutes)
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+# Token lifespan: Tokens expire after 30 days (43200 minutes) to keep Mandal Karyakars & Yuvaks comfortably signed in
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 24 * 30)))
 
 # ==========================================
 # Default Super Admin (Karyakar) Credentials

@@ -11,10 +11,21 @@ export default function LoginPage({ onNavigateRegister }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(() => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const msg = sessionStorage.getItem('Bochasan_session_expired_notice');
+      if (msg) {
+        sessionStorage.removeItem('Bochasan_session_expired_notice');
+        return msg;
+      }
+    }
+    return null;
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     try {
       await login(identifier, password);
     } catch (err) {
@@ -68,6 +79,24 @@ export default function LoginPage({ onNavigateRegister }) {
             Enter your Yuvak ID, Mobile No, or Admin Username
           </p>
         </div>
+
+        {notice && (
+          <div
+            style={{
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              color: 'var(--accent, #f59e0b)',
+              padding: '0.75rem',
+              borderRadius: '10px',
+              marginBottom: '1.25rem',
+              fontSize: '0.85rem',
+              textAlign: 'center',
+              fontWeight: 500
+            }}
+          >
+            ℹ️ {notice}
+          </div>
+        )}
 
         {error && (
           <div

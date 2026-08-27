@@ -18,7 +18,7 @@ from app.sms_service import (
 )
 from app.websocket_manager import ws_manager
 
-router = APIRouter(prefix="/karyakar/sms", tags=["Karyakar SMS Operations"])
+router = APIRouter(prefix="/api/karyakar/sms", tags=["Karyakar SMS Operations"])
 
 
 @router.get("/templates")

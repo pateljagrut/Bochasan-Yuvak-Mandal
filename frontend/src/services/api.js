@@ -54,6 +54,12 @@ async function request(endpoint, options = {}) {
     const data = await response.json();
     
     if (!response.ok) {
+      if (response.status === 401 && typeof window !== 'undefined') {
+        const errorDetail = typeof data.detail === 'string' ? data.detail : 'Could not validate authentication credentials or token expired';
+        window.dispatchEvent(new CustomEvent('auth:session_expired', {
+          detail: { message: errorDetail }
+        }));
+      }
       throw new Error(data.detail || data.message || 'API request failed');
     }
     

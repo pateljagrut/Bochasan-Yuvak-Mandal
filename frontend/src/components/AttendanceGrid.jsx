@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Calendar, CheckSquare, SquareX, Save, Search, UserCheck, MapPin } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 function getClosestSaturdayIso() {
   const now = new Date();
@@ -13,11 +14,20 @@ function getClosestSaturdayIso() {
 }
 
 export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving = false }) {
+  const { setHasUnsavedChanges } = useAuth();
   const [sabhaDate, setSabhaDate] = useState(getClosestSaturdayIso());
   const [sabhaTitle, setSabhaTitle] = useState('Saturday Yuvak Sabha');
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [presentMap, setPresentMap] = useState({});
+
+  // Sync unsaved changes state with AuthContext & browser beforeunload
+  useEffect(() => {
+    const hasSelections = Object.values(presentMap).some(Boolean);
+    if (setHasUnsavedChanges) {
+      setHasUnsavedChanges(hasSelections);
+    }
+  }, [presentMap, setHasUnsavedChanges]);
 
   const toggleYuvak = (yuvakId) => {
     setPresentMap(prev => ({
@@ -52,6 +62,9 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
   const handleSubmit = async (e) => {
     e.preventDefault();
     const presentYuvakIds = Object.keys(presentMap).filter(id => presentMap[id]);
+    if (setHasUnsavedChanges) {
+      setHasUnsavedChanges(false);
+    }
     triggerConfetti();
     onSaveAttendance({
       sabha_date: sabhaDate,

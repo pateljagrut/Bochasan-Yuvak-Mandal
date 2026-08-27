@@ -329,6 +329,7 @@ export default function KaryakarDashboard({
             yuvaks={activeYuvaks}
             onSaveAttendance={handleSaveAttendance}
             saving={savingAttendance}
+            onOpenSmsModal={onOpenSmsModal}
           />
         );
 
@@ -466,6 +467,7 @@ export default function KaryakarDashboard({
         activeTab={activeTab} 
         setActiveTab={handleTabChange} 
         onFabClick={() => handleTabChange('attendance')} 
+        onOpenSmsModal={onOpenSmsModal}
       />
     </div>
   );

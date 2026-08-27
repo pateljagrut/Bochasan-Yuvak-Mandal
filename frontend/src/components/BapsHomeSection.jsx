@@ -157,7 +157,7 @@ export default function BapsHomeSection({
               </h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
                 {isAdmin 
-                  ? 'Record and track Saturday Sabha presence with fast interactive checkboxes & real-time sync.'
+                  ? 'Record and track Saturday Sabha presence with interactive attendance checklists.'
                   : 'Weekly spiritual sabha assemblies, kirtan aradhana, youth leadership, and attendance records.'}
               </p>
             </div>

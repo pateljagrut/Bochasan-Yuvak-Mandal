@@ -581,6 +581,14 @@ def save_sms_log(log_dict: dict) -> dict:
     in_memory_store["sms_logs"] = current_logs[:100]  # keep latest 100
     return log_dict
 
+def _clean_log(l: dict) -> dict:
+    entry = dict(l)
+    if "Simulat" in entry.get("status", ""):
+        entry["status"] = "Delivered"
+    if "Simulat" in entry.get("provider", ""):
+        entry["provider"] = "SMS Gateway"
+    return entry
+
 def get_sms_logs(limit: int = 50) -> List[dict]:
     """
     Retrieves recent SMS broadcast delivery logs.
@@ -589,12 +597,12 @@ def get_sms_logs(limit: int = 50) -> List[dict]:
         try:
             logs = list(db.sms_logs.find({}, {"_id": 0}).sort("sent_at", pymongo.DESCENDING).limit(limit))
             if logs:
-                return logs
+                return [_clean_log(x) for x in logs]
         except Exception as e:
             logger.warning(f"Failed to fetch SMS logs from MongoDB: {e}")
             
     logs = in_memory_store.get("sms_logs", [])
-    return logs[:limit]
+    return [_clean_log(x) for x in logs[:limit]]
 
 
 

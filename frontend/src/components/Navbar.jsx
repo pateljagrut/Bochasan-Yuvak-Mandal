@@ -159,10 +159,10 @@ export default function Navbar({
             <span className="search-kbd">⌘K</span>
           </button>
 
-          {/* Admin-Only SMS Broadcast Trigger Button */}
+          {/* Admin-Only SMS Broadcast Trigger Button (Desktop Only) */}
           {role === 'admin' && (
             <button
-              className="sms-header-trigger-btn hidden md:inline-flex"
+              className="sms-header-trigger-btn hidden lg:inline-flex"
               onClick={onOpenSmsModal}
               title="SMS Broadcast Center (Admin Only)"
             >

@@ -8,7 +8,12 @@ import AttendanceGrid from './AttendanceGrid';
  * Manages Sabha attendance view, rendering the primary AttendanceGrid component
  * for checking off Yuvak members present during Saturday Sabha sessions.
  */
-export default function AttendanceManager({ yuvaks = [], onSaveAttendance, saving = false }) {
+export default function AttendanceManager({ 
+  yuvaks = [], 
+  onSaveAttendance, 
+  saving = false,
+  onOpenSmsModal
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -20,6 +25,7 @@ export default function AttendanceManager({ yuvaks = [], onSaveAttendance, savin
         yuvaks={yuvaks}
         onSaveAttendance={onSaveAttendance}
         saving={saving}
+        onOpenSmsModal={onOpenSmsModal}
       />
     </motion.div>
   );

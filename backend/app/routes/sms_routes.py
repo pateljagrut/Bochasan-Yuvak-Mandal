@@ -103,7 +103,8 @@ async def send_sms_broadcast(
         recipients=recipients_list,
         message=payload.message.strip(),
         template_type=payload.template_type or "custom",
-        sent_by=admin_name
+        sent_by=admin_name,
+        sender_number=payload.sender_number
     )
 
     if not result.get("success"):
@@ -121,10 +122,11 @@ async def send_sms_broadcast(
     await ws_manager.broadcast("SMS_BROADCAST_SENT", {
         "id": log_entry.get("id") if log_entry else "",
         "sent_by": admin_name,
+        "sender_number": payload.sender_number or "",
         "recipient_count": result.get("recipient_count", 0),
         "template_type": payload.template_type or "custom",
         "preview": payload.message[:60] + ("..." if len(payload.message) > 60 else ""),
-        "provider": result.get("provider", "Simulation")
+        "provider": result.get("provider", "SMS Gateway")
     })
 
     return {

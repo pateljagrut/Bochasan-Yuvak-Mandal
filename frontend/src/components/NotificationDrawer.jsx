@@ -400,7 +400,7 @@ export default function NotificationDrawer({
         <div className="notif-drawer-footer">
           <div className="notif-live-status">
             <span className="live-status-dot" />
-            <span>Live Real-Time Sync Active</span>
+            <span>Live Updates</span>
           </div>
           <span className="notif-mandal-tag">Bochasan Yuvak Mandal</span>
         </div>

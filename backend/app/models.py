@@ -177,6 +177,7 @@ class SendSmsRequest(BaseModel):
     Schema for sending SMS broadcasts or targeted messages.
     """
     message: str = Field(description="SMS message content to broadcast", examples=["Jai Swaminarayan! Reminder for Saturday Sabha at 8:30 PM."])
+    sender_number: Optional[str] = Field(default=None, description="Sender / Originator mobile number", examples=["9898989898"])
     recipient_mode: str = Field(default="all", description="Mode: 'all', 'selected', or 'custom'", examples=["all"])
     yuvak_ids: Optional[List[str]] = Field(default_factory=list, description="Specific Yuvak IDs to send to when recipient_mode='selected'")
     custom_numbers: Optional[List[str]] = Field(default_factory=list, description="Manual phone numbers when recipient_mode='custom'")
@@ -188,6 +189,7 @@ class SmsLogEntry(BaseModel):
     """
     id: str
     sent_by: str
+    sender_number: Optional[str] = None
     sent_at: str
     message: str
     template_type: str
@@ -196,4 +198,5 @@ class SmsLogEntry(BaseModel):
     provider: str
     status: str
     delivery_report: Optional[Dict[str, Any]] = None
+
 

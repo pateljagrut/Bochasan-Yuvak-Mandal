@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Calendar, CheckSquare, SquareX, Save, Search, UserCheck, MapPin } from 'lucide-react';
+import { Calendar, CheckSquare, SquareX, Save, Search, UserCheck, MapPin, MessageSquare, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 function getClosestSaturdayIso() {
@@ -13,7 +13,12 @@ function getClosestSaturdayIso() {
   return sat.toISOString().split('T')[0];
 }
 
-export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving = false }) {
+export default function AttendanceGrid({ 
+  yuvaks = [], 
+  onSaveAttendance, 
+  saving = false,
+  onOpenSmsModal
+}) {
   const { setHasUnsavedChanges } = useAuth();
   const [sabhaDate, setSabhaDate] = useState(getClosestSaturdayIso());
   const [sabhaTitle, setSabhaTitle] = useState('Saturday Yuvak Sabha');
@@ -99,7 +104,7 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
       style={{ border: '1px solid rgba(255, 122, 24, 0.3)', boxShadow: '0 16px 40px -4px rgba(0,0,0,0.5)' }}
     >
       {/* Top Controls Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ flex: '1 1 260px' }}>
           <div style={{ marginBottom: '0.35rem' }}>
             <h3 style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
@@ -112,6 +117,17 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: 'auto' }}>
+          {onOpenSmsModal && (
+            <button 
+              type="button" 
+              className="btn btn-primary" 
+              style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', flex: '1 1 auto' }} 
+              onClick={onOpenSmsModal}
+              title="SMS Broadcast Center"
+            >
+              <MessageSquare size={15} /> SMS Broadcast
+            </button>
+          )}
           <button type="button" className="btn btn-secondary" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', flex: '1 1 auto' }} onClick={handleSelectAll}>
             <CheckSquare size={16} color="#ff7a18" /> Select All
           </button>
@@ -120,6 +136,70 @@ export default function AttendanceGrid({ yuvaks = [], onSaveAttendance, saving =
           </button>
         </div>
       </div>
+
+      {/* SMS Broadcast Quick Action Card Under Attendance Management */}
+      {onOpenSmsModal && (
+        <div 
+          style={{
+            background: 'linear-gradient(135deg, rgba(255, 122, 24, 0.12) 0%, rgba(245, 158, 11, 0.05) 100%)',
+            border: '1px solid rgba(255, 122, 24, 0.3)',
+            borderRadius: '16px',
+            padding: '1rem 1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', minWidth: '240px', flex: '1 1 300px' }}>
+            <div style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, rgba(255, 122, 24, 0.25) 0%, rgba(245, 158, 11, 0.25) 100%)',
+              border: '1px solid rgba(255, 122, 24, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <MessageSquare size={22} color="#ff7a18" />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: 'var(--text-orange)' }}>
+                  SMS Broadcast Center
+                </h4>
+                <span className="badge badge-admin text-xs">Admin Action</span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '0.2rem 0 0 0', lineHeight: 1.35 }}>
+                Send instant Sabha reminders, Utsav invites & attendance follow-ups to all {yuvaks.length} registered Yuvaks via SMS.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenSmsModal}
+            className="btn btn-primary"
+            style={{
+              padding: '0.55rem 1.15rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              flexShrink: 0,
+              boxShadow: '0 4px 14px rgba(255, 122, 24, 0.35)'
+            }}
+          >
+            <Send size={15} />
+            <span>Launch SMS Broadcast</span>
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         {/* Sabha Meta Inputs & Search Filters */}

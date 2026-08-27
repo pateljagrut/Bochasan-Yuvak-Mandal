@@ -159,6 +159,18 @@ export default function Navbar({
             <span className="search-kbd">⌘K</span>
           </button>
 
+          {/* Admin-Only SMS Broadcast Trigger Button (Desktop Only) */}
+          {role === 'admin' && (
+            <button
+              className="sms-header-trigger-btn hidden lg:inline-flex"
+              onClick={onOpenSmsModal}
+              title="SMS Broadcast Center (Admin Only)"
+            >
+              <MessageSquare size={14} color="#ff7a18" />
+              <span>SMS Broadcast</span>
+            </button>
+          )}
+
           {/* Top-Bar Notification Bell & Interactive Drawer */}
           <div className="relative">
             <button 

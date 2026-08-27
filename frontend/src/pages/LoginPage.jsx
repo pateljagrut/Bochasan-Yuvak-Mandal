@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { ThemeToggle } from '../context/ThemeContext';
 import Logo from '../components/Logo';
-import { Eye, EyeOff, LogIn, Clock, X, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 export default function LoginPage({ onNavigateRegister }) {
   const { login, loading } = useAuth();
@@ -21,16 +21,6 @@ export default function LoginPage({ onNavigateRegister }) {
     }
     return null;
   });
-
-  // Auto-dismiss the toast message after 6 seconds
-  useEffect(() => {
-    if (notice) {
-      const timer = setTimeout(() => {
-        setNotice(null);
-      }, 6000);
-      return () => clearTimeout(timer);
-    }
-  }, [notice]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,86 +46,6 @@ export default function LoginPage({ onNavigateRegister }) {
     >
       {/* Floating Theme Switcher */}
       <ThemeToggle variant="floating" />
-
-      {/* Floating Inactivity / Session Expired Toast Notification */}
-      <AnimatePresence>
-        {notice && (
-          <motion.div
-            initial={{ opacity: 0, y: -25, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            style={{
-              position: 'fixed',
-              top: '1.5rem',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 9999,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.75rem 1.1rem',
-              borderRadius: '14px',
-              background: 'rgba(23, 23, 23, 0.92)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(245, 158, 11, 0.45)',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35), 0 0 20px rgba(245, 158, 11, 0.25)',
-              color: '#fef3c7',
-              maxWidth: '92vw',
-              width: 'max-content'
-            }}
-          >
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'rgba(245, 158, 11, 0.2)',
-                border: '1px solid rgba(245, 158, 11, 0.4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                color: '#f59e0b'
-              }}
-            >
-              <Clock size={17} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-              <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#fbbf24', lineHeight: 1.25 }}>
-                Session Inactivity
-              </span>
-              <span style={{ fontSize: '0.78rem', color: 'rgba(254, 243, 199, 0.9)', lineHeight: 1.3 }}>
-                {notice}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setNotice(null)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'rgba(254, 243, 199, 0.6)',
-                cursor: 'pointer',
-                padding: '0.25rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginLeft: '0.5rem',
-                borderRadius: '6px',
-                transition: 'color 0.2s ease'
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(254, 243, 199, 0.6)')}
-              aria-label="Close notification"
-            >
-              <X size={15} />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -169,6 +79,24 @@ export default function LoginPage({ onNavigateRegister }) {
             Enter your Yuvak ID, Mobile No, or Admin Username
           </p>
         </div>
+
+        {notice && (
+          <div
+            style={{
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              color: 'var(--accent, #f59e0b)',
+              padding: '0.75rem',
+              borderRadius: '10px',
+              marginBottom: '1.25rem',
+              fontSize: '0.85rem',
+              textAlign: 'center',
+              fontWeight: 500
+            }}
+          >
+            ℹ️ {notice}
+          </div>
+        )}
 
         {error && (
           <div
@@ -229,8 +157,13 @@ export default function LoginPage({ onNavigateRegister }) {
                   background: 'none',
                   border: 'none',
                   color: 'var(--text-muted)',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.25rem'
                 }}
+                title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -240,51 +173,38 @@ export default function LoginPage({ onNavigateRegister }) {
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={loading}
             style={{
               width: '100%',
-              padding: '0.8rem',
+              padding: '0.85rem',
+              minHeight: '46px',
+              fontSize: '0.95rem',
+              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem',
-              fontSize: '0.95rem',
-              fontWeight: 700
+              gap: '0.5rem'
             }}
+            disabled={loading}
           >
-            {loading ? (
-              <span>Signing in...</span>
-            ) : (
-              <>
-                <LogIn size={18} />
-                <span>Sign In</span>
-              </>
-            )}
+            <LogIn size={18} />
+            {loading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
 
-        <div
-          style={{
-            marginTop: '1.5rem',
-            textAlign: 'center',
-            fontSize: '0.85rem',
-            color: 'var(--text-secondary)'
-          }}
-        >
-          New to Bochasan Yuvak Mandal?{' '}
+        <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          New Yuvak member?{' '}
           <button
-            type="button"
             onClick={onNavigateRegister}
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--primary)',
+              color: 'var(--text-orange)',
               fontWeight: 700,
               cursor: 'pointer',
               textDecoration: 'underline'
             }}
           >
-            Register Profile
+            Register Profile Here
           </button>
         </div>
       </motion.div>

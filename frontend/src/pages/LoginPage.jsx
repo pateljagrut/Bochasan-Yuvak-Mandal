@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { ThemeToggle } from '../context/ThemeContext';
 import Logo from '../components/Logo';
-import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { Eye, EyeOff, LogIn, CheckCircle2, Info, X } from 'lucide-react';
 
 export default function LoginPage({ onNavigateRegister }) {
   const { login, loading } = useAuth();
@@ -27,6 +27,21 @@ export default function LoginPage({ onNavigateRegister }) {
     }
     return null;
   });
+
+  // Auto-dismiss toast notice after 4.5 seconds
+  useEffect(() => {
+    if (notice) {
+      const timer = setTimeout(() => {
+        setNotice(null);
+      }, 4500);
+      return () => clearTimeout(timer);
+    }
+  }, [notice]);
+
+  const isSuccessNotice = typeof notice === 'string' && (
+    notice.toLowerCase().includes('logout') || 
+    notice.toLowerCase().includes('success')
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +67,75 @@ export default function LoginPage({ onNavigateRegister }) {
     >
       {/* Floating Theme Switcher */}
       <ThemeToggle variant="floating" />
+
+      {/* Floating Modern Toast Notification */}
+      <AnimatePresence>
+        {notice && typeof notice === 'string' && (
+          <motion.div
+            initial={{ opacity: 0, y: -25, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            style={{
+              position: 'fixed',
+              top: '1.5rem',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              padding: '0.75rem 1.25rem',
+              borderRadius: '9999px',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              boxShadow: isSuccessNotice 
+                ? '0 12px 28px -4px rgba(16, 185, 129, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25)'
+                : '0 12px 28px -4px rgba(245, 158, 11, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25)',
+              background: isSuccessNotice
+                ? 'rgba(6, 78, 59, 0.92)'
+                : 'rgba(120, 53, 15, 0.92)',
+              border: isSuccessNotice
+                ? '1px solid rgba(52, 211, 153, 0.5)'
+                : '1px solid rgba(251, 191, 36, 0.5)',
+              color: '#ffffff',
+              fontSize: '0.9rem',
+              fontWeight: 600,
+              maxWidth: '92vw',
+              letterSpacing: '0.01em'
+            }}
+          >
+            {isSuccessNotice ? (
+              <CheckCircle2 size={18} color="#34d399" />
+            ) : (
+              <Info size={18} color="#fbbf24" />
+            )}
+            <span>{notice}</span>
+            <button
+              type="button"
+              onClick={() => setNotice(null)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(255, 255, 255, 0.75)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2px',
+                marginLeft: '6px',
+                borderRadius: '50%',
+                transition: 'color 0.15s'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.75)')}
+              aria-label="Dismiss toast"
+            >
+              <X size={15} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -85,24 +169,6 @@ export default function LoginPage({ onNavigateRegister }) {
             Enter your Yuvak ID, Mobile No, or Admin Username
           </p>
         </div>
-
-        {notice && typeof notice === 'string' && notice !== '[object Object]' && !notice.startsWith('[object') && (
-          <div
-            style={{
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.4)',
-              color: 'var(--accent, #f59e0b)',
-              padding: '0.75rem',
-              borderRadius: '10px',
-              marginBottom: '1.25rem',
-              fontSize: '0.85rem',
-              textAlign: 'center',
-              fontWeight: 500
-            }}
-          >
-            ℹ️ {notice}
-          </div>
-        )}
 
         {error && (
           <div

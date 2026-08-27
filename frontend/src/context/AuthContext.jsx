@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const logout = (reasonMsg = null) => {
+  const logout = (reasonMsg = 'Logout successful') => {
     setToken(null);
     setRole(null);
     setUser(null);
@@ -51,17 +51,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('Bochasan_user');
     localStorage.removeItem('Bochasan_last_active');
     
+    const finalReason = (
+      typeof reasonMsg === 'string' &&
+      reasonMsg.trim().length > 0 &&
+      reasonMsg !== '[object Object]' &&
+      !reasonMsg.startsWith('[object')
+    ) ? reasonMsg : 'Logout successful';
+
     if (typeof window !== 'undefined' && window.sessionStorage) {
-      if (
-        typeof reasonMsg === 'string' &&
-        reasonMsg.trim().length > 0 &&
-        reasonMsg !== '[object Object]' &&
-        !reasonMsg.startsWith('[object')
-      ) {
-        sessionStorage.setItem('Bochasan_session_expired_notice', reasonMsg);
-      } else {
-        sessionStorage.removeItem('Bochasan_session_expired_notice');
-      }
+      sessionStorage.setItem('Bochasan_session_expired_notice', finalReason);
     }
   };
 
